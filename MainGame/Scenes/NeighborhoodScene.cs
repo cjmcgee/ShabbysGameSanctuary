@@ -1,0 +1,517 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using TileEngine.Collision;
+using TileEngine.Components;
+using TileEngine.Core;
+using TileEngine.ECS;
+using TileEngine.Gameplay;
+using TileEngine.Rendering;
+
+namespace ChildhoodAdventure.Scenes
+{
+    /// <summary>
+    /// The outdoor neighbourhood: one tree-lined street with nine homes.
+    /// The player can walk between houses, chat with neighbours outside,
+    /// and step on any front door to enter that home.
+    ///
+    /// Street layout (tiles, 16 px each):
+    ///   y  0- 3  : north grass
+    ///   y  4-18  : house facades (roof overhead y=4-6, walls y=7-17, door y=18)
+    ///   y 19     : north sidewalk
+    ///   y 20-21  : road
+    ///   y 22     : south sidewalk
+    ///   y 23-37  : south grass / open space
+    ///
+    /// Houses left-to-right (all 7 tiles wide):
+    ///   Chen | Devon | Jake&Emma | Thompson | Player | Sam | Santos | Petrov | Johnson
+    /// </summary>
+    public class NeighborhoodScene : Scene
+    {
+        // ── Tile GIDs ────────────────────────────────────────────────────────
+        private const int T_GRASS    =  1;
+        private const int T_ROAD     =  2;
+        private const int T_SIDEWALK =  3;
+        private const int T_BEIGE    =  4;  // Player's home
+        private const int T_YELLOW   =  5;  // Sam
+        private const int T_PINK     =  6;  // Santos
+        private const int T_TEAL     =  7;  // Chen
+        private const int T_GRAY     =  8;  // Thompson
+        private const int T_BLUE     =  9;  // Petrov
+        private const int T_GREEN    = 10;  // Jake & Emma
+        private const int T_PURPLE   = 11;  // Devon
+        private const int T_DOOR     = 12;
+        private const int T_WINDOW   = 13;
+        private const int T_BUSH     = 14;
+        private const int T_ORANGE   = 15;  // Johnson
+
+        // Map size
+        private const int MapW = 82, MapH = 38;
+
+        // House data: (houseId, startX, wallGid, doorTileX) — all at y=4, height=15, width=7
+        private record HouseData(HouseId Id, int X, int WallGid, int DoorX);
+
+        private static readonly HouseData[] _neighborHouses =
+        {
+            new(HouseId.Chen,        1,  T_TEAL,   4),
+            new(HouseId.Devon,      10,  T_PURPLE, 13),
+            new(HouseId.JakeAndEmma,19,  T_GREEN,  22),
+            new(HouseId.Thompson,   28,  T_GRAY,   31),
+            // x=37-43 is the player's home (beige) — handled separately, door at x=40
+            new(HouseId.Sam,        46,  T_YELLOW, 49),
+            new(HouseId.Santos,     55,  T_PINK,   58),
+            new(HouseId.Petrov,     64,  T_BLUE,   67),
+            new(HouseId.Johnson,    73,  T_ORANGE, 76),
+        };
+
+        private const int HouseStartY = 4, HouseH = 15, HouseDoorY = 18;
+
+        private Entity? _player;
+        private readonly List<(Entity Npc, Action TalkFn)> _npcTalks = new();
+        private Tilemap? _tilemap;
+        private KeyboardState _prevKeys;
+        private bool _transitioning;
+
+        // ── Scene load ───────────────────────────────────────────────────────
+
+        protected override void OnLoad()
+        {
+            Name = "Neighbourhood";
+            var gd = Engine.GraphicsDevice;
+
+            // Atari 2600 NTSC palette — pure saturated primaries / secondaries.
+            var tileset = Tileset.CreateProgrammatic(gd, "hood", 16, 16, new Color[]
+            {
+                new Color(  0, 196,   0),   //  1 pure green grass
+                new Color( 20,  20,  30),   //  2 near-black road
+                new Color(128, 128, 128),   //  3 gray sidewalk
+                new Color(220, 220, 220),   //  4 white        (player home)
+                new Color(220, 220,   0),   //  5 pure yellow  (Sam)
+                new Color(220,   0, 140),   //  6 magenta      (Santos)
+                new Color(  0, 220, 220),   //  7 pure cyan    (Chen)
+                new Color(160, 160, 160),   //  8 light gray   (Thompson)
+                new Color(  0,  80, 220),   //  9 pure blue    (Petrov)
+                new Color( 80, 220,   0),   // 10 lime green   (Jake&Emma)
+                new Color(140,   0, 220),   // 11 pure violet  (Devon)
+                new Color( 30,  12,   0),   // 12 near-black door
+                new Color(220, 220, 220),   // 13 (unused — kept for GID alignment)
+                new Color(  0,  80,   0),   // 14 (unused)
+                new Color(220, 100,   0),   // 15 pure orange  (Johnson)
+            }, firstGid: 1);
+
+            _tilemap = new Tilemap("hood", MapW, MapH, 16, 16)
+            {
+                BackgroundColor = Color.Black
+            };
+            _tilemap.AddTileset(tileset);
+            BuildNeighborhoodMap(_tilemap);
+
+            Engine.CollisionSystem.SetTilemap(_tilemap);
+            Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
+            Engine.RenderSystem.Camera.Bounds = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.RenderSystem.LightingSystem.Enabled = false;
+
+            // Player
+            _player = SpawnPlayer(gd, GameState.NeighborhoodReturnPosition);
+
+            // Outdoor NPCs
+            SpawnOutdoorNpcs(gd);
+        }
+
+        // ── Map builder ──────────────────────────────────────────────────────
+
+        private static void BuildNeighborhoodMap(Tilemap map)
+        {
+            var bg  = map.AddLayer("bg",  LayerType.Background);
+            var mid = map.AddLayer("mid", LayerType.Midground);
+            var col = map.AddLayer("col", LayerType.Collision);
+
+            // Pure green grass everywhere — Adventure-style solid background
+            FillRect(bg, 0, 0, MapW, MapH, T_GRASS);
+
+            // Road strip (near-black) + sidewalk borders
+            FillRect(bg, 0, 19, MapW, 1, T_SIDEWALK);
+            FillRect(bg, 0, 20, MapW, 2, T_ROAD);
+            FillRect(bg, 0, 22, MapW, 1, T_SIDEWALK);
+
+            // Player's own house — solid white block, door at x=40
+            PlaceHouse(mid, col, 37, HouseStartY, 7, HouseH, T_BEIGE, 40);
+
+            // Neighbour houses — each a pure bold-colour rectangle
+            foreach (var h in _neighborHouses)
+                PlaceHouse(mid, col, h.X, HouseStartY, 7, HouseH, h.WallGid, h.DoorX);
+        }
+
+        // Adventure-style house: solid colour rectangle with one walkable door gap.
+        // No overhead tricks, no windows — just a flat coloured wall like the Atari castles.
+        private static void PlaceHouse(TileLayer mid, TileLayer col,
+            int hx, int hy, int w, int h, int wallGid, int doorX)
+        {
+            for (int y = hy; y < hy + h; y++)
+                for (int x = hx; x < hx + w; x++)
+                {
+                    mid.SetTile(x, y, wallGid);
+                    col.SetTile(x, y, 1);
+                }
+
+            // Door: single walkable tile at bottom centre
+            int doorY = hy + h - 1;
+            mid.SetTile(doorX, doorY, T_DOOR);
+            col.SetTile(doorX, doorY, 0);
+        }
+
+        private static void FillRect(TileLayer layer, int x, int y, int w, int h, int gid)
+        {
+            for (int dy = 0; dy < h; dy++)
+                for (int dx = 0; dx < w; dx++)
+                    layer.SetTile(x + dx, y + dy, gid);
+        }
+
+        // ── Entity spawners ──────────────────────────────────────────────────
+
+        private Entity SpawnPlayer(GraphicsDevice gd, Vector2 pos)
+        {
+            var e = Engine.EntityWorld.CreateEntity("Player");
+            Engine.EntityWorld.RegisterTag("player", e);
+            e.AddComponent(new TransformComponent(pos) { MaxSpeed = 95f });
+            e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
+            e.AddComponent(new SpriteComponent
+            {
+                Sprite = SpriteFactory.BuildCharacter(gd, new Color(220, 220,   0))  // Atari yellow player
+            });
+            Engine.RenderSystem.Camera.FollowTarget = pos;
+            Engine.RenderSystem.Camera.FollowSpeed  = 7f;
+            return e;
+        }
+
+        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, Color color, Action talkFn)
+        {
+            var e = Engine.EntityWorld.CreateEntity(name);
+            e.AddComponent(new TransformComponent(pos));
+            e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
+            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, color) });
+            _npcTalks.Add((e, talkFn));
+            return e;
+        }
+
+        private void SpawnOutdoorNpcs(GraphicsDevice gd)
+        {
+            // Saturated Atari NTSC colours — every NPC a distinct primary/secondary
+            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8),
+                new Color(  0, 220,   0), TalkToSam);    // pure green
+
+            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8),
+                new Color(220,  40,   0), TalkToLucia);  // pure red
+
+            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8),
+                new Color(  0, 200, 220), TalkToNadia);  // pure cyan
+        }
+
+        // ── Dialogue ─────────────────────────────────────────────────────────
+
+        private void TalkToSam()
+        {
+            if (!GameState.HasFlag("talked_sam"))
+            {
+                GameState.SetFlag("talked_sam");
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Sam", "HEY! I've been waiting FOREVER. Where have you been?"),
+                    new("Sam", "Have you met the new family yet? The Petrovs? They just moved in at the far end. They have a kid our age!",
+                        choices: new[]
+                        {
+                            new DialogueChoice("Let's go say hi!", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Sam", "YES! Okay I'm a LITTLE nervous but also very excited."),
+                                    new("Sam", "I heard her name is Nadia. She's been sitting outside by herself all morning."),
+                                })),
+                            new DialogueChoice("I'll check out the neighbourhood first.", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Sam", "Okay okay. Just... don't forget about Nadia, okay? She looked lonely."),
+                                })),
+                        }),
+                });
+            }
+            else
+            {
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Sam", "Go talk to Nadia! I'll be right here if you need me."),
+                });
+            }
+        }
+
+        private void TalkToLucia()
+        {
+            if (!GameState.HasFlag("talked_lucia"))
+            {
+                GameState.SetFlag("talked_lucia");
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Lucia", "¡Hola! I mean, hi! Are you from this street too?"),
+                    new("Lucia", "I'm Lucia. We just moved here. It's okay so far — the park is really nice!",
+                        choices: new[]
+                        {
+                            new DialogueChoice("Nice to meet you! I live nearby.", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Lucia", "Oh cool!! You should come meet my mom — she's making tamales today!"),
+                                    new("Lucia", "Just knock on our door whenever. She loves visitors."),
+                                })),
+                            new DialogueChoice("Did you just move here?", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Lucia", "Yeah. Mamá got a new job nearby, so we moved. I miss my old school..."),
+                                    new("Lucia", "But! New adventures, right? That's what Mamá says."),
+                                })),
+                        }),
+                });
+            }
+            else
+            {
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Lucia", "Don't forget — tamales! Our door is always open!"),
+                });
+            }
+        }
+
+        private void TalkToNadia()
+        {
+            if (!GameState.HasFlag("talked_nadia"))
+            {
+                GameState.SetFlag("talked_nadia");
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Nadia", "...Hello. I am Nadia."),
+                    new("Nadia", "We come from very far away. Papa says this is a good place.",
+                        choices: new[]
+                        {
+                            new DialogueChoice("Do you like it here so far?", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Nadia", "It is... different. Very quiet street. My old city was always full of sounds."),
+                                    new("Nadia", "But people seem kind here. You seem kind."),
+                                })),
+                            new DialogueChoice("Where did you come from?", onSelected: () =>
+                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                                {
+                                    new("Nadia", "Very far east. We travel for many days. Mama says we have adventure now."),
+                                    new("Nadia", "I like adventure books. Do you?"),
+                                })),
+                        }),
+                });
+            }
+            else
+            {
+                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
+                {
+                    new("Nadia", "I am glad you talked to me. I was not sure anyone would."),
+                });
+            }
+        }
+
+        // ── Update ────────────────────────────────────────────────────────────
+
+        public override void Update(GameTime gameTime)
+        {
+            var keys = Keyboard.GetState();
+
+            bool wasDialogueActive = Engine.DialogueSystem.IsActive;
+
+            HandleDialogueInput(keys);
+
+            if (!Engine.DialogueSystem.IsActive && !_transitioning)
+            {
+                HandlePlayerMovement(keys, gameTime);
+                if (!wasDialogueActive)
+                    HandleInteraction(keys);
+                CheckDoorTriggers();
+            }
+
+            _prevKeys = keys;
+        }
+
+        private void HandleDialogueInput(KeyboardState keys)
+        {
+            if (!Engine.DialogueSystem.IsActive) return;
+
+            if (Engine.DialogueSystem.WaitingForChoice)
+            {
+                if (keys.IsKeyDown(Keys.Up)   && !_prevKeys.IsKeyDown(Keys.Up))
+                    Engine.DialogueSystem.MoveChoiceSelection(-1);
+                if (keys.IsKeyDown(Keys.Down) && !_prevKeys.IsKeyDown(Keys.Down))
+                    Engine.DialogueSystem.MoveChoiceSelection(1);
+                if (keys.IsKeyDown(Keys.E) && !_prevKeys.IsKeyDown(Keys.E))
+                    Engine.DialogueSystem.SelectChoice(Engine.DialogueSystem.SelectedChoiceIndex);
+            }
+            else if (keys.IsKeyDown(Keys.E) && !_prevKeys.IsKeyDown(Keys.E))
+            {
+                Engine.DialogueSystem.Advance();
+            }
+        }
+
+        private void HandlePlayerMovement(KeyboardState keys, GameTime gameTime)
+        {
+            if (_player == null) return;
+            var t  = _player.GetComponent<TransformComponent>();
+            var sc = _player.GetComponent<SpriteComponent>();
+            if (t == null) return;
+
+            var move = Vector2.Zero;
+            if (keys.IsKeyDown(Keys.W) || keys.IsKeyDown(Keys.Up))    move.Y -= 1;
+            if (keys.IsKeyDown(Keys.S) || keys.IsKeyDown(Keys.Down))  move.Y += 1;
+            if (keys.IsKeyDown(Keys.A) || keys.IsKeyDown(Keys.Left))  move.X -= 1;
+            if (keys.IsKeyDown(Keys.D) || keys.IsKeyDown(Keys.Right)) move.X += 1;
+
+            if (move != Vector2.Zero)
+            {
+                t.Velocity = Vector2.Normalize(move) * t.MaxSpeed;
+                sc?.Play("walk");
+            }
+            else
+            {
+                t.Velocity = Vector2.Zero;
+                sc?.Play("idle");
+            }
+
+            Engine.CollisionSystem.MoveAndSlide(_player, (float)gameTime.ElapsedGameTime.TotalSeconds);
+            t.Velocity = Vector2.Zero;
+            Engine.RenderSystem.Camera.FollowTarget = t.Position;
+        }
+
+        private void HandleInteraction(KeyboardState keys)
+        {
+            if (!keys.IsKeyDown(Keys.E) || _prevKeys.IsKeyDown(Keys.E)) return;
+            if (_player == null) return;
+
+            var pt = _player.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
+
+            foreach (var (npc, talkFn) in _npcTalks)
+            {
+                var nt = npc.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
+                if (Vector2.Distance(pt, nt) < 32f)
+                {
+                    talkFn();
+                    return;
+                }
+            }
+        }
+
+        private void CheckDoorTriggers()
+        {
+            if (_player == null) return;
+            var pos = _player.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
+
+            float pTileX = pos.X / 16f;
+            float pTileY = pos.Y / 16f;
+
+            // Must be at approximately door row to trigger entry
+            if (pTileY < HouseDoorY - 0.5f || pTileY > HouseDoorY + 0.5f) return;
+
+            // Player's own home
+            if (MathF.Abs(pTileX - 40f) < 0.6f)
+            {
+                _transitioning = true;
+                GameState.PlayerSpawnPosition = new Vector2(12 * 16 + 8, 15 * 16 + 8);
+                Engine.LoadScene(new HomeInteriorScene());
+                return;
+            }
+
+            // Neighbour houses
+            foreach (var h in _neighborHouses)
+            {
+                if (MathF.Abs(pTileX - h.DoorX) < 0.6f)
+                {
+                    _transitioning = true;
+                    GameState.TargetInterior = h.Id;
+                    GameState.PlayerSpawnPosition = new Vector2(11 * 16 + 8, 13 * 16 + 8);
+                    GameState.NeighborhoodReturnPosition = new Vector2(h.DoorX * 16 + 8, 19 * 16 + 8);
+                    Engine.LoadScene(new NeighborInteriorScene());
+                    return;
+                }
+            }
+        }
+
+        // ── Draw ──────────────────────────────────────────────────────────────
+
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            Engine.RenderSystem.DrawScene(Engine.EntityWorld, gameTime, Color.Black);
+            DrawUI(spriteBatch);
+        }
+
+        private Texture2D? _pixel;
+
+        private void DrawUI(SpriteBatch spriteBatch)
+        {
+            Engine.RenderSystem.BeginUI();
+            var sb = Engine.RenderSystem.SpriteBatch;
+
+            if (Engine.DialogueSystem.IsActive)
+                DrawDialogueBox(sb);
+
+            Engine.RenderSystem.EndUI();
+        }
+
+        private void DrawDialogueBox(SpriteBatch sb)
+        {
+            if (_pixel == null)
+            {
+                _pixel = new Texture2D(Engine.GraphicsDevice, 1, 1);
+                _pixel.SetData(new[] { Color.White });
+            }
+
+            var vp    = Engine.GraphicsDevice.Viewport;
+            var font  = Engine.RenderSystem.Font;
+            const float scale = 2f;
+            float lineH = PixelFont.CharH * scale;
+            int boxH = 110, boxY = vp.Height - boxH - 8;
+            int textX = 20, textMaxW = vp.Width - 40;
+
+            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, boxH), new Color(0, 0, 0, 215));
+            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, 2), new Color(120, 200, 120));
+            sb.Draw(_pixel, new Rectangle(8, boxY + boxH - 2, vp.Width - 16, 2), new Color(120, 200, 120));
+            sb.Draw(_pixel, new Rectangle(8, boxY, 2, boxH), new Color(120, 200, 120));
+            sb.Draw(_pixel, new Rectangle(vp.Width - 10, boxY, 2, boxH), new Color(120, 200, 120));
+
+            var line = Engine.DialogueSystem.CurrentLine;
+            if (line == null) return;
+
+            float cy = boxY + 8;
+            if (!string.IsNullOrEmpty(line.Speaker))
+            {
+                font.DrawText(sb, line.Speaker, new Vector2(textX, cy), Color.LightGreen, scale);
+                cy += lineH + 2;
+            }
+
+            float bodyH = font.DrawWrappedText(sb, Engine.DialogueSystem.DisplayedText,
+                new Vector2(textX, cy), Color.White, textMaxW, scale);
+            float afterBody = cy + bodyH + 4;
+
+            if (Engine.DialogueSystem.WaitingForChoice && line.Choices != null)
+            {
+                for (int i = 0; i < line.Choices.Length; i++)
+                {
+                    bool sel = i == Engine.DialogueSystem.SelectedChoiceIndex;
+                    font.DrawText(sb, (sel ? "> " : "  ") + line.Choices[i].Text,
+                        new Vector2(textX, afterBody + i * lineH),
+                        sel ? Color.Yellow : Color.LightGray, scale);
+                }
+            }
+            else if (Engine.DialogueSystem.IsTextComplete)
+            {
+                if ((int)(Engine.PlayTime.TotalSeconds * 2) % 2 == 0)
+                    font.DrawText(sb, "[ E ]",
+                        new Vector2(vp.Width - 68, boxY + boxH - lineH - 6), Color.Gray, scale);
+            }
+        }
+
+        protected override void OnUnload()
+        {
+            Engine.RenderSystem.LightingSystem.ClearLights();
+        }
+    }
+}
