@@ -1,3 +1,4 @@
+using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -54,10 +55,14 @@ namespace ChildhoodAdventure.Scenes
         protected override void OnLoad()
         {
             Name = $"{GameState.TargetInterior} Home";
+            GameState.ActiveScene = GameState.SceneType.NeighborInterior;
             var gd  = Engine.GraphicsDevice;
             var id  = GameState.TargetInterior ?? HouseId.Chen;
+            var sys = RetroSystemRegistry.Current;
 
-            // Atari 2600 NTSC palette — accent is the house's exterior colour, fully saturated.
+            // Each house uses the same tile GIDs but a unique accent (carpet/rug) color
+            // that matches the house exterior. The active RetroSystem styles all tiles
+            // in its own pixel-art palette; only the accent slot gets the house color.
             Color accentColor = id switch
             {
                 HouseId.Chen        => new Color(  0, 220, 220),  // cyan
@@ -68,22 +73,22 @@ namespace ChildhoodAdventure.Scenes
                 HouseId.Petrov      => new Color(  0,  80, 220),  // blue
                 HouseId.Sam         => new Color(220, 220,   0),  // yellow
                 HouseId.Johnson     => new Color(220, 100,   0),  // orange
-                _                  => new Color(220, 220, 220),  // white
+                _                   => new Color(220, 220, 220),  // white
             };
 
-            var tileset = Tileset.CreateProgrammatic(gd, "interior", 16, 16, new Color[]
+            var tileset = sys.BuildTileset(gd, "interior", new[]
             {
-                new Color(200, 130,   0),   //  1 amber floor
-                new Color(220, 220, 220),   //  2 white wall
-                new Color(  0,  60, 204),   //  3 bold blue furniture
-                new Color(140, 140, 140),   //  4 gray counter
-                new Color( 30,  12,   0),   //  5 near-black door
-                accentColor,                //  6 house accent (carpet / rug)
-                new Color(  0, 200, 220),   //  7 cyan window accent
-                new Color(220,   0,   0),   //  8 red bookshelf
-                new Color(200, 200,   0),   //  9 yellow kitchen
-                new Color(  0, 196,   0),   // 10 pure green plant
-            }, firstGid: 1);
+                TileType.WoodFloor,   //  1
+                TileType.Wall,        //  2
+                TileType.Furniture,   //  3
+                TileType.Counter,     //  4
+                TileType.Door,        //  5
+                TileType.Accent,      //  6 (house-specific carpet)
+                TileType.Window,      //  7
+                TileType.Bookshelf,   //  8
+                TileType.KitchenTile, //  9
+                TileType.Plant,       // 10
+            }, accentColor: accentColor, firstGid: 1);
 
             _tilemap = new Tilemap("interior", MapW, MapH, 16, 16)
             {
@@ -95,6 +100,7 @@ namespace ChildhoodAdventure.Scenes
             Engine.CollisionSystem.SetTilemap(_tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
             Engine.RenderSystem.Camera.Bounds = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.RenderSystem.Camera.Zoom   = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             _player = SpawnPlayer(gd, GameState.PlayerSpawnPosition);

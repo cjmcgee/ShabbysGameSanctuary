@@ -1,3 +1,4 @@
+using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -43,21 +44,23 @@ namespace ChildhoodAdventure.Scenes
         protected override void OnLoad()
         {
             Name = "Home";
-            var gd = Engine.GraphicsDevice;
+            GameState.ActiveScene = GameState.SceneType.Home;
+            var gd  = Engine.GraphicsDevice;
+            var sys = RetroSystemRegistry.Current;
 
-            // Tileset
-            // Atari 2600 NTSC palette — saturated primaries / secondaries, no desaturation.
-            var tileset = Tileset.CreateProgrammatic(gd, "home", 16, 16, new Color[]
+            // Build tileset from the active retro system's pixel art.
+            // GIDs 1-8 map to the TileTypes below in order.
+            var tileset = sys.BuildTileset(gd, "home", new[]
             {
-                new Color(200, 130,   0),   // 1 amber floor      (Adventure warm-orange)
-                new Color(204,   0,   0),   // 2 red carpet        (living room)
-                new Color(200, 200,   0),   // 3 yellow kitchen    (bright lemon)
-                new Color(220, 220, 220),   // 4 white wall
-                new Color( 30,  12,   0),   // 5 near-black door
-                new Color(  0,  60, 204),   // 6 bold blue furniture
-                new Color(140, 140, 140),   // 7 gray counter
-                new Color(  0, 204, 204),   // 8 cyan accent
-            }, firstGid: 1);
+                TileType.WoodFloor,   // 1
+                TileType.Carpet,      // 2
+                TileType.KitchenTile, // 3
+                TileType.Wall,        // 4
+                TileType.Door,        // 5
+                TileType.Furniture,   // 6
+                TileType.Counter,     // 7
+                TileType.Window,      // 8
+            });
 
             _tilemap = new Tilemap("home", MapW, MapH, 16, 16)
             {
@@ -69,6 +72,7 @@ namespace ChildhoodAdventure.Scenes
             Engine.CollisionSystem.SetTilemap(_tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
             Engine.RenderSystem.Camera.Bounds = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.RenderSystem.Camera.Zoom   = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             // Player

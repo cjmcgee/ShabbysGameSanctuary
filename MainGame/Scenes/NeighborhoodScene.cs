@@ -1,3 +1,4 @@
+using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -77,38 +78,63 @@ namespace ChildhoodAdventure.Scenes
         protected override void OnLoad()
         {
             Name = "Neighbourhood";
-            var gd = Engine.GraphicsDevice;
+            GameState.ActiveScene = GameState.SceneType.Neighborhood;
+            var gd  = Engine.GraphicsDevice;
+            var sys = RetroSystemRegistry.Current;
 
-            // Atari 2600 NTSC palette — pure saturated primaries / secondaries.
-            var tileset = Tileset.CreateProgrammatic(gd, "hood", 16, 16, new Color[]
+            // Each house has its own GID (4-15) so each can be a distinct system color.
+            // We build one tileset entry per GID, mapping house GIDs to HouseExterior
+            // tile art; the actual color comes from the house-specific palette passed
+            // via accentColor (only the first three GIDs really differ in tile art).
+            // For simplicity we pass Color.Transparent as accent — house tiles use
+            // the system's built-in HouseExterior tile pattern, which is always solid.
+            // The distinct house colors are supplied by passing them as TileType.Accent
+            // tiles so the system can style them per its palette.
+
+            // GID order mirrors the original hardcoded constants.
+            // GIDs 4-15 are house exterior tiles; we use the system's HouseExterior art
+            // tinted to each house's characteristic color (via Accent with that color).
+            var houseColors = new Color[]
             {
-                new Color(  0, 196,   0),   //  1 pure green grass
-                new Color( 20,  20,  30),   //  2 near-black road
-                new Color(128, 128, 128),   //  3 gray sidewalk
                 new Color(220, 220, 220),   //  4 white        (player home)
-                new Color(220, 220,   0),   //  5 pure yellow  (Sam)
+                new Color(220, 220,   0),   //  5 yellow       (Sam)
                 new Color(220,   0, 140),   //  6 magenta      (Santos)
-                new Color(  0, 220, 220),   //  7 pure cyan    (Chen)
+                new Color(  0, 220, 220),   //  7 cyan         (Chen)
                 new Color(160, 160, 160),   //  8 light gray   (Thompson)
-                new Color(  0,  80, 220),   //  9 pure blue    (Petrov)
-                new Color( 80, 220,   0),   // 10 lime green   (Jake&Emma)
-                new Color(140,   0, 220),   // 11 pure violet  (Devon)
-                new Color( 30,  12,   0),   // 12 near-black door
-                new Color(220, 220, 220),   // 13 (unused — kept for GID alignment)
+                new Color(  0,  80, 220),   //  9 blue         (Petrov)
+                new Color( 80, 220,   0),   // 10 lime         (Jake&Emma)
+                new Color(140,   0, 220),   // 11 violet       (Devon)
+                new Color( 30,  12,   0),   // 12 near-black   (door)
+                new Color(220, 220, 220),   // 13 (alignment)
                 new Color(  0,  80,   0),   // 14 (unused)
-                new Color(220, 100,   0),   // 15 pure orange  (Johnson)
+                new Color(220, 100,   0),   // 15 orange       (Johnson)
+            };
+
+            // Build first slab: GIDs 1-3 (grass, road, sidewalk)
+            var tilesetBase = sys.BuildTileset(gd, "hood_base", new[]
+            {
+                TileType.Grass,    // 1
+                TileType.Road,     // 2
+                TileType.Sidewalk, // 3
             }, firstGid: 1);
+
+            // Build house GIDs 4-15 as Accent tiles with per-house colors.
+            // We generate one texture strip with one 16px slot per house color.
+            var houseTexture = BuildHouseTextureSlab(gd, sys, houseColors);
+            var tilesetHouses = new Tileset("hood_houses", houseTexture, 16, 16, firstGid: 4);
 
             _tilemap = new Tilemap("hood", MapW, MapH, 16, 16)
             {
                 BackgroundColor = Color.Black
             };
-            _tilemap.AddTileset(tileset);
+            _tilemap.AddTileset(tilesetBase);
+            _tilemap.AddTileset(tilesetHouses);
             BuildNeighborhoodMap(_tilemap);
 
             Engine.CollisionSystem.SetTilemap(_tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
             Engine.RenderSystem.Camera.Bounds = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.RenderSystem.Camera.Zoom   = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             // Player
@@ -116,6 +142,42 @@ namespace ChildhoodAdventure.Scenes
 
             // Outdoor NPCs
             SpawnOutdoorNpcs(gd);
+        }
+
+        // ── Texture helpers ───────────────────────────────────────────────────
+
+        /// <summary>
+        /// Builds a texture strip for house exterior tiles using the active system's
+        /// HouseExterior pixel art, tinted per-house by providing each house color as
+        /// the "accent" color to <see cref="RetroSystem.BuildTileset"/>.
+        /// Returns one 16px-wide slot per color entry.
+        /// </summary>
+        private static Texture2D BuildHouseTextureSlab(
+            GraphicsDevice gd, RetroSystem sys, Color[] houseColors)
+        {
+            const int tileSize = 16;
+            int count   = houseColors.Length;
+            var texture = new Texture2D(gd, tileSize * count, tileSize);
+            var data    = new Color[tileSize * count * tileSize];
+
+            for (int i = 0; i < count; i++)
+            {
+                // BuildTileset with a single Accent tile using this house's color
+                var slab = sys.BuildTileset(gd, $"h{i}", new[] { TileType.Accent },
+                    accentColor: houseColors[i]);
+
+                // Copy the 16×16 tile from slab.Texture into our combined texture at offset i
+                var slabData = new Color[tileSize * tileSize];
+                slab.Texture.GetData(slabData);
+                for (int ty = 0; ty < tileSize; ty++)
+                    for (int tx = 0; tx < tileSize; tx++)
+                        data[ty * (tileSize * count) + i * tileSize + tx] = slabData[ty * tileSize + tx];
+
+                slab.Texture.Dispose();
+            }
+
+            texture.SetData(data);
+            return texture;
         }
 
         // ── Map builder ──────────────────────────────────────────────────────

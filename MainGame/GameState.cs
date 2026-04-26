@@ -7,11 +7,13 @@ namespace ChildhoodAdventure
 
     /// <summary>
     /// Global singleton state shared across scene transitions.
-    /// Stores spawn positions, current interior target, and story flags.
+    /// Stores spawn positions, current interior target, story flags,
+    /// and the current retro-system index (for scene reloads on system switch).
     /// </summary>
     public static class GameState
     {
         // Where the player appears when entering the next scene.
+        // Always 16-based pixel coordinates (world tile size is fixed at 16px).
         public static Vector2 PlayerSpawnPosition { get; set; }
             = new Vector2(12 * 16 + 8, 15 * 16 + 8);   // default: inside player's home
 
@@ -29,5 +31,10 @@ namespace ChildhoodAdventure
         public static bool HasFlag(string flag) => _flags.Contains(flag);
         public static void SetFlag(string flag)  => _flags.Add(flag);
         public static void ClearFlag(string flag) => _flags.Remove(flag);
+
+        // ── System switching ─────────────────────────────────────────────────
+        // Tracks which scene type is active so a system switch can reload it.
+        public enum SceneType { Home, Neighborhood, NeighborInterior }
+        public static SceneType ActiveScene { get; set; } = SceneType.Home;
     }
 }
