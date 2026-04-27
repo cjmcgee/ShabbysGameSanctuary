@@ -28,7 +28,26 @@ namespace ChildhoodAdventure
         {
             base.Initialize();
             UpdateWindowTitle();
-            Window.AllowUserResizing = false;
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += OnClientSizeChanged;
+        }
+
+        private void OnClientSizeChanged(object? sender, EventArgs e)
+        {
+            var bounds = Window.ClientBounds;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Do NOT call _graphics.ApplyChanges() here — that invokes SDL_SetWindowSize,
+            // which re-fires ClientSizeChanged and creates an oscillating feedback loop.
+            // On OpenGL DesktopGL the default framebuffer already tracks the OS window;
+            // we just need to sync MonoGame's bookkeeping so render-target switches
+            // reset the viewport to the correct dimensions.
+            var pp = GraphicsDevice.PresentationParameters;
+            pp.BackBufferWidth  = bounds.Width;
+            pp.BackBufferHeight = bounds.Height;
+            GraphicsDevice.Viewport = new Viewport(0, 0, bounds.Width, bounds.Height);
+
+            _engine?.OnViewportChanged();
         }
 
         protected override void LoadContent()
