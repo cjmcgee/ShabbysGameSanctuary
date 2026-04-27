@@ -9,7 +9,7 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 ///   • 8×8 pixel tiles (stored as 16×16 patterns = 2×2 hardware tiles per logical tile)
 ///   • NES PPU palette: 54 available colors; each background palette has 3 colors + shared bg
 ///   • Rich multi-color pixel art — the most detailed system in this set
-///   • Character sprites: 16×24 (2×3 NES hardware sprites with shading)
+///   • Character sprites: 16×24 (HeadRows=6, BodyRows=9, LegsRows=9)
 ///   • Camera zoom 2×: faithful to the NES's 256×240 display scaled to modern screens
 ///
 /// The tile pixel data is 16×16 (native to this system — no upscaling needed).
@@ -22,9 +22,6 @@ public sealed class NESSystem : RetroSystem
     public override float  DisplayScale   => 2.0f;
 
     // ── NES-style palette ─────────────────────────────────────────────────────
-    // Drawn from the NES PPU master palette; grouped by visual role.
-    // Index 0  = shared background color (black/dark)
-    // Indices 1-14 = foreground tile colors
     protected override Color[] TilePalette { get; } =
     [
         new Color( 36,  24,   0),   //  0 dark background
@@ -42,7 +39,7 @@ public sealed class NESSystem : RetroSystem
         new Color(120,  64,   8),   // 12 warm door wood
         new Color( 40,  80, 196),   // 13 NES blue (furniture)
         new Color(  8,  40, 132),   // 14 dark NES blue (furniture shadow)
-        new Color( 96, 180, 196),   // 15 aqua (window glass) — also light cyan
+        new Color( 96, 180, 196),   // 15 aqua (window glass)
         new Color( 56, 128,  56),   // 16 NES green (grass)
         new Color( 24,  72,  24),   // 17 dark green (grass shadow)
         new Color( 24,  24,  24),   // 18 near-black (road)
@@ -77,9 +74,6 @@ public sealed class NESSystem : RetroSystem
         _ => Wall
     };
 
-    // NES tiles are 16×16 — no upscaling, full resolution in the base BuildTileset.
-
-    // Wood floor — horizontal planks with knot highlights and grain lines
     private static readonly byte[][] WoodFloor =
     [
         [ 1, 1, 2, 1, 1, 1, 1, 3, 1, 1, 1, 1, 2, 1, 1, 3 ],
@@ -100,7 +94,6 @@ public sealed class NESSystem : RetroSystem
         [ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ],
     ];
 
-    // Carpet — solid red with diamond border pattern
     private static readonly byte[][] Carpet =
     [
         [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
@@ -121,7 +114,6 @@ public sealed class NESSystem : RetroSystem
         [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
     ];
 
-    // Kitchen tile — 4×4 NES-style tiles with narrow dark grout
     private static readonly byte[][] KitchenTile =
     [
         [ 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 ],
@@ -142,7 +134,6 @@ public sealed class NESSystem : RetroSystem
         [ 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6 ],
     ];
 
-    // Wall — off-white plaster with a shadow band along the bottom
     private static readonly byte[][] Wall =
     [
         [ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 ],
@@ -163,7 +154,6 @@ public sealed class NESSystem : RetroSystem
         [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
     ];
 
-    // Door — wood-paneled NES door with highlights and knob
     private static readonly byte[][] Door =
     [
         [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11 ],
@@ -177,14 +167,13 @@ public sealed class NESSystem : RetroSystem
         [11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,11 ],
         [11,12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,12,11 ],
         [11,12, 1,11,11,11,11,11,11,11,11,11,11, 1,12,11 ],
-        [11,12, 1,11,12,11,11,11,11,11,11,11,11, 1,12,11 ],  // knob at col 4
+        [11,12, 1,11,12,11,11,11,11,11,11,11,11, 1,12,11 ],
         [11,12, 1,11,11,11,11,11,11,11,11,11,11, 1,12,11 ],
         [11,12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,12,11 ],
         [11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,11 ],
         [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11 ],
     ];
 
-    // Window — wooden frame with two glass panes (aqua/cyan tinted)
     private static readonly byte[][] Window =
     [
         [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
@@ -205,7 +194,6 @@ public sealed class NESSystem : RetroSystem
         [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
     ];
 
-    // Furniture — NES-style sofa/block with blue shading
     private static readonly byte[][] Furniture =
     [
         [13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13 ],
@@ -226,7 +214,6 @@ public sealed class NESSystem : RetroSystem
         [13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13 ],
     ];
 
-    // Counter — warm tan surface with wood-edge trim
     private static readonly byte[][] Counter =
     [
         [26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26 ],
@@ -247,19 +234,18 @@ public sealed class NESSystem : RetroSystem
         [26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26 ],
     ];
 
-    // Bookshelf — wooden shelves with colorful book spines
     private static readonly byte[][] Bookshelf =
     [
         [22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22 ],
         [22,23,22,22,22,22,22,22,22,22,22,22,22,22,23,22 ],
-        [13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4 ],  // books row 1 (blue/red alternating)
+        [13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4 ],
         [13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4 ],
         [13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4 ],
         [13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4,13, 4 ],
         [22,23,22,22,22,22,22,22,22,22,22,22,22,22,23,22 ],
         [22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22 ],
         [22,23,22,22,22,22,22,22,22,22,22,22,22,22,23,22 ],
-        [16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7 ],  // books row 2 (green/yellow)
+        [16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7 ],
         [16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7 ],
         [16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7 ],
         [16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7,16, 7 ],
@@ -268,7 +254,6 @@ public sealed class NESSystem : RetroSystem
         [22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22 ],
     ];
 
-    // Plant — leafy green with pot
     private static readonly byte[][] Plant =
     [
         [ 0, 0, 0, 0,24, 0,24, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -289,7 +274,6 @@ public sealed class NESSystem : RetroSystem
         [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     ];
 
-    // Grass — NES-style with darker tufts for depth
     private static readonly byte[][] Grass =
     [
         [16,17,16,16,16,17,16,16,17,16,16,16,17,16,16,16 ],
@@ -310,7 +294,6 @@ public sealed class NESSystem : RetroSystem
         [16,16,16,16,16,17,16,16,16,16,16,17,16,16,16,16 ],
     ];
 
-    // Road — dark asphalt with white dashed center line
     private static readonly byte[][] Road =
     [
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
@@ -320,7 +303,7 @@ public sealed class NESSystem : RetroSystem
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
-        [ 8, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8 ],  // center dashes
+        [ 8, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8 ],
         [ 8, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8 ],
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
         [18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
@@ -331,7 +314,6 @@ public sealed class NESSystem : RetroSystem
         [18,19,18,18,18,18,18,18,18,18,18,18,18,18,18,18 ],
     ];
 
-    // Sidewalk — concrete with expansion joint lines
     private static readonly byte[][] Sidewalk =
     [
         [20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20 ],
@@ -352,7 +334,6 @@ public sealed class NESSystem : RetroSystem
         [20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20 ],
     ];
 
-    // House wall — painted siding with NES-style shadow on lower edge
     private static readonly byte[][] HouseWall =
     [
         [ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 ],
@@ -373,7 +354,6 @@ public sealed class NESSystem : RetroSystem
         [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
     ];
 
-    // Accent — solid fill using runtime accent color (index 28 = TilePalette.Length)
     private static readonly byte[][] Accent;
 
     static NESSystem()
@@ -382,121 +362,373 @@ public sealed class NESSystem : RetroSystem
         Accent = Enumerable.Repeat(row, 16).ToArray();
     }
 
-    // ── Character sprite (16×24 — NES two-tile tall sprite with shading) ──────
-    // Palette: 1=main body, 2=highlight, 3=shadow
+    // ── Sprite dimensions (16×24 total) ──────────────────────────────────────
 
     public override int CharWidth  => 16;
-    public override int CharHeight => 24;
+    public override int HeadRows   => 6;
+    public override int BodyRows   => 9;
+    public override int LegsRows   => 9;
 
-    protected override byte[][][] CharFrames { get; } =
+    // ── Head variants (1 frame × 6 rows × 16 cols) ───────────────────────────
+    // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
+
+    private static readonly byte[][][] _head0 =   // basic round head
+    [
+        [
+            [ 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // hair top
+            [ 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0 ],   // hair + skin sides
+            [ 0, 0, 0, 0, 1, 4, 1, 1, 4, 1, 3, 0, 0, 0, 0, 0 ],   // eyes + highlight
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],   // lower face
+            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],   // chin
+            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head1 =   // cap / hat
+    [
+        [
+            [ 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0 ],   // hat top
+            [ 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // hat brim (wide)
+            [ 0, 0, 0, 0, 1, 4, 1, 1, 4, 1, 3, 0, 0, 0, 0, 0 ],   // eyes + highlight
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],   // lower face
+            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],   // chin
+            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head2 =   // long / full hair
+    [
+        [
+            [ 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0 ],   // full hair top
+            [ 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0 ],   // hair framing
+            [ 0, 0, 0, 2, 1, 4, 1, 1, 4, 3, 2, 0, 0, 0, 0, 0 ],   // eyes + highlight
+            [ 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0 ],   // lower face
+            [ 0, 0, 0, 2, 2, 1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0 ],   // chin + hair falling
+            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    public override byte[][][][] HeadParts { get; } = [ _head0, _head1, _head2 ];
+
+    // ── Body variants (1 frame × 9 rows × 16 cols) ───────────────────────────
+    // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
+
+    private static readonly byte[][][] _body0 =   // casual shirt
+    [
+        [
+            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck skin
+            [ 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0 ],   // shoulders
+            [ 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0 ],   // upper chest
+            [ 0, 0, 2, 3, 2, 4, 4, 2, 2, 3, 2, 2, 0, 0, 0, 0 ],   // highlights + buttons
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 4, 4, 2, 3, 2, 2, 0, 0, 0, 0 ],   // lower buttons
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0 ],   // shadow sides
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _body1 =   // collared / formal
+    [
+        [
+            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck skin
+            [ 0, 0, 0, 1, 2, 5, 2, 2, 5, 2, 1, 0, 0, 0, 0, 0 ],   // lapels start
+            [ 0, 0, 1, 2, 2, 5, 2, 2, 5, 2, 2, 1, 0, 0, 0, 0 ],   // lapels chest
+            [ 0, 0, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0 ],   // center buttons
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 4, 4, 2, 2, 3, 2, 0, 0, 0, 0 ],   // more buttons
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0 ],   // shadow sides
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _body2 =   // jacket / hoodie
+    [
+        [
+            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck skin
+            [ 0, 0, 5, 5, 5, 2, 2, 2, 5, 5, 5, 0, 0, 0, 0, 0 ],   // jacket outer
+            [ 0, 0, 5, 2, 2, 2, 2, 2, 2, 2, 5, 0, 0, 0, 0, 0 ],   // open front
+            [ 0, 0, 5, 2, 3, 4, 4, 3, 2, 2, 5, 0, 0, 0, 0, 0 ],   // highlights + buttons
+            [ 0, 0, 5, 2, 2, 2, 2, 2, 2, 2, 5, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 5, 2, 3, 2, 4, 2, 3, 2, 5, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 5, 2, 2, 2, 2, 2, 2, 2, 5, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 2, 5, 5, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 2, 5, 5, 0, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    public override byte[][][][] BodyParts { get; } = [ _body0, _body1, _body2 ];
+
+    // ── Legs variants (4 frames × 9 rows × 16 cols) ──────────────────────────
+    // Semantic: 1=Skin(bare)  2=Pants  3=PantsHighlight  4=Belt
+    //           5=BeltHighlight  6=Shoes  7=ShoeHighlight
+
+    private static readonly byte[][][] _legs0 =   // pants + belt
     [
         // Frame 0 — idle
         [
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],   // head
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0 ],   // eyes (highlight)
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],   // neck
-            [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // shoulders
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],   // body
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0 ],   // arm highlights
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0 ],   // body shadow edge
-            [ 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],   // waist
-            [ 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],   // legs split
-            [ 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 2, 1, 1, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0 ],   // shin highlight
-            [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],   // feet
-            [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 3, 1, 1, 1, 0, 0, 0, 1, 1, 1, 3, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],   // buckle
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],   // upper pants
+            [ 0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],   // leg gap
+            [ 0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],   // shin highlight
+            [ 0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0 ],   // shoes
+            [ 0, 0, 6, 7, 6, 6, 0, 0, 6, 7, 6, 0, 0, 0, 0, 0 ],
         ],
-        // Frame 1 — walk A (left foot forward)
+        // Frame 1 — left foot forward
         [
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0 ],
-            [ 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ],  // left leg forward
-            [ 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 2, 1, 1, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 ],
-            [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 3, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],   // left leg out
+            [ 2, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 2, 3, 2, 2, 0, 0, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 6, 2, 0, 0, 0, 0, 0, 2, 6, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0 ],
+            [ 7, 6, 0, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0, 0 ],
         ],
-        // Frame 2 — mid-stride
+        // Frame 2 — crossing
         [
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0 ],
-            [ 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 ],  // crossing
-            [ 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 3, 2, 2, 3, 2, 2, 2, 0, 0, 0, 0, 0 ],   // crossing
+            [ 0, 0, 0, 2, 2, 3, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
-        // Frame 3 — walk B (right foot forward, mirror of frame 1)
+        // Frame 3 — right foot forward
         [
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0 ],
-            [ 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ],  // right leg forward
-            [ 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 1, 2, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 3, 0, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // right leg out
+            [ 0, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 0, 0, 0, 0, 0, 2, 3, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 2, 0, 0, 0, 0, 0, 2, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 7, 6, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs1 =   // formal trousers (crease line)
+    [
+        // Frame 0 — idle
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],   // crease down each leg
+            [ 0, 0, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 7, 6, 6, 0, 0, 6, 7, 6, 0, 0, 0, 0, 0 ],
+        ],
+        // Frame 1 — left foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 2, 2, 2, 3, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 2, 2, 2, 3, 0, 0, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 2, 3, 2, 3, 0, 0, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 6, 2, 0, 0, 0, 0, 0, 2, 6, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0 ],
+            [ 7, 6, 0, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0, 0 ],
+        ],
+        // Frame 2 — crossing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 3, 2, 2, 3, 3, 2, 2, 0, 0, 0, 0, 0 ],   // crossing with creases
+            [ 0, 0, 0, 2, 3, 3, 3, 3, 2, 2, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 3, 3, 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
+        // Frame 3 — right foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 0, 0, 2, 2, 3, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 0, 0, 0, 0, 0, 2, 3, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 0, 0, 0, 0, 0, 2, 3, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 2, 0, 0, 0, 0, 0, 2, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 7, 6, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs2 =   // shorts + bare skin
+    [
+        // Frame 0 — idle
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],   // shorts end
+            [ 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0 ],   // bare skin
+            [ 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 7, 6, 6, 0, 0, 6, 7, 6, 0, 0, 0, 0, 0 ],
+        ],
+        // Frame 1 — left foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 1, 1, 1, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0 ],   // left bare leg out
+            [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
+            [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 6, 1, 0, 0, 0, 0, 0, 1, 6, 0, 0, 0, 0, 0 ],
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0 ],
+            [ 7, 6, 0, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0, 0 ],
+        ],
+        // Frame 2 — crossing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 0, 0, 0, 0, 0 ],   // bare legs crossing
+            [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        // Frame 3 — right foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 5, 5, 5, 2, 2, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 3, 2, 2, 2, 2, 2, 3, 2, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 0, 0, 2, 1, 1, 1, 1, 0, 0, 0, 0 ],   // right bare leg out
+            [ 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
+            [ 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 1, 0, 0, 0, 0, 0, 1, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0 ],
+            [ 0, 0, 7, 6, 0, 0, 0, 0, 0, 0, 6, 7, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    public override byte[][][][] LegsParts { get; } = [ _legs0, _legs1, _legs2 ];
+
+    // ── Head palettes (NES PPU warm skin/hair tones) ──────────────────────────
+
+    public override HeadPalette[] HeadPalettes { get; } =
+    [
+        new("fair/blonde",
+            Skin:      new Color(228, 192, 148),
+            Hair:      new Color(248, 216,  96),   // NES warm yellow
+            Highlight: new Color(244, 212, 172),
+            Eyes:      new Color( 40,  80, 196),   // NES blue
+            Accessory: new Color(248, 216,  96)),
+        new("fair/brown",
+            Skin:      new Color(228, 192, 148),
+            Hair:      new Color(120,  64,   8),   // NES wood brown
+            Highlight: new Color(244, 212, 172),
+            Eyes:      new Color( 44,  28,   0),
+            Accessory: new Color(120,  64,   8)),
+        new("medium/black",
+            Skin:      new Color(188, 136,  72),
+            Hair:      new Color( 44,  28,   0),
+            Highlight: new Color(216, 168, 100),
+            Eyes:      new Color( 44,  28,   0),
+            Accessory: new Color( 44,  28,   0)),
+        new("dark/black",
+            Skin:      new Color(120,  80,  36),
+            Hair:      new Color( 44,  28,   0),
+            Highlight: new Color(148,  96,  48),
+            Eyes:      new Color( 96, 180, 196),   // NES aqua
+            Accessory: new Color( 44,  28,   0)),
+        new("medium/auburn",
+            Skin:      new Color(188, 136,  72),
+            Hair:      new Color(148,   0,   0),   // NES dark red
+            Highlight: new Color(216, 168, 100),
+            Eyes:      new Color( 40,  80, 196),
+            Accessory: new Color(148,   0,   0)),
+    ];
+
+    // ── Body palettes ─────────────────────────────────────────────────────────
+
+    public override BodyPalette[] BodyPalettes { get; } =
+    [
+        new("green",
+            Skin:           new Color(228, 192, 148),
+            Shirt:          new Color( 56, 128,  56),   // NES green
+            ShirtHighlight: new Color( 96, 180, 196),
+            Buttons:        new Color(236, 236, 220),
+            Accessory:      new Color( 40,  80, 196)),
+        new("blue",
+            Skin:           new Color(228, 192, 148),
+            Shirt:          new Color( 40,  80, 196),   // NES blue
+            ShirtHighlight: new Color( 96, 180, 196),
+            Buttons:        new Color(168, 168, 160),
+            Accessory:      new Color(248, 216,  96)),
+        new("red",
+            Skin:           new Color(228, 192, 148),
+            Shirt:          new Color(148,   0,   0),   // NES dark red
+            ShirtHighlight: new Color(220,  20,  20),
+            Buttons:        new Color(236, 236, 220),
+            Accessory:      new Color(248, 216,  96)),
+        new("white/light",
+            Skin:           new Color(228, 192, 148),
+            Shirt:          new Color(168, 168, 160),
+            ShirtHighlight: new Color(236, 236, 220),
+            Buttons:        new Color( 40,  80, 196),
+            Accessory:      new Color( 56, 128,  56)),
+        new("teal",
+            Skin:           new Color(228, 192, 148),
+            Shirt:          new Color( 96, 180, 196),   // NES aqua
+            ShirtHighlight: new Color(196, 232, 228),
+            Buttons:        new Color(236, 236, 220),
+            Accessory:      new Color(204,  68, 204)),
+    ];
+
+    // ── Legs palettes ─────────────────────────────────────────────────────────
+
+    public override LegsPalette[] LegsPalettes { get; } =
+    [
+        new("blue jeans/brown shoes",
+            Skin:           new Color(228, 192, 148),
+            Pants:          new Color( 40,  80, 196),   // NES blue
+            PantsHighlight: new Color( 96, 180, 196),
+            Belt:           new Color( 96,  40,   0),
+            BeltHighlight:  new Color(180,  80,   8),
+            Shoes:          new Color( 60,  30,   0),
+            ShoeHighlight:  new Color(120,  64,   8)),
+        new("black/black",
+            Skin:           new Color(228, 192, 148),
+            Pants:          new Color( 44,  28,   0),
+            PantsHighlight: new Color( 64,  64,  64),
+            Belt:           new Color( 64,  64,  64),
+            BeltHighlight:  new Color(128, 128, 128),
+            Shoes:          new Color( 44,  28,   0),
+            ShoeHighlight:  new Color( 64,  64,  64)),
+        new("khaki/tan",
+            Skin:           new Color(228, 192, 148),
+            Pants:          new Color(188, 136,  72),
+            PantsHighlight: new Color(240, 240, 140),
+            Belt:           new Color( 96,  40,   0),
+            BeltHighlight:  new Color(148,  80,  16),
+            Shoes:          new Color( 96,  40,   0),
+            ShoeHighlight:  new Color(148,  80,  16)),
+        new("gray/dark",
+            Skin:           new Color(228, 192, 148),
+            Pants:          new Color(128, 128, 128),
+            PantsHighlight: new Color(168, 168, 160),
+            Belt:           new Color( 64,  64,  64),
+            BeltHighlight:  new Color(128, 128, 128),
+            Shoes:          new Color( 64,  64,  64),
+            ShoeHighlight:  new Color(128, 128, 128)),
     ];
 }

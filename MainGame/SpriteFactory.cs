@@ -13,11 +13,11 @@ namespace ChildhoodAdventure
     public static class SpriteFactory
     {
         /// <summary>
-        /// Creates a character sprite using the active retro system's pixel art,
-        /// tinted to <paramref name="color"/> as the primary body color.
+        /// Creates a character sprite assembled from head, body, and legs parts,
+        /// using the shape variants and palette indices specified by <paramref name="appearance"/>.
         /// </summary>
-        public static AnimatedSprite BuildCharacter(GraphicsDevice gd, Color color)
-            => RetroSystemRegistry.Current.BuildCharacterSprite(gd, color);
+        public static AnimatedSprite BuildCharacter(GraphicsDevice gd, CharacterAppearance appearance)
+            => RetroSystemRegistry.Current.BuildCharacterSprite(gd, appearance);
 
         /// <summary>Creates a static flat-color sprite (for map objects / items).</summary>
         public static AnimatedSprite BuildStatic(GraphicsDevice gd, int w, int h, Color color)

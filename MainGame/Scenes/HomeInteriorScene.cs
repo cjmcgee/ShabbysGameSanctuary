@@ -176,36 +176,36 @@ namespace ChildhoodAdventure.Scenes
             e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
             var sc = e.AddComponent(new SpriteComponent
             {
-                Sprite = SpriteFactory.BuildCharacter(gd, new Color(220, 220,   0))  // Atari yellow player
+                Sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player)
             });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = 8f;
             return e;
         }
 
-        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, Color color, Action talkFn)
+        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn)
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
             e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
-            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, color) });
+            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, appearance) });
             _npcTalks.Add((e, talkFn));
             return e;
         }
 
         private void SpawnDad(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), new Color(0, 80, 220), TalkToDad);   // Atari blue
+            SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), NpcAppearances.Dad, TalkToDad);
         }
 
         private void SpawnMom(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), new Color(220, 0, 140), TalkToMom); // Atari magenta
+            SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), NpcAppearances.Mom, TalkToMom);
         }
 
         private void SpawnJamie(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), new Color(0, 220, 220), TalkToJamie); // Atari cyan
+            SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), NpcAppearances.Jamie, TalkToJamie);
         }
 
         // ── Dialogue ─────────────────────────────────────────────────────────

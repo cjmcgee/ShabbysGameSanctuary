@@ -302,19 +302,19 @@ namespace ChildhoodAdventure.Scenes
             e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
             e.AddComponent(new SpriteComponent
             {
-                Sprite = SpriteFactory.BuildCharacter(gd, new Color(220, 220,   0))  // Atari yellow player
+                Sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player)
             });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = 8f;
             return e;
         }
 
-        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, Color color, Action talkFn)
+        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn)
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
             e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
-            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, color) });
+            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, appearance) });
             _npcTalks.Add((e, talkFn));
             return e;
         }
@@ -340,7 +340,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // Mr. Chen — chess table area
             SpawnNpc(gd, "Mr. Chen", new Vector2(5 * 16 + 8, 5 * 16 + 8),
-                new Color(0, 220, 220), () =>
+                NpcAppearances.MrChen, () =>
                 {
                     if (!GameState.HasFlag("talked_mrchen"))
                     {
@@ -377,7 +377,7 @@ namespace ChildhoodAdventure.Scenes
 
             // Mrs. Chen — kitchen
             SpawnNpc(gd, "Mrs. Chen", new Vector2(16 * 16 + 8, 4 * 16 + 8),
-                new Color(0, 200, 220), () =>
+                NpcAppearances.MrsChen, () =>
                 {
                     if (!GameState.HasFlag("talked_mrschenC"))
                     {
@@ -404,7 +404,7 @@ namespace ChildhoodAdventure.Scenes
         private void SpawnDevonNpcs(GraphicsDevice gd)
         {
             SpawnNpc(gd, "Devon", new Vector2(3 * 16 + 8, 4 * 16 + 8),
-                new Color(140, 0, 220), () =>
+                NpcAppearances.Devon, () =>
                 {
                     if (!GameState.HasFlag("talked_devon"))
                     {
@@ -446,7 +446,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // Emma greets first
             SpawnNpc(gd, "Emma", new Vector2(5 * 16 + 8, 4 * 16 + 8),
-                new Color(220, 100, 0), () =>
+                NpcAppearances.Emma, () =>
                 {
                     if (!GameState.HasFlag("talked_jakeemma"))
                     {
@@ -487,7 +487,7 @@ namespace ChildhoodAdventure.Scenes
 
             // Jake is nearby
             SpawnNpc(gd, "Jake", new Vector2(7 * 16 + 8, 4 * 16 + 8),
-                new Color(0, 220, 0), () =>
+                NpcAppearances.Jake, () =>
                 {
                     Engine.DialogueSystem.StartDialogue(new DialogueLine[]
                     {
@@ -499,7 +499,7 @@ namespace ChildhoodAdventure.Scenes
         private void SpawnThompsonNpcs(GraphicsDevice gd)
         {
             SpawnNpc(gd, "Mr. Thompson", new Vector2(3 * 16 + 8, 4 * 16 + 8),
-                new Color(160, 160, 160), () =>
+                NpcAppearances.MrThompson, () =>
                 {
                     if (!GameState.HasFlag("talked_thompson"))
                     {
@@ -543,7 +543,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // Maria in the kitchen
             SpawnNpc(gd, "Maria", new Vector2(16 * 16 + 8, 5 * 16 + 8),
-                new Color(220, 0, 140), () =>
+                NpcAppearances.Maria, () =>
                 {
                     if (!GameState.HasFlag("talked_maria"))
                     {
@@ -583,7 +583,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // Mr. Petrov — living area
             SpawnNpc(gd, "Mr. Petrov", new Vector2(3 * 16 + 8, 5 * 16 + 8),
-                new Color(0, 80, 220), () =>
+                NpcAppearances.MrPetrov, () =>
                 {
                     if (!GameState.HasFlag("talked_mrpetrov"))
                     {
@@ -620,7 +620,7 @@ namespace ChildhoodAdventure.Scenes
 
             // Mrs. Petrov — kitchen with tea
             SpawnNpc(gd, "Mrs. Petrov", new Vector2(16 * 16 + 8, 4 * 16 + 8),
-                new Color(100, 160, 220), () =>
+                NpcAppearances.MrsPetrov, () =>
                 {
                     Engine.DialogueSystem.StartDialogue(new DialogueLine[]
                     {
@@ -634,7 +634,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // Sam's mum Linda
             SpawnNpc(gd, "Linda", new Vector2(5 * 16 + 8, 4 * 16 + 8),
-                new Color(0, 220, 0), () =>
+                NpcAppearances.Linda, () =>
                 {
                     if (!GameState.HasFlag("talked_linda"))
                     {
@@ -675,7 +675,7 @@ namespace ChildhoodAdventure.Scenes
         {
             // DeShonda — living room
             SpawnNpc(gd, "DeShonda", new Vector2(4 * 16 + 8, 6 * 16 + 8),
-                new Color(220, 100, 0), () =>
+                NpcAppearances.DeShonda, () =>
                 {
                     if (!GameState.HasFlag("talked_deshonda"))
                     {
@@ -697,7 +697,7 @@ namespace ChildhoodAdventure.Scenes
 
             // Destiny — guitar area
             SpawnNpc(gd, "Destiny", new Vector2(8 * 16 + 8, 4 * 16 + 8),
-                new Color(220, 180, 0), () =>
+                NpcAppearances.Destiny, () =>
                 {
                     if (!GameState.HasFlag("talked_destiny"))
                     {
@@ -734,7 +734,7 @@ namespace ChildhoodAdventure.Scenes
 
             // Tyler — brooding in the corner
             SpawnNpc(gd, "Tyler", new Vector2(18 * 16 + 8, 4 * 16 + 8),
-                new Color(120, 100, 160), () =>
+                NpcAppearances.Tyler, () =>
                 {
                     if (!GameState.HasFlag("talked_tyler"))
                     {
