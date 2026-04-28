@@ -10,7 +10,9 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 ///   • VIC-II 16-color palette with distinctive color relationships
 ///   • Character-mode graphics: each 8×8 cell typically uses 2-3 colors
 ///   • Character sprites: 12×21 (HeadRows=6, BodyRows=8, LegsRows=7)
-///   • Camera zoom 1.5×: faithful to the C64's 320×200 native resolution feel
+///   • Native screen: 160×200 (double-wide pixels → 80 unique columns × 200 rows)
+///   • DisplayScale 3.0 shows exactly 200 world pixels tall at a 600px viewport
+///   • MaxZoomOutArea (320×400) limits zoom-out to 2× native in each direction
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
@@ -19,8 +21,11 @@ public sealed class C64System : RetroSystem
     public override string Name        => "Commodore 64";
     public override string Description => "8×8 char-cells · VIC-II 16-color palette";
     public override int    NativeTileSize    => 8;
-    public override float  DisplayScale      => 1.5f;
+    public override float  DisplayScale      => 3.0f;
     protected override bool DoubleWidePixels => true;
+
+    // Native C64 screen: 160×200. MaxZoomOutArea caps at 2× native in each direction.
+    public override Vector2? MaxZoomOutArea => new Vector2(320, 400);
 
     // ── Tile palette (VIC-II colors) ─────────────────────────────────────────
     protected override Color[] TilePalette { get; } =

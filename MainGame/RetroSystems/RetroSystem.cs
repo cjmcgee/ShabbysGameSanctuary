@@ -38,6 +38,13 @@ public abstract class RetroSystem
     /// </summary>
     protected virtual bool DoubleWidePixels => false;
 
+    /// <summary>
+    /// Maximum world-pixel area the camera may reveal at once (X=width, Y=height).
+    /// Null means no additional constraint beyond map fill. Override to enforce a
+    /// zoom-out floor tied to the system's native resolution.
+    /// </summary>
+    public virtual Vector2? MaxZoomOutArea => null;
+
     // ── Tile art ─────────────────────────────────────────────────────────────
 
     protected abstract Color[]  TilePalette { get; }

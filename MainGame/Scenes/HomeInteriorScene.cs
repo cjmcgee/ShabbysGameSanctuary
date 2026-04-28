@@ -71,8 +71,9 @@ namespace ChildhoodAdventure.Scenes
 
             Engine.CollisionSystem.SetTilemap(_tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
-            Engine.RenderSystem.Camera.Bounds = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
-            Engine.RenderSystem.Camera.Zoom   = sys.DisplayScale;
+            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
+            Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             // Player

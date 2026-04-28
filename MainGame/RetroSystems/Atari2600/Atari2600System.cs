@@ -10,7 +10,9 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 ///   • 2-3 colors per tile — scanline hardware allowed very limited simultaneous colors
 ///   • 128-color NTSC palette; sprites are flat, hard-edged silhouettes
 ///   • Character sprites: 8×16 (Adventure-duck proportions, single-color fills)
-///   • Camera zoom 2×: makes each native pixel appear as a 2×2 block on screen
+///   • Native screen: 160×192 (double-wide pixels → 80 unique columns × 192 rows)
+///   • DisplayScale ≈3.125 so a 600px-tall viewport shows ~192 world pixels (native height)
+///   • MaxZoomOutArea (320×384) limits zoom-out to 2× native in each direction
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
@@ -19,8 +21,11 @@ public sealed class Atari2600System : RetroSystem
     public override string Name        => "Atari 2600";
     public override string Description => "8×8 tiles · NTSC 128-color palette";
     public override int    NativeTileSize    => 8;
-    public override float  DisplayScale      => 2.0f;
+    public override float  DisplayScale      => 3.125f;
     protected override bool DoubleWidePixels => true;
+
+    // 2× the Atari's native 160×192 screen — the most the camera will ever reveal.
+    public override Vector2? MaxZoomOutArea => new Vector2(320, 384);
 
     // ── Tile palette ─────────────────────────────────────────────────────────
     // Index 0  = background fill (black)

@@ -58,26 +58,45 @@ namespace ChildhoodAdventure
 
         private bool _updateErr, _drawErr;
         private KeyboardState _prevKeys;
+        private int _prevScrollWheel;
 
         protected override void Update(GameTime gameTime)
         {
             try
             {
-                var keys = Keyboard.GetState();
+                var keys   = Keyboard.GetState();
+                var mouse  = Mouse.GetState();
 
                 if (keys.IsKeyDown(Keys.Escape)) Exit();
 
                 // F1-F5: switch retro system and reload current scene
                 HandleSystemSwitch(keys);
 
+                // Scroll wheel: zoom camera in/out
+                HandleScrollZoom(mouse);
+
                 _engine.Update(gameTime);
                 base.Update(gameTime);
                 _prevKeys = keys;
+                _prevScrollWheel = mouse.ScrollWheelValue;
             }
             catch (Exception ex)
             {
                 if (!_updateErr) { Console.WriteLine($"[Update] {ex}"); _updateErr = true; }
             }
+        }
+
+        private void HandleScrollZoom(MouseState mouse)
+        {
+            int delta = mouse.ScrollWheelValue - _prevScrollWheel;
+            if (delta == 0) return;
+
+            var camera = _engine.RenderSystem.Camera;
+            // Each scroll notch (±120) scales zoom by 10%.
+            float factor = delta > 0 ? 1.1f : 1f / 1.1f;
+            int notches = Math.Abs(delta) / 120;
+            for (int i = 0; i < Math.Max(notches, 1); i++)
+                camera.Zoom *= factor;
         }
 
         private void HandleSystemSwitch(KeyboardState keys)
@@ -113,7 +132,7 @@ namespace ChildhoodAdventure
             var sys = RetroSystemRegistry.Current;
             Window.Title =
                 $"Childhood Adventure  [{sys.Name}  {sys.Description}]  " +
-                $"  WASD: Move  |  E: Talk  |  F1-F5: Switch System  |  Esc: Quit";
+                $"  WASD: Move  |  E: Talk  |  Scroll: Zoom  |  F1-F5: Switch System  |  Esc: Quit";
         }
 
         protected override void Draw(GameTime gameTime)
