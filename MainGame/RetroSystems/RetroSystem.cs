@@ -45,6 +45,46 @@ public abstract class RetroSystem
     /// </summary>
     public virtual Vector2? MaxZoomOutArea => null;
 
+    /// <summary>
+    /// When true, each tile is quantized to 1-bit color at build time: palette index 0
+    /// maps to the background (black) and every other index maps to the tile's single
+    /// foreground color (the lowest non-zero palette index found in that tile's art).
+    /// Mimics the Atari 2600 playfield hardware which allowed only one color per tile.
+    /// </summary>
+    protected virtual bool OneBitTiles => false;
+
+    /// <summary>
+    /// When true, each horizontal scanline of a sprite is collapsed to a single
+    /// non-transparent color: the first non-transparent pixel's resolved color is used
+    /// for every non-transparent pixel on that row.  Mimics the Atari 2600 TIA player
+    /// objects which could change color only between scanlines, not within them.
+    /// </summary>
+    protected virtual bool SpriteOneColorPerScanline => false;
+
+    /// <summary>
+    /// Palette index of the one "global" color shared across all tiles (analogous to the
+    /// C64 VIC-II border/multicolor register). Every tile may freely use this index in
+    /// addition to its own MaxLocalTileColors local indices. -1 = no global constraint.
+    /// </summary>
+    protected virtual int GlobalTileColorIndex => -1;
+
+    /// <summary>
+    /// Maximum distinct non-background, non-global palette indices per tile.
+    /// Together with GlobalTileColorIndex this limits each tile to:
+    ///   background + global + MaxLocalTileColors colors.
+    /// Pixels that use additional indices are remapped to the global color.
+    /// 0 = unlimited.
+    /// </summary>
+    protected virtual int MaxLocalTileColors => 0;
+
+    /// <summary>
+    /// Maximum distinct non-transparent semantic indices allowed per sprite part frame.
+    /// Indices beyond this limit (sorted numerically, lowest kept) are remapped to the
+    /// lowest allowed index.  Mimics the C64 VIC-II 4-color sprite limit (transparent +
+    /// 2 global registers + 1 sprite-unique color).  0 = unlimited.
+    /// </summary>
+    protected virtual int MaxSpriteSemanticColors => 0;
+
     // ── Tile art ─────────────────────────────────────────────────────────────
 
     protected abstract Color[]  TilePalette { get; }
@@ -103,6 +143,33 @@ public abstract class RetroSystem
             float rx    = target / (float)nativeW;
             float ry    = target / (float)nativeH;
 
+            // 1-bit tile mode: find the first (lowest) non-zero palette index in this
+            // tile's art and use its color as the sole foreground; index 0 stays black.
+            Color? oneBitFg = null;
+            if (OneBitTiles)
+            {
+                byte minIdx = byte.MaxValue;
+                foreach (var row in pixels)
+                    foreach (var b in row)
+                        if (b != 0 && b < minIdx) minIdx = b;
+                if (minIdx != byte.MaxValue)
+                    oneBitFg = minIdx < effectivePalette.Length
+                        ? effectivePalette[minIdx] : effectivePalette[0];
+            }
+
+            // Multicolor tile mode: global palette index + up to MaxLocalTileColors locals.
+            // Collect local indices in sorted order; pixels beyond the limit remap to global.
+            HashSet<byte>? allowedLocalTile = null;
+            if (GlobalTileColorIndex >= 0 && MaxLocalTileColors > 0)
+            {
+                var locals = new SortedSet<byte>();
+                foreach (var row in pixels)
+                    foreach (var b in row)
+                        if (b != 0 && b != (byte)GlobalTileColorIndex)
+                            locals.Add(b);
+                allowedLocalTile = new HashSet<byte>(locals.Take(MaxLocalTileColors));
+            }
+
             for (int ty = 0; ty < target; ty++)
             {
                 int srcRow = Math.Min((int)(ty / ry), nativeH - 1);
@@ -110,8 +177,17 @@ public abstract class RetroSystem
                 {
                     int srcCol = Math.Min((int)(tx / rx), nativeW - 1);
                     if (DoubleWidePixels) srcCol = Math.Min(srcCol & ~1, nativeW - 1);
-                    byte idx   = pixels[srcRow][srcCol];
-                    Color c    = idx < effectivePalette.Length ? effectivePalette[idx] : effectivePalette[0];
+                    byte idx = pixels[srcRow][srcCol];
+                    Color c;
+                    if (oneBitFg.HasValue)
+                        c = idx == 0 ? effectivePalette[0] : oneBitFg.Value;
+                    else if (allowedLocalTile != null)
+                        c = idx == 0 ? effectivePalette[0]
+                            : (idx == (byte)GlobalTileColorIndex || allowedLocalTile.Contains(idx)
+                                ? (idx < effectivePalette.Length ? effectivePalette[idx] : effectivePalette[0])
+                                : effectivePalette[GlobalTileColorIndex]);
+                    else
+                        c = idx < effectivePalette.Length ? effectivePalette[idx] : effectivePalette[0];
                     data[ty * (target * count) + i * target + tx] = c;
                 }
             }
@@ -165,15 +241,51 @@ public abstract class RetroSystem
         int              rowOffset,
         Func<int, Color> resolve)
     {
+        // Multicolor sprite mode: collect all distinct non-zero semantics in this frame,
+        // keep only the first MaxSpriteSemanticColors (lowest indices), remap the rest
+        // to the lowest allowed index.
+        SortedSet<byte>? allowedSemantic = null;
+        if (MaxSpriteSemanticColors > 0)
+        {
+            var semantics = new SortedSet<byte>();
+            foreach (var row in part)
+                foreach (var b in row)
+                    if (b != 0) semantics.Add(b);
+            if (semantics.Count > MaxSpriteSemanticColors)
+                allowedSemantic = new SortedSet<byte>(semantics.Take(MaxSpriteSemanticColors));
+        }
+
         for (int y = 0; y < part.Length; y++)
         {
             var srcRow = part[y];
+
+            // One-color-per-scanline: the first non-transparent pixel's color applies
+            // to every non-transparent pixel on this row.
+            Color? scanlineColor = null;
+            if (SpriteOneColorPerScanline)
+            {
+                for (int x = 0; x < CharWidth; x++)
+                {
+                    int sx = DoubleWidePixels ? x & ~1 : x;
+                    byte b = sx < srcRow.Length ? srcRow[sx] : (byte)0;
+                    if (b != 0) { scanlineColor = resolve(b); break; }
+                }
+            }
+
             for (int x = 0; x < CharWidth; x++)
             {
                 int srcX = DoubleWidePixels ? x & ~1 : x;
                 byte idx = srcX < srcRow.Length ? srcRow[srcX] : (byte)0;
-                data[(rowOffset + y) * (CharWidth * totalFrames) + frame * CharWidth + x] =
-                    idx == 0 ? Color.Transparent : resolve(idx);
+                Color pixel;
+                if (idx == 0)
+                    pixel = Color.Transparent;
+                else if (scanlineColor.HasValue)
+                    pixel = scanlineColor.Value;
+                else if (allowedSemantic != null && !allowedSemantic.Contains(idx))
+                    pixel = resolve(allowedSemantic.Min);
+                else
+                    pixel = resolve(idx);
+                data[(rowOffset + y) * (CharWidth * totalFrames) + frame * CharWidth + x] = pixel;
             }
         }
     }

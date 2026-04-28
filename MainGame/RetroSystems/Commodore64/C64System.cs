@@ -8,7 +8,8 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 /// Authentic characteristics:
 ///   • 8×8 character-cell tiles — the C64's text/PETSCII tile unit
 ///   • VIC-II 16-color palette with distinctive color relationships
-///   • Character-mode graphics: each 8×8 cell typically uses 2-3 colors
+///   • Multicolor mode: 1 global color + up to 3 local colors per tile (index 7 = grey shared register)
+///   • Multicolor sprites: up to 4 semantic colors per part frame (transparent + 2 globals + 1 unique)
 ///   • Character sprites: 12×21 (HeadRows=6, BodyRows=8, LegsRows=7)
 ///   • Native screen: 160×200 (double-wide pixels → 80 unique columns × 200 rows)
 ///   • DisplayScale 3.0 shows exactly 200 world pixels tall at a 600px viewport
@@ -19,13 +20,20 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 public sealed class C64System : RetroSystem
 {
     public override string Name        => "Commodore 64";
-    public override string Description => "8×8 char-cells · VIC-II 16-color palette";
+    public override string Description => "8×8 char-cells · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";
     public override int    NativeTileSize    => 8;
     public override float  DisplayScale      => 3.0f;
     protected override bool DoubleWidePixels => true;
 
     // Native C64 screen: 160×200. MaxZoomOutArea caps at 2× native in each direction.
     public override Vector2? MaxZoomOutArea => new Vector2(320, 400);
+
+    // VIC-II multicolor: palette index 7 (C64 grey) acts as the shared global color register.
+    // Each tile may use it freely plus up to 3 additional local indices.
+    // Sprites are limited to 4 distinct non-transparent semantic indices per part frame.
+    protected override int GlobalTileColorIndex   => 7;
+    protected override int MaxLocalTileColors     => 3;
+    protected override int MaxSpriteSemanticColors => 4;
 
     // ── Tile palette (VIC-II colors) ─────────────────────────────────────────
     protected override Color[] TilePalette { get; } =
@@ -175,16 +183,17 @@ public sealed class C64System : RetroSystem
     ];
 
     // Bookshelf — three VIC-II spine colors cycling across logical pixels
+    // Shelf bars use global grey (7) so locals = {3=red, 8=blue, 12=green} = 3 ≤ MaxLocalTileColors.
     private static readonly byte[][] Bookshelf =
     [
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],
+        [ 7, 7, 7, 7, 7, 7, 7, 7 ],
         [ 3, 3, 8, 8,12,12, 3, 3 ],
         [ 3, 3, 8, 8,12,12, 3, 3 ],
         [ 3, 3, 8, 8,12,12, 3, 3 ],
         [ 3, 3, 8, 8,12,12, 3, 3 ],
         [ 3, 3, 8, 8,12,12, 3, 3 ],
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],
+        [ 7, 7, 7, 7, 7, 7, 7, 7 ],
+        [ 7, 7, 7, 7, 7, 7, 7, 7 ],
     ];
 
     // Green plant with dark-brown pot
@@ -327,7 +336,7 @@ public sealed class C64System : RetroSystem
             [ 0, 0, 2, 2, 4, 4, 4, 4, 2, 2, 0, 0 ],   // upper buttons
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // torso
             [ 0, 0, 2, 2, 4, 4, 4, 4, 2, 2, 0, 0 ],   // lower buttons
-            [ 0, 0, 3, 3, 2, 2, 2, 2, 3, 3, 0, 0 ],   // side highlights
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // torso (highlight dropped → {1,2,4,5}=4)
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // bottom
         ],
     ];
@@ -338,7 +347,7 @@ public sealed class C64System : RetroSystem
             [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
             [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket (full)
             [ 0, 0, 5, 5, 2, 2, 2, 2, 5, 5, 0, 0 ],   // jacket open, shirt visible
-            [ 0, 0, 5, 5, 3, 3, 3, 3, 5, 5, 0, 0 ],   // shirt highlight
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 5, 5, 0, 0 ],   // shirt (highlight dropped → {1,2,4,5}=4)
             [ 0, 0, 5, 5, 4, 4, 4, 4, 5, 5, 0, 0 ],   // buttons
             [ 0, 0, 5, 5, 2, 2, 2, 2, 5, 5, 0, 0 ],   // shirt
             [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket lower
@@ -356,42 +365,42 @@ public sealed class C64System : RetroSystem
         // Frame 0 — idle
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],   // belt
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],   // buckle highlight
-            [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // upper pants
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
+            [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // upper pants crease
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // pants merged
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
             [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoes
-            [ 0, 0, 6, 6, 7, 7, 7, 7, 6, 6, 0, 0 ],   // shoe highlight
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoes (highlight dropped → {2,3,4,6}=4)
         ],
         // Frame 1 — left foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // left leg strides out
             [ 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs spreading
             [ 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2 ],   // wide stride
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],   // shoes spread
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],   // shoe highlights
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
         // Frame 2 — crossing / mid stride
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // legs crossing
             [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // coming together
             [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes together
-            [ 0, 0, 0, 0, 7, 7, 7, 7, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes (highlight dropped)
         ],
         // Frame 3 — right foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2 ],   // right leg strides out
             [ 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],
             [ 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2 ],
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
     ];
 
@@ -400,42 +409,42 @@ public sealed class C64System : RetroSystem
         // Frame 0 — idle
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // crease
             [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // crease continues
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
             [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],
-            [ 0, 0, 6, 6, 7, 7, 7, 7, 6, 6, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoes (highlight dropped → {2,3,4,6}=4)
         ],
         // Frame 1 — left foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 2, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 0 ],   // left leg out
             [ 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],
             [ 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2 ],
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
         // Frame 2 — crossing
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],
             [ 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0 ],   // crease visible mid-cross
             [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 7, 7, 7, 7, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes (highlight dropped)
         ],
         // Frame 3 — right foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper pants (buckle highlight dropped)
             [ 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 2, 2 ],   // right leg out
             [ 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],
             [ 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2 ],
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
     ];
 
@@ -444,42 +453,42 @@ public sealed class C64System : RetroSystem
         // Frame 0 — idle
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],   // belt
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],   // buckle
-            [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // shorts
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts (buckle highlight dropped)
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts (crease dropped → {1,2,4,6}=4)
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts end
             [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],   // bare legs
             [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoes
-            [ 0, 0, 6, 6, 7, 7, 7, 7, 6, 6, 0, 0 ],   // shoe highlight
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoes (highlight dropped)
         ],
         // Frame 1 — left foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts (buckle highlight dropped)
             [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // left shorts out
             [ 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 ],   // bare legs spreading
             [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 ],   // wide stride
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
         // Frame 2 — crossing
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts (buckle highlight dropped)
             [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts crossing
             [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],   // bare legs
             [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // narrowing
             [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 7, 7, 7, 7, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes (highlight dropped)
         ],
         // Frame 3 — right foot forward
         [
             [ 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 5, 5, 5, 5, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // shorts (buckle highlight dropped)
             [ 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2 ],   // right shorts out
             [ 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 ],
             [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 ],
             [ 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6 ],
-            [ 6, 6, 7, 7, 0, 0, 0, 0, 7, 7, 6, 6 ],
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes (highlight dropped)
         ],
     ];
 
