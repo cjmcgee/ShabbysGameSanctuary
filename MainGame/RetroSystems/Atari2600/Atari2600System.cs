@@ -11,13 +11,16 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 ///   • 128-color NTSC palette; sprites are flat, hard-edged silhouettes
 ///   • Character sprites: 8×16 (Adventure-duck proportions, single-color fills)
 ///   • Camera zoom 2×: makes each native pixel appear as a 2×2 block on screen
+///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
+///     all odd columns equal the preceding even column.
 /// </summary>
 public sealed class Atari2600System : RetroSystem
 {
     public override string Name        => "Atari 2600";
     public override string Description => "8×8 tiles · NTSC 128-color palette";
-    public override int    NativeTileSize => 8;
-    public override float  DisplayScale   => 2.0f;
+    public override int    NativeTileSize    => 8;
+    public override float  DisplayScale      => 2.0f;
+    protected override bool DoubleWidePixels => true;
 
     // ── Tile palette ─────────────────────────────────────────────────────────
     // Index 0  = background fill (black)
@@ -42,6 +45,7 @@ public sealed class Atari2600System : RetroSystem
     ];
 
     // ── Tile pixel art (8×8, palette indices) ────────────────────────────────
+    // All rows obey the double-wide rule: col[2k+1] == col[2k].
 
     protected override byte[][] GetTilePixels(TileType type, Color accentColor) => type switch
     {
@@ -58,142 +62,142 @@ public sealed class Atari2600System : RetroSystem
         TileType.Grass     => Grass,
         TileType.Road      => Road,
         TileType.Sidewalk  => Sidewalk,
-        TileType.HouseExterior => Wall,  // reuse wall art; color varies via tileset
+        TileType.HouseExterior => Wall,
         TileType.Accent    => Accent,
         _ => Wall
     };
 
-    // Warm parquet — alternating amber planks
+    // Parquet — alternating grain position per plank pair
     private static readonly byte[][] WoodFloor =
     [
-        [ 1, 1, 2, 1, 1, 1, 2, 1 ],
-        [ 1, 1, 2, 1, 1, 1, 2, 1 ],
+        [ 1, 1, 2, 2, 1, 1, 1, 1 ],
+        [ 1, 1, 2, 2, 1, 1, 1, 1 ],
         [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 1, 2, 1, 1, 1, 2, 1, 1 ],
-        [ 1, 2, 1, 1, 1, 2, 1, 1 ],
+        [ 1, 1, 1, 1, 2, 2, 1, 1 ],
+        [ 1, 1, 1, 1, 2, 2, 1, 1 ],
         [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 1, 1, 1, 2, 1, 1, 1, 2 ],
-        [ 1, 1, 1, 2, 1, 1, 1, 2 ],
+        [ 2, 2, 1, 1, 1, 1, 2, 2 ],
+        [ 2, 2, 1, 1, 1, 1, 2, 2 ],
     ];
 
-    // Bold red carpet with dark corner dots
+    // Bold red carpet — corner accent dots + centre diamond
     private static readonly byte[][] Carpet =
     [
         [ 3, 3, 3, 3, 3, 3, 3, 3 ],
-        [ 3, 4, 3, 3, 3, 3, 4, 3 ],
+        [ 4, 4, 3, 3, 3, 3, 4, 4 ],
         [ 3, 3, 3, 3, 3, 3, 3, 3 ],
-        [ 3, 3, 3, 4, 4, 3, 3, 3 ],
-        [ 3, 3, 3, 4, 4, 3, 3, 3 ],
+        [ 3, 3, 4, 4, 4, 4, 3, 3 ],
+        [ 3, 3, 4, 4, 4, 4, 3, 3 ],
         [ 3, 3, 3, 3, 3, 3, 3, 3 ],
-        [ 3, 4, 3, 3, 3, 3, 4, 3 ],
+        [ 4, 4, 3, 3, 3, 3, 4, 4 ],
         [ 3, 3, 3, 3, 3, 3, 3, 3 ],
     ];
 
-    // Yellow kitchen tile — 4×4 blocks with dark grout line
+    // Yellow kitchen tile — 4-row blocks separated by dark grout rows
     private static readonly byte[][] KitchenTile =
     [
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
         [ 4, 4, 4, 4, 4, 4, 4, 4 ],
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
-        [ 5, 5, 5, 4, 5, 5, 5, 4 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
         [ 4, 4, 4, 4, 4, 4, 4, 4 ],
     ];
 
-    // Simple brick-pattern wall
+    // Staggered brick wall — mortar at rows 2 & 5; vertical mortar alternates
     private static readonly byte[][] Wall =
     [
-        [ 6, 6, 6, 7, 6, 6, 6, 7 ],
-        [ 6, 6, 6, 7, 6, 6, 6, 7 ],
+        [ 6, 6, 6, 6, 7, 7, 6, 6 ],
+        [ 6, 6, 6, 6, 7, 7, 6, 6 ],
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
-        [ 6, 7, 6, 6, 6, 7, 6, 6 ],
-        [ 6, 7, 6, 6, 6, 7, 6, 6 ],
+        [ 7, 7, 6, 6, 6, 6, 6, 6 ],
+        [ 7, 7, 6, 6, 6, 6, 6, 6 ],
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
-        [ 6, 6, 6, 7, 6, 6, 6, 7 ],
-        [ 6, 6, 6, 7, 6, 6, 6, 7 ],
+        [ 6, 6, 6, 6, 7, 7, 6, 6 ],
+        [ 6, 6, 6, 6, 7, 7, 6, 6 ],
     ];
 
-    // Dark door with raised-panel detail
+    // Dark door — raised-panel detail; knob at lower-right logical pixel
     private static readonly byte[][] Door =
     [
         [ 8, 8, 8, 8, 8, 8, 8, 8 ],
-        [ 8, 2, 2, 8, 8, 2, 2, 8 ],
-        [ 8, 2, 2, 8, 8, 2, 2, 8 ],
+        [ 8, 8, 2, 2, 2, 2, 8, 8 ],
+        [ 8, 8, 2, 2, 2, 2, 8, 8 ],
         [ 8, 8, 8, 8, 8, 8, 8, 8 ],
-        [ 8, 2, 2, 2, 2, 2, 2, 8 ],
-        [ 8, 2, 2, 2, 2, 2, 2, 8 ],
-        [ 8, 2, 8, 2, 2, 8, 2, 8 ],
+        [ 8, 8, 2, 2, 2, 2, 8, 8 ],
+        [ 8, 8, 2, 2, 2, 2, 8, 8 ],
+        [ 8, 8, 8, 8, 2, 2, 8, 8 ],
         [ 8, 8, 8, 8, 8, 8, 8, 8 ],
     ];
 
-    // Cyan window — gray sash, bright glass panes
+    // Cyan window — gray sash, two rows of glass panes
     private static readonly byte[][] Window =
     [
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
-        [ 7,11,11, 7,11,11, 7, 7 ],
-        [ 7,11,11, 7,11,11, 7, 7 ],
+        [ 7, 7,11,11,11,11, 7, 7 ],
+        [ 7, 7,11,11,11,11, 7, 7 ],
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
-        [ 7,11,11,11,11,11, 7, 7 ],
-        [ 7,11,11,11,11,11, 7, 7 ],
+        [ 7, 7,11,11,11,11, 7, 7 ],
+        [ 7, 7,11,11,11,11, 7, 7 ],
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
         [ 7, 7, 7, 7, 7, 7, 7, 7 ],
     ];
 
-    // Bold blue furniture block
+    // Bold blue furniture — dark inset panel
     private static readonly byte[][] Furniture =
     [
         [ 9, 9, 9, 9, 9, 9, 9, 9 ],
         [ 9, 9, 9, 9, 9, 9, 9, 9 ],
-        [ 9, 8, 8, 8, 8, 8, 8, 9 ],
-        [ 9, 8, 9, 9, 9, 9, 8, 9 ],
-        [ 9, 8, 9, 9, 9, 9, 8, 9 ],
-        [ 9, 8, 8, 8, 8, 8, 8, 9 ],
+        [ 9, 9, 8, 8, 8, 8, 9, 9 ],
+        [ 9, 9, 8, 8, 8, 8, 9, 9 ],
+        [ 9, 9, 8, 8, 8, 8, 9, 9 ],
+        [ 9, 9, 8, 8, 8, 8, 9, 9 ],
         [ 9, 9, 9, 9, 9, 9, 9, 9 ],
         [ 9, 9, 9, 9, 9, 9, 9, 9 ],
     ];
 
-    // Light gray counter with border
+    // Light gray counter — lighter border, mid-gray fill
     private static readonly byte[][] Counter =
     [
         [10,10,10,10,10,10,10,10 ],
-        [10, 7, 7, 7, 7, 7, 7,10 ],
-        [10, 7,10,10,10,10, 7,10 ],
-        [10, 7,10,10,10,10, 7,10 ],
-        [10, 7,10,10,10,10, 7,10 ],
-        [10, 7, 7, 7, 7, 7, 7,10 ],
+        [ 7, 7, 7, 7, 7, 7, 7, 7 ],
+        [ 7, 7,10,10,10,10, 7, 7 ],
+        [ 7, 7,10,10,10,10, 7, 7 ],
+        [ 7, 7,10,10,10,10, 7, 7 ],
+        [ 7, 7, 7, 7, 7, 7, 7, 7 ],
         [10,10,10,10,10,10,10,10 ],
         [10,10,10,10,10,10,10,10 ],
     ];
 
-    // Red bookshelf with spine slots
+    // Red bookshelf — alternating dark book spines
     private static readonly byte[][] Bookshelf =
     [
         [ 3, 3, 3, 3, 3, 3, 3, 3 ],
-        [ 3, 8, 3, 8, 3, 8, 3, 3 ],
-        [ 3, 8, 3, 8, 3, 8, 3, 3 ],
-        [ 3, 8, 3, 8, 3, 8, 3, 3 ],
-        [ 3, 8, 3, 8, 3, 8, 3, 3 ],
-        [ 3, 8, 3, 8, 3, 8, 3, 3 ],
+        [ 8, 8, 3, 3, 8, 8, 3, 3 ],
+        [ 8, 8, 3, 3, 8, 8, 3, 3 ],
+        [ 8, 8, 3, 3, 8, 8, 3, 3 ],
+        [ 8, 8, 3, 3, 8, 8, 3, 3 ],
+        [ 8, 8, 3, 3, 8, 8, 3, 3 ],
         [ 8, 8, 8, 8, 8, 8, 8, 8 ],
         [ 8, 8, 8, 8, 8, 8, 8, 8 ],
     ];
 
-    // Green plant with pot
+    // Green plant with dark-brown pot
     private static readonly byte[][] Plant =
     [
-        [ 0, 0,12, 0,12, 0, 0, 0 ],
-        [ 0,12,12,12,12,12, 0, 0 ],
-        [ 0, 0,12,12,12, 0, 0, 0 ],
-        [ 0, 0, 0,12, 0, 0, 0, 0 ],
-        [ 0, 0, 2, 2, 2, 0, 0, 0 ],
-        [ 0, 0, 2, 1, 2, 0, 0, 0 ],
-        [ 0, 0, 2, 2, 2, 0, 0, 0 ],
+        [ 0, 0, 0, 0,12,12, 0, 0 ],
+        [ 0, 0,12,12,12,12, 0, 0 ],
+        [ 0, 0,12,12,12,12, 0, 0 ],
+        [ 0, 0, 0, 0,12,12, 0, 0 ],
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+        [ 0, 0, 1, 1, 2, 2, 0, 0 ],
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
     ];
 
-    // Vivid green grass
+    // Vivid green grass (all uniform — already compliant)
     private static readonly byte[][] Grass =
     [
         [12,12,12,12,12,12,12,12 ],
@@ -206,34 +210,33 @@ public sealed class Atari2600System : RetroSystem
         [12,12,12,12,12,12,12,12 ],
     ];
 
-    // Near-black asphalt road
+    // Near-black asphalt road (all uniform — already compliant)
     private static readonly byte[][] Road =
     [
         [13,13,13,13,13,13,13,13 ],
         [13,13,13,13,13,13,13,13 ],
         [13,13,13,13,13,13,13,13 ],
-        [14,14,14,14,14,14,14,14 ],  // center line (lighter)
+        [14,14,14,14,14,14,14,14 ],
         [14,14,14,14,14,14,14,14 ],
         [13,13,13,13,13,13,13,13 ],
         [13,13,13,13,13,13,13,13 ],
         [13,13,13,13,13,13,13,13 ],
     ];
 
-    // Concrete sidewalk
+    // Concrete sidewalk — crack joints at logical pixels 0 and 2
     private static readonly byte[][] Sidewalk =
     [
         [14,14,14,14,14,14,14,14 ],
+        [ 7, 7,14,14, 7, 7,14,14 ],
         [14,14,14,14,14,14,14,14 ],
-        [14, 7,14,14,14, 7,14,14 ],
         [14,14,14,14,14,14,14,14 ],
         [14,14,14,14,14,14,14,14 ],
-        [14, 7,14,14,14, 7,14,14 ],
+        [ 7, 7,14,14, 7, 7,14,14 ],
         [14,14,14,14,14,14,14,14 ],
         [14,14,14,14,14,14,14,14 ],
     ];
 
-    // Accent tile: solid fill using runtime accent color.
-    // Index 15 = TilePalette.Length (base class appends it from accentColor parameter).
+    // Accent tile — solid runtime accent color (already compliant)
     private static readonly byte[][] Accent =
     [
         [15,15,15,15,15,15,15,15 ],
@@ -248,6 +251,7 @@ public sealed class Atari2600System : RetroSystem
 
     // ── Sprite dimensions ─────────────────────────────────────────────────────
     // HeadRows=5, BodyRows=7, LegsRows=4  (total 16)
+    // 4 logical pixels per row (2 physical pixels each).
 
     public override int CharWidth  => 8;
     public override int HeadRows   => 5;
@@ -257,34 +261,34 @@ public sealed class Atari2600System : RetroSystem
     // ── Head parts (8 wide × 5 rows, 1 frame) ────────────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
 
-    // Head 0: basic Adventure-style round head
+    // Head 0: hair on top, wide face, block eyes
     private static readonly byte[][][] _head0 =
     [[
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],
-        [ 0, 1, 1, 1, 1, 1, 1, 0 ],
-        [ 0, 1, 4, 1, 1, 4, 1, 0 ],   // eyes (4)
-        [ 0, 1, 1, 1, 1, 1, 1, 0 ],
-        [ 0, 0, 1, 2, 2, 1, 0, 0 ],   // hair base (2)
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // hair top
+        [ 1, 1, 1, 1, 1, 1, 1, 1 ],   // wide head
+        [ 1, 1, 4, 4, 4, 4, 1, 1 ],   // eyes
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // chin
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
     ]];
 
-    // Head 1: cap / hat
+    // Head 1: cap / hat with full brim
     private static readonly byte[][][] _head1 =
     [[
-        [ 0, 5, 5, 5, 5, 5, 5, 0 ],   // hat (5)
-        [ 0, 5, 5, 5, 5, 5, 5, 0 ],   // hat brim
-        [ 0, 1, 4, 1, 1, 4, 1, 0 ],   // eyes (4)
-        [ 0, 1, 1, 1, 1, 1, 1, 0 ],
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],
+        [ 0, 0, 5, 5, 5, 5, 0, 0 ],   // hat top
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim (full width)
+        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // eyes
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // face
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
     ]];
 
-    // Head 2: full hair
+    // Head 2: full hair framing face
     private static readonly byte[][][] _head2 =
     [[
-        [ 0, 2, 2, 2, 2, 2, 2, 0 ],   // hair top (2)
-        [ 0, 2, 1, 1, 1, 1, 2, 0 ],
-        [ 0, 2, 4, 1, 1, 4, 2, 0 ],   // eyes (4)
-        [ 0, 2, 1, 1, 1, 1, 2, 0 ],
-        [ 0, 2, 1, 1, 1, 1, 2, 0 ],
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // hair all across top
+        [ 2, 2, 1, 1, 1, 1, 2, 2 ],   // hair sides + face
+        [ 2, 2, 4, 4, 4, 4, 2, 2 ],   // hair sides + eyes
+        [ 2, 2, 1, 1, 1, 1, 2, 2 ],   // hair sides + chin
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
     ]];
 
     public override byte[][][][] HeadParts { get; } = [ _head0, _head1, _head2 ];
@@ -292,131 +296,131 @@ public sealed class Atari2600System : RetroSystem
     // ── Body parts (8 wide × 7 rows, 1 frame) ────────────────────────────────
     // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
 
-    // Body 0: casual shirt
+    // Body 0: casual shirt — buttons centre, highlights at sides
     private static readonly byte[][][] _body0 =
     [[
-        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck (skin=1)
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt (2)
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
         [ 2, 2, 2, 2, 2, 2, 2, 2 ],
+        [ 2, 2, 4, 4, 4, 4, 2, 2 ],   // buttons centre
         [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 2, 3, 2, 2, 2, 2, 3, 2 ],   // side highlights (3)
-        [ 2, 3, 2, 2, 2, 2, 3, 2 ],
-        [ 0, 2, 2, 4, 4, 2, 2, 0 ],   // buttons (4)
+        [ 3, 3, 2, 2, 2, 2, 3, 3 ],   // side highlights
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // bottom (narrow)
     ]];
 
-    // Body 1: collared / formal
+    // Body 1: collared / formal — lapels + double button row
     private static readonly byte[][][] _body1 =
     [[
-        [ 0, 1, 5, 1, 1, 5, 1, 0 ],   // collar (5)
-        [ 2, 5, 2, 4, 4, 2, 5, 2 ],   // lapels + buttons
-        [ 2, 5, 2, 4, 4, 2, 5, 2 ],
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 2, 2, 5, 5, 5, 5, 2, 2 ],   // lapels
+        [ 2, 2, 4, 4, 4, 4, 2, 2 ],   // upper buttons
         [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],
-        [ 2, 3, 2, 2, 2, 2, 3, 2 ],
-        [ 0, 2, 2, 2, 2, 2, 2, 0 ],
+        [ 2, 2, 4, 4, 4, 4, 2, 2 ],   // lower buttons
+        [ 3, 3, 2, 2, 2, 2, 3, 3 ],   // side highlights
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],
     ]];
 
-    // Body 2: jacket / hoodie
+    // Body 2: jacket / hoodie — outer jacket, inner shirt visible
     private static readonly byte[][][] _body2 =
     [[
-        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck (skin=1)
-        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // jacket (5) + shirt (2)
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket (full)
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // jacket open, shirt centre
+        [ 5, 5, 4, 4, 4, 4, 5, 5 ],   // buttons on shirt
         [ 5, 5, 2, 2, 2, 2, 5, 5 ],
-        [ 5, 2, 2, 3, 3, 2, 2, 5 ],   // shirt highlight (3)
-        [ 5, 2, 2, 4, 4, 2, 2, 5 ],   // buttons (4)
-        [ 5, 5, 2, 2, 2, 2, 5, 5 ],
-        [ 0, 5, 2, 2, 2, 2, 5, 0 ],
+        [ 5, 5, 3, 3, 3, 3, 5, 5 ],   // shirt highlight
+        [ 0, 0, 5, 5, 5, 5, 0, 0 ],   // jacket bottom
     ]];
 
     public override byte[][][][] BodyParts { get; } = [ _body0, _body1, _body2 ];
 
     // ── Legs parts (8 wide × 4 rows, 4 frames) ───────────────────────────────
-    // Atari legs are very blocky — only 4 pixel rows
+    // Idle: legs merged at centre; walk: legs spread to outer logical pixels.
 
     // Legs 0: pants + belt
     private static readonly byte[][][] _legs0 =
     [
         [   // idle
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],   // belt (4)
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
-            [ 0, 6, 6, 0, 0, 6, 6, 0 ],   // shoes (6)
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // pants (merged)
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 0, 0 ],   // shoes
         ],
-        [   // walk A
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 2, 2, 0, 0, 0, 2, 0 ],
-            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 7, 6, 0, 0, 0, 0, 6, 7 ],   // shoe highlight (7)
+        [   // walk A — left foot forward
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 2, 2, 2, 2, 0, 0, 0, 0 ],   // left leg out
+            [ 2, 2, 0, 0, 0, 0, 2, 2 ],   // spreading
+            [ 6, 6, 0, 0, 0, 0, 6, 6 ],   // shoes spread
         ],
         [   // mid
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
-        [   // walk B
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 2, 0, 0, 0, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 0, 2, 2 ],
-            [ 0, 6, 7, 0, 0, 0, 7, 6 ],
+        [   // walk B — right foot forward
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2 ],   // right leg out
+            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
+            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
         ],
     ];
 
-    // Legs 1: formal (no belt)
+    // Legs 1: formal trousers — no belt; shoe highlight varies per foot
     private static readonly byte[][][] _legs1 =
     [
         [   // idle
-            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
-            [ 0, 6, 7, 0, 0, 6, 7, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 7, 7, 0, 0 ],   // left shoe dark, right shoe highlight
         ],
         [   // walk A
-            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 0, 2, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 2, 2, 2, 2, 0, 0, 0, 0 ],
             [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 7, 6, 0, 0, 0, 0, 6, 7 ],
+            [ 6, 6, 0, 0, 0, 0, 7, 7 ],
         ],
         [   // mid
-            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 2, 2, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
         [   // walk B
-            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 0, 0, 0, 2, 2, 0 ],
-            [ 0, 2, 2, 0, 0, 0, 2, 2 ],
-            [ 0, 6, 7, 0, 0, 0, 7, 6 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2 ],
+            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
+            [ 7, 7, 0, 0, 0, 0, 6, 6 ],
         ],
     ];
 
-    // Legs 2: shorts (bare skin = 1)
+    // Legs 2: shorts + bare skin below knee
     private static readonly byte[][][] _legs2 =
     [
         [   // idle
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 2, 2, 1, 1, 2, 2, 0 ],   // shorts + bare skin (1)
-            [ 0, 1, 1, 0, 0, 1, 1, 0 ],   // bare legs
-            [ 0, 6, 6, 0, 0, 6, 6, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // shorts
+            [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // bare legs
+            [ 0, 0, 6, 6, 6, 6, 0, 0 ],   // shoes
         ],
         [   // walk A
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 1, 2, 0, 0, 0, 1, 0 ],
-            [ 1, 1, 0, 0, 0, 0, 1, 1 ],
-            [ 7, 6, 0, 0, 0, 0, 6, 7 ],
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 2, 2, 2, 2, 0, 0, 0, 0 ],   // left shorts out
+            [ 1, 1, 0, 0, 0, 0, 1, 1 ],   // bare legs spread
+            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
         ],
         [   // mid
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 2, 1, 1, 1, 1, 2, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 1, 1, 1, 1, 0, 0 ],
             [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
         [   // walk B
-            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
-            [ 0, 1, 0, 0, 0, 2, 1, 0 ],
-            [ 0, 1, 1, 0, 0, 0, 1, 1 ],
-            [ 0, 6, 7, 0, 0, 0, 7, 6 ],
+            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2 ],   // right shorts out
+            [ 1, 1, 0, 0, 0, 0, 1, 1 ],
+            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
         ],
     ];
 

@@ -31,6 +31,13 @@ public abstract class RetroSystem
     public abstract int    NativeTileSize{ get; }
     public abstract float  DisplayScale  { get; }
 
+    /// <summary>
+    /// True for systems (Atari 2600, C64) where each logical pixel occupies two
+    /// adjacent horizontal screen pixels.  Enforced at render time: odd columns
+    /// always copy the value from the preceding even column.
+    /// </summary>
+    protected virtual bool DoubleWidePixels => false;
+
     // ── Tile art ─────────────────────────────────────────────────────────────
 
     protected abstract Color[]  TilePalette { get; }
@@ -95,6 +102,7 @@ public abstract class RetroSystem
                 for (int tx = 0; tx < target; tx++)
                 {
                     int srcCol = Math.Min((int)(tx / rx), nativeW - 1);
+                    if (DoubleWidePixels) srcCol = Math.Min(srcCol & ~1, nativeW - 1);
                     byte idx   = pixels[srcRow][srcCol];
                     Color c    = idx < effectivePalette.Length ? effectivePalette[idx] : effectivePalette[0];
                     data[ty * (target * count) + i * target + tx] = c;
@@ -155,7 +163,8 @@ public abstract class RetroSystem
             var srcRow = part[y];
             for (int x = 0; x < CharWidth; x++)
             {
-                byte idx = x < srcRow.Length ? srcRow[x] : (byte)0;
+                int srcX = DoubleWidePixels ? x & ~1 : x;
+                byte idx = srcX < srcRow.Length ? srcRow[srcX] : (byte)0;
                 data[(rowOffset + y) * (CharWidth * totalFrames) + frame * CharWidth + x] =
                     idx == 0 ? Color.Transparent : resolve(idx);
             }
