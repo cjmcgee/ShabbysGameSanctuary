@@ -307,6 +307,7 @@ namespace ChildhoodAdventure.Scenes
             });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = 8f;
+            Engine.RenderSystem.Camera.CenterOn(pos);
             return e;
         }
 

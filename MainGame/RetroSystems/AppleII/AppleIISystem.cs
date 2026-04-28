@@ -11,14 +11,18 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 ///     (colors arise from 1-MHz pixel clock and NTSC artifact coloring)
 ///   • Iconic phosphor-green monochrome aesthetic with occasional color fringing
 ///   • Character sprites: 7×16 (HeadRows=4, BodyRows=7, LegsRows=5)
-///   • Camera zoom 1.5×: approximates the Apple II's low screen resolution feel
+///   • Native screen: 280×192. DisplayScale 3.125 shows exactly 192 world pixels tall at a 600px viewport
+///   • MaxZoomOutArea (560×384) limits zoom-out to 2× native in each direction
 /// </summary>
 public sealed class AppleIISystem : RetroSystem
 {
     public override string Name        => "Apple II";
-    public override string Description => "7×8 char-cells · Hi-res artifact colors";
+    public override string Description => "7×8 char-cells · 280×192 · Hi-res artifact colors";
     public override int    NativeTileSize => 8;
-    public override float  DisplayScale   => 1.5f;
+    public override float  DisplayScale   => 3.125f;
+
+    // Native Apple II Hi-res: 280×192. MaxZoomOutArea caps at 2× native in each direction.
+    public override Vector2? MaxZoomOutArea => new Vector2(560, 384);
 
     // ── Tile palette ──────────────────────────────────────────────────────────
     protected override Color[] TilePalette { get; } =

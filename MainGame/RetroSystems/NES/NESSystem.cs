@@ -10,16 +10,20 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 ///   • NES PPU palette: 54 available colors; each background palette has 3 colors + shared bg
 ///   • Rich multi-color pixel art — the most detailed system in this set
 ///   • Character sprites: 16×24 (HeadRows=6, BodyRows=9, LegsRows=9)
-///   • Camera zoom 2×: faithful to the NES's 256×240 display scaled to modern screens
+///   • Native screen: 256×224. DisplayScale ≈2.679 shows exactly 224 world pixels tall at a 600px viewport
+///   • MaxZoomOutArea (512×448) limits zoom-out to 2× native in each direction
 ///
 /// The tile pixel data is 16×16 (native to this system — no upscaling needed).
 /// </summary>
 public sealed class NESSystem : RetroSystem
 {
     public override string Name        => "NES";
-    public override string Description => "16×16 tiles · NES PPU palette";
+    public override string Description => "16×16 tiles · 256×224 · NES PPU palette";
     public override int    NativeTileSize => 16;
-    public override float  DisplayScale   => 2.0f;
+    public override float  DisplayScale   => 600f / 224f;   // ≈2.679 — native 224 lines fill a 600px viewport
+
+    // Native NES: 256×224. MaxZoomOutArea caps at 2× native in each direction.
+    public override Vector2? MaxZoomOutArea => new Vector2(512, 448);
 
     // ── NES-style palette ─────────────────────────────────────────────────────
     protected override Color[] TilePalette { get; } =
