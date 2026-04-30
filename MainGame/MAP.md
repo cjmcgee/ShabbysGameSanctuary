@@ -188,6 +188,7 @@ A box with a concession window on the side. This suggest that this building some
 This place is popular with kids, to the point where the shopkeep seems to be just a bigger version. The front is crowded with boxes of comic and the walls are lined with figurines, rare toys, and rare games. Board game in foreign languages, figures for cartoons you have never seen, toys that look like they might be from a different planet. Under the glass counters are cards encased in lucite or maybe glass. These somehow don't look that special to you, but the crazy prices next to them suggest they are quite special to someone. In the back are some tables that seem to be well used. As cheap and flimsy as they look you are kind of surprised they are still intact. You don't know what going on there, but someone gets a lot of use out of them.
 
 #### Convent grounds
+A serene place for contemplation. The convent is supposed to be full of nun, but you never seem to see any out here.  But the grass and landscaping are well maintained and the pond is clean. Could the nuns are nocturnal? Somehow though, you know if you got even 1% of out of line here a nun would materialize behind you. Maybe they are just ninjas; both wear black and can materialize their weapon out of thin air. 
 
 #### Convent
 

@@ -131,10 +131,10 @@ namespace ChildhoodAdventure.Scenes
             FillColMid(mid, col, 0);
             FillColMid(mid, col, MapW - 1);
 
-            // Windows on the top wall
-            mid.SetTile(4,  0, T_WINDOW); col.SetTile(4,  0, 0);
-            mid.SetTile(9,  0, T_WINDOW); col.SetTile(9,  0, 0);
-            mid.SetTile(16, 0, T_WINDOW); col.SetTile(16, 0, 0);
+            // Windows on the top wall — visual only, wall collision stays solid
+            mid.SetTile(4,  0, T_WINDOW);
+            mid.SetTile(9,  0, T_WINDOW);
+            mid.SetTile(16, 0, T_WINDOW);
 
             // Front door: two walkable tiles in bottom wall
             mid.SetTile(10, MapH - 1, T_DOOR); col.SetTile(10, MapH - 1, 0);
