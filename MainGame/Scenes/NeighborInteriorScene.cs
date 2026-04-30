@@ -946,14 +946,18 @@ namespace ChildhoodAdventure.Scenes
                 new Vector2(textX, cy), Color.White, textMaxW, scale);
             float afterBody = cy + bodyH + 4;
 
-            if (Engine.DialogueSystem.WaitingForChoice && line.Choices != null)
+            if (Engine.DialogueSystem.WaitingForChoice)
             {
-                for (int i = 0; i < line.Choices.Length; i++)
+                var choices = Engine.DialogueSystem.VisibleChoices;
+                for (int i = 0; i < choices.Length; i++)
                 {
-                    bool sel = i == Engine.DialogueSystem.SelectedChoiceIndex;
-                    font.DrawText(sb, (sel ? "> " : "  ") + line.Choices[i].Text,
-                        new Vector2(textX, afterBody + i * lineH),
-                        sel ? Color.Yellow : Color.LightGray, scale);
+                    bool sel     = i == Engine.DialogueSystem.SelectedChoiceIndex;
+                    bool enabled = choices[i].EnabledCondition?.Invoke() ?? true;
+                    Color color  = !enabled ? Color.DarkGray
+                                 : sel      ? Color.Yellow
+                                            : Color.LightGray;
+                    font.DrawText(sb, (sel && enabled ? "> " : "  ") + choices[i].Text,
+                        new Vector2(textX, afterBody + i * lineH), color, scale);
                 }
             }
             else if (Engine.DialogueSystem.IsTextComplete)
