@@ -157,15 +157,23 @@ The building had camouflage paint which seems counterproductive to bringing in b
 There are rows of kayaks and rowboats in racks, often covered with canvas tarps. A couple slightly bigger boats that seem to have collapsed sails are under tarps as well. A couple swan boats that look not quite sanitary are tied up and float just past the water line. There is a for rent sign, but no indication of how to accomplish such a task. Maybe someone in the bait shop will know.
 
 #### Bodega
-A downtown convenience store to cater to those who want to feel a bit more urban in this rather un-unrban town. 
+A downtown convenience store to cater to those who want to feel a bit more urban in this rather un-unrban town. There are more exotic goods available here including some home-made Hispanic goodies. Some of the ads in the window and on the walls are in Spanish and the place seem to cater to an audience that is undeserved by the more common convenience store and groceries. One of the married couple which owns the place seem to always be working here despite the place seeming to be open at all hours. There seems to always be a line of people here buying lottery tickets or scratchers. The parking lot has the litter remnants of this along with some snack detritus like bottle caps and gum wrappers.
+
+#### Bowling alley
+Only a few lanes are available here, but it seems to attract a very dedicated clientele. It seems like the same regulars are here every time you are in this place. They offer a few simple hot snacks and alcohol drinks here at inflated prices. The latter seem to be consumed almost exclusively by the regulars. They recently added a couple arcade machines here, but they are the most common games so it is hard to get excited for them. Still, you get to see people you would have though way too old for such things struggle with them and then curse and how quickly the quarter disappeared.
+
+#### Boxing gym
+This seems like the only public gym in the town, but it is dominated by a large boxing ring. The couple regular boxers seem to be milling around more often then they seem to spar or exercise, but somehow they keep their dream alive. The exercise equipment lines the walls and are all pretty simple and a bit ragged. The place is a bit darker than it should be; maybe to keep from seeing any vermin that must sneak into this place on occasion. The owner/trainer still has some enthusiasm and will talk about boxing or exercise forever if you let him; but most often he is watching something sports related on the tiny TV hung in the corner.    
+
+##### Camp ground
 
 #### Fairground Bathrooms
 
 
 
-Bowling alley
-Boxing gym
-Camp ground
+
+
+
 Cemetery
 Chapel
 Church
