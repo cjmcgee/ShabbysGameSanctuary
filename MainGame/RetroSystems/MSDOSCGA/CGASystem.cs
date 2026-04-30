@@ -534,6 +534,242 @@ public sealed class CGASystem : RetroSystem
 
     public override byte[][][][] LegsParts { get; } = [ _legs0, _legs1, _legs2 ];
 
+    // ── Back-facing heads ─────────────────────────────────────────────────────
+
+    private static readonly byte[][][] _head0Back =
+    [[
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // hair
+        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // hair (no eyes)
+        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck base
+    ]];
+
+    private static readonly byte[][][] _head1Back =
+    [[
+        [ 0, 5, 5, 5, 5, 5, 5, 0 ],   // hat crown
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim
+        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck base
+    ]];
+
+    private static readonly byte[][][] _head2Back =
+    [[
+        [ 2, 2, 2, 2, 2, 2, 0, 0 ],   // full hair
+        [ 2, 2, 2, 2, 2, 2, 2, 0 ],   // hair (longer from back)
+        [ 2, 1, 1, 1, 1, 1, 2, 0 ],   // hair sides + neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+    ]];
+
+    public override byte[][][][] HeadPartsBack { get; } = [ _head0Back, _head1Back, _head2Back ];
+
+    // ── Side-facing heads (profile right) ────────────────────────────────────
+
+    private static readonly byte[][][] _head0Side =
+    [[
+        [ 0, 2, 2, 1, 1, 1, 0, 0 ],   // hair left + face
+        [ 0, 2, 1, 1, 1, 4, 0, 0 ],   // hair + face + eye right
+        [ 0, 2, 1, 1, 1, 1, 0, 0 ],   // hair + lower face
+        [ 0, 0, 1, 1, 1, 0, 0, 0 ],   // chin (narrower)
+    ]];
+
+    private static readonly byte[][][] _head1Side =
+    [[
+        [ 0, 5, 5, 5, 5, 5, 0, 0 ],   // hat
+        [ 5, 5, 5, 5, 5, 5, 5, 0 ],   // hat brim
+        [ 0, 0, 1, 1, 1, 4, 0, 0 ],   // face + eye
+        [ 0, 0, 1, 1, 1, 0, 0, 0 ],   // chin
+    ]];
+
+    private static readonly byte[][][] _head2Side =
+    [[
+        [ 2, 2, 2, 1, 1, 1, 0, 0 ],   // hair left + face
+        [ 2, 2, 1, 1, 1, 4, 0, 0 ],   // hair + face + eye
+        [ 2, 2, 1, 1, 1, 1, 0, 0 ],   // hair + lower face
+        [ 0, 2, 1, 1, 1, 0, 0, 0 ],   // hair tail + chin
+    ]];
+
+    public override byte[][][][] HeadPartsSide { get; } = [ _head0Side, _head1Side, _head2Side ];
+
+    // ── Back-facing bodies ────────────────────────────────────────────────────
+
+    private static readonly byte[][][] _body0Back =
+    [[
+        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt back
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt (no buttons)
+        [ 2, 3, 2, 2, 2, 2, 3, 2 ],   // back highlights
+        [ 0, 2, 2, 2, 2, 2, 2, 0 ],   // lower
+    ]];
+
+    private static readonly byte[][][] _body1Back =
+    [[
+        [ 0, 1, 5, 1, 1, 5, 1, 0 ],   // neck + collar
+        [ 2, 5, 2, 2, 2, 2, 5, 2 ],   // collar back
+        [ 2, 5, 2, 2, 2, 2, 5, 2 ],   // collar
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 2, 3, 2, 2, 2, 2, 3, 2 ],   // highlights
+        [ 0, 2, 2, 2, 2, 2, 2, 0 ],   // lower
+    ]];
+
+    private static readonly byte[][][] _body2Back =
+    [[
+        [ 0, 1, 1, 1, 1, 1, 1, 0 ],   // neck
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // jacket back
+        [ 5, 2, 2, 2, 2, 2, 2, 5 ],   // jacket
+        [ 5, 2, 2, 2, 2, 2, 2, 5 ],   // jacket
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // jacket lower
+        [ 0, 5, 2, 2, 2, 2, 5, 0 ],   // jacket bottom
+    ]];
+
+    public override byte[][][][] BodyPartsBack { get; } = [ _body0Back, _body1Back, _body2Back ];
+
+    // ── Side-facing bodies (profile right) ───────────────────────────────────
+
+    private static readonly byte[][][] _body0Side =
+    [[
+        [ 0, 0, 1, 1, 1, 0, 0, 0 ],   // neck (narrower)
+        [ 0, 1, 2, 2, 2, 1, 0, 0 ],   // shoulder + arm stub
+        [ 0, 2, 2, 2, 2, 0, 0, 0 ],   // torso
+        [ 0, 3, 2, 2, 2, 0, 0, 0 ],   // highlight
+        [ 0, 2, 2, 2, 2, 0, 0, 0 ],   // mid
+        [ 0, 2, 2, 2, 2, 0, 0, 0 ],   // lower
+    ]];
+
+    private static readonly byte[][][] _body1Side =
+    [[
+        [ 0, 0, 1, 1, 1, 0, 0, 0 ],   // neck
+        [ 0, 5, 2, 2, 5, 0, 0, 0 ],   // lapel side
+        [ 0, 2, 4, 2, 2, 0, 0, 0 ],   // button
+        [ 0, 2, 2, 2, 2, 0, 0, 0 ],
+        [ 0, 3, 2, 2, 2, 0, 0, 0 ],
+        [ 0, 2, 2, 2, 2, 0, 0, 0 ],
+    ]];
+
+    private static readonly byte[][][] _body2Side =
+    [[
+        [ 0, 0, 1, 1, 1, 0, 0, 0 ],   // neck
+        [ 0, 5, 5, 5, 5, 0, 0, 0 ],   // jacket side
+        [ 0, 5, 2, 2, 5, 0, 0, 0 ],   // open jacket
+        [ 0, 5, 4, 2, 5, 0, 0, 0 ],   // button
+        [ 0, 5, 2, 2, 5, 0, 0, 0 ],
+        [ 0, 5, 5, 5, 5, 0, 0, 0 ],
+    ]];
+
+    public override byte[][][][] BodyPartsSide { get; } = [ _body0Side, _body1Side, _body2Side ];
+
+    // ── Side-facing legs (profile walk, 4 frames) ────────────────────────────
+
+    private static readonly byte[][][] _legs0Side =
+    [
+        [   // idle — toe extends right
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 3, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk A — front foot forward (right)
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 0, 2, 0, 2, 2, 0 ],
+            [ 0, 7, 6, 0, 0, 6, 6, 0 ],
+            [ 0, 0, 0, 0, 0, 7, 7, 0 ],
+        ],
+        [   // mid — legs crossing
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 3, 2, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 6, 6, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B — back foot forward (left)
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 0, 0, 2, 3, 0, 0 ],
+            [ 0, 2, 2, 2, 2, 0, 0, 0 ],
+            [ 0, 2, 2, 0, 2, 0, 0, 0 ],
+            [ 0, 6, 6, 0, 6, 7, 0, 0 ],
+            [ 0, 7, 7, 0, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs1Side =
+    [
+        [   // idle
+            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 2, 3, 3, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 0 ],
+            [ 0, 0, 7, 7, 0, 0, 0, 0 ],
+        ],
+        [   // walk A
+            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 2, 3, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 0, 2, 0, 2, 2, 0 ],
+            [ 0, 6, 6, 0, 0, 6, 6, 0 ],
+            [ 0, 7, 7, 0, 0, 7, 7, 0 ],
+        ],
+        [   // mid
+            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 2, 3, 3, 2, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 2, 2, 0, 0, 0 ],
+            [ 0, 0, 0, 6, 6, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B
+            [ 0, 2, 2, 2, 2, 2, 2, 0 ],
+            [ 0, 0, 0, 0, 2, 3, 0, 0 ],
+            [ 0, 2, 2, 2, 2, 0, 0, 0 ],
+            [ 0, 2, 2, 0, 2, 0, 0, 0 ],
+            [ 0, 6, 6, 0, 6, 6, 0, 0 ],
+            [ 0, 7, 7, 0, 7, 7, 0, 0 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs2Side =
+    [
+        [   // idle
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 1, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 1, 2, 0, 0 ],
+            [ 0, 0, 1, 1, 0, 1, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk A
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 1, 0, 0, 0 ],
+            [ 0, 0, 0, 1, 1, 1, 1, 0 ],
+            [ 0, 0, 0, 1, 0, 1, 1, 0 ],
+            [ 0, 7, 6, 0, 0, 6, 6, 0 ],
+            [ 0, 0, 0, 0, 0, 7, 7, 0 ],
+        ],
+        [   // mid
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 2, 3, 1, 2, 0, 0 ],
+            [ 0, 0, 0, 1, 1, 0, 0, 0 ],
+            [ 0, 0, 0, 1, 1, 0, 0, 0 ],
+            [ 0, 0, 0, 6, 6, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B
+            [ 0, 4, 2, 2, 2, 2, 4, 0 ],
+            [ 0, 0, 0, 0, 1, 3, 0, 0 ],
+            [ 0, 1, 1, 1, 1, 0, 0, 0 ],
+            [ 0, 1, 1, 0, 1, 0, 0, 0 ],
+            [ 0, 6, 6, 0, 6, 7, 0, 0 ],
+            [ 0, 7, 7, 0, 0, 0, 0, 0 ],
+        ],
+    ];
+
+    public override byte[][][][] LegsPartsSide { get; } = [ _legs0Side, _legs1Side, _legs2Side ];
+
     // ── Head palettes — all resolved colors are from the 4-color CGA set ─────
     // Black=(0,0,0)  Cyan=(85,255,255)  Magenta=(255,85,255)  White=(255,255,255)
 

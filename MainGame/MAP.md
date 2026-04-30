@@ -4,8 +4,8 @@
 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 |-------------|-----------|----------|---------|------------|----------------------|--------|
 | Farm land | Farm land | Farm land | River | Farm land | Farm land | Lake |
-| Strip mall | Neighborhood | Neighborhood | River | Downtown | Fair grounds | Lake | 
-| Arcade | Convent | Church | River | Downtown | Middle/high school | Lake | 
+| Strip mall | Suburban neighborhood | Suburban neighborhood | River | Downtown | Fair grounds | Lake | 
+| Arcade exterior | Convent land | Church yard | River | Downtown | Middle/high school | Lake | 
 | Woods | Woods | Woods | River | Woods | Woods | Woods | Lake |
 
 Adjacent areas with the same name are one area not separate areas with the same name. Woods and Farm Land are each separated into two areas by the River area.  
@@ -29,10 +29,10 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 
 1. Suburban neighborhood
 - Your home
-- Neighbor's homes
+- Neighbor's homes (multiple)
 - Park
 - Pool
-- River bank
+- River bank 
 - Gas station / convenience store / vending machines
 - Auto parts / repair garage
 - Diner
@@ -59,13 +59,13 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Tailors
 - Laundry
 - Fancy clothes store
-- Boxing Gym
+- Boxing gym
 - Bodega
 - Fancy restaurant
 - Pet shop
 - Shabby bar / pool hall
 - Town museum
-- Neighborhood
+- Suburban neighborhood
 - Fairgrounds
 - River bank
 3. Strip mall
@@ -77,27 +77,27 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Fancy gym
 - Second hand store
 - Fast food restaurant
-- Arcade 
-- Neighborhood
+- Arcade exterior
+- Suburban neighborhood
 4. Woods
-- Neighborhood
+- Suburban neighborhood
 - Rocky butte 
 - Meditation center
 - Camp ground
 - Creek
-5. Public school yard
-- School
-- Gym
-- Neighborhood
+5. Public primary school yard
+- Public primary school interior
+- Primary school gym
+- Suburban neighborhood
 6. Private school yard
-- Gym
+- Private school gym
 - Chapel
 - Neighborhood
-- School building (not enterable)
+- Private school building (not enterable)
 7. Middle/high school yard
-- Middle school
+- Middle school building
 - Middle school gym
-- High School
+- High School building
 - High school gym
 - Green house
 - Maintenance shed
@@ -106,20 +106,20 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Fairgrounds
 - Downtown
 8. Church
-- Neighborhood
+- Suburban neighborhood
 - Convent land
 - Cemetery
 9. Convent land
 - Convent
-- Church
-- Arcade
+- Church yard
+- Arcade exterior
 - Woods
-- Neighborhood
+- Suburban neighborhood
 10. Fairgrounds
 - Event center
-- Bathrooms
+- Fairground Bathrooms
 - Farm Museum
-- Middle/high school
+- Middle/high school yard
 - Farm land
 - Lake
 - Downtown
@@ -129,9 +129,108 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Boat rental
 - Farm land
 - Woods
-- Middle/high school
+- Middle/high school yard
 - Fairgrounds
 12. Rocky butte 
 - Meditation center
 - Woods
- 
+13. Arcade exterior
+- Arcade interior
+- Convent land
+- Strip mall
+- Woods
+
+### Area descriptions
+#### Arcade exterior
+The arcade building stands alone in a decaying parking lot. The building itself is a somewhat shabby box with all the windows blacked out. The building it painted black with some angular decorative paint in slightly faded neon colors to give the building a techno/sci-fi look. A few cars are here, but the bike rack is overflowing. Some graphity has been sprayed on the back side near the dumpster. Some trash is spread around the dumpster including some broken arcade furniture and bits of circuitry and arcade machines that were too hard to get into the dumpster or had been pulled out by dumpster divers. 
+
+#### Arcade interior
+The place is a bit dark despite the light flooding out of the multitude of arcade machines. There are many standard upright machines, but there are several that defy the this archetype. Some sit down machines, some mutliplayer machines, some with guns or periscope mounted on them. There is a jaded cashier that will change money but also a token machine that works slightly more often than not. The cashier is surrounded by simple pre-packages snacks, drinks and smokes which are sold at inflated prices. Some of these seem to have been on the shelf longer than video arcades have been a thing; what did this place with blacked out windows use to be? Kids, teenagers and a few adults crowd the place moving around, waiting their turn, actively playing, arguing, or simply spectating an interesting player. There are a few small tables in the back where many of the adults in the place are sitting watching their charges, eating a snack, or dozing off.
+
+#### Auto parts / repair garage
+On garage bay and tiny attached store displaying commonly needed or consumable auto parts. A mechanic and a cashier are who is normally working here, though sometimes one person is juggling both. Sometimes an interesting vehicle is being worked on or is shopping here, but more often than not the bay is empty and the mechanic is just offering advice. Grease and other mechanical fluids stain the parking lot and parts spill out to in front of the building. The dumpster has a few items that are too heavy to make it into the dumpster or just got dropped on their way. Containers of weird fluids and the leaking batteries here should probably be properly disposed of properly.
+
+#### Bait shop
+The building had camouflage paint which seems counterproductive to bringing in business, but the myriad of posters in the windows destroy any stealth effect the paint might have achieved. There is a vending machine out front with worms or crickets or various unrecognizable critters in little cubbies. Inside there are ice cream coolers but instead of frozen treats they have bins of various wriggling things. The interior walls are lined with poles and all manner of related fishing and hunting gear. Somehow despite its tight product focus it manages to overflow the few shelves that can fit in the tiny building. The cashier is a portly and jolly fellow usually wearing camo like his building. Despite that his friendly personality and exaggerated speech make him impossible to miss.
+
+#### Boat rental
+There are rows of kayaks and rowboats in racks, often covered with canvas tarps. A couple slightly bigger boats that seem to have collapsed sails are under tarps as well. A couple swan boats that look not quite sanitary are tied up and float just past the water line. There is a for rent sign, but no indication of how to accomplish such a task. Maybe someone in the bait shop will know.
+
+#### Bodega
+A downtown convenience store to cater to those who want to feel a bit more urban in this rather un-unrban town. 
+
+#### Fairground Bathrooms
+
+
+
+Bowling alley
+Boxing gym
+Camp ground
+Cemetery
+Chapel
+Church
+Church yard
+Clubhouse / snack shop
+Comic book store / game shop / TCG tables
+Convent
+Convent grounds
+Convent land
+Creek
+Dentist
+Department store
+Diner
+Discount clothes store
+Doctor's office
+Donut shop
+Downtown
+Electronics repair
+Electronics store
+Event center
+Fairgrounds
+Fancy clothes store
+Fancy gym
+Fancy restaurant
+Farm land
+Farm Museum
+Fast food restaurant
+Gas station / convenience store / vending machines
+Green house
+High School building
+High school gym
+Lake
+Laundry
+Library
+Maintenance shed
+Meditation center
+Middle school building
+Middle school gym
+Middle/high school yard
+Movie theater
+Neighbor's homes (multiple)
+Neighborhood
+Park
+Parking lot
+Pawn shop
+Pet shop
+Pool
+Primary school gym
+Private school building (not enterable)
+Private school gym
+Private school yard
+Pub
+Public primary school interior
+Public primary school yard
+Public school yard
+River bank
+Rocky butte
+Second hand store
+Shabby bar / pool hall
+Strip mall
+Suburban neighborhood
+Tailors
+Town hall
+Town museum
+Toy store
+Woods
+Your home
+

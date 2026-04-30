@@ -544,6 +544,172 @@ public sealed class AppleIISystem : RetroSystem
 
     public override byte[][][][] LegsParts { get; } = [ _legs0, _legs1, _legs2 ];
 
+    // ── Back-facing heads (no eye row) ────────────────────────────────────────
+
+    private static readonly byte[][][] _head0Back =
+    [[
+        [ 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair crown
+        [ 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair back (no eyes)
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // upper neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+    ]];
+
+    private static readonly byte[][][] _head1Back =
+    [[
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat top (full brim from behind)
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // upper neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+    ]];
+
+    private static readonly byte[][][] _head2Back =
+    [[
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // full hair
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // full hair back
+        [ 2, 2, 1, 1, 1, 1, 2, 2 ],   // hair sides + neck
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // chin/neck
+    ]];
+
+    public override byte[][][][] HeadPartsBack { get; } = [ _head0Back, _head1Back, _head2Back ];
+
+    // ── Back-facing bodies (no buttons) ──────────────────────────────────────
+
+    private static readonly byte[][][] _body0Back =
+    [[
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // back shoulder
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt (no buttons)
+        [ 2, 2, 3, 3, 3, 3, 2, 2 ],   // highlight
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // mid
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // lower
+    ]];
+
+    private static readonly byte[][][] _body1Back =
+    [[
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // collar back
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // collar
+        [ 5, 5, 2, 2, 2, 2, 5, 5 ],   // lapels back
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // torso
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // lower
+        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // bottom
+    ]];
+
+    private static readonly byte[][][] _body2Back =
+    [[
+        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket back
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+        [ 5, 5, 5, 5, 5, 5, 5, 5 ],
+    ]];
+
+    public override byte[][][][] BodyPartsBack { get; } = [ _body0Back, _body1Back, _body2Back ];
+
+    // ── Side-facing legs (profile walk, double-wide 4 logical cols) ──────────
+    // Front foot swings right (cols 4-7), back foot left (cols 0-3).
+
+    private static readonly byte[][][] _legs0Side =
+    [
+        [   // idle — legs centered, toe extends right
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 6 ],
+            [ 0, 0, 7, 7, 6, 6, 0, 0 ],
+        ],
+        [   // walk A — front foot forward (right)
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2 ],
+            [ 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 2, 2, 0, 0, 6, 6, 6, 6 ],
+            [ 6, 6, 0, 0, 7, 7, 0, 0 ],
+        ],
+        [   // mid — legs crossing
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B — back foot forward (left)
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 2, 2, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2 ],
+            [ 6, 6, 6, 6, 0, 0, 2, 2 ],
+            [ 7, 7, 6, 6, 0, 0, 6, 6 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs1Side =
+    [
+        [   // idle
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 6 ],
+            [ 0, 0, 7, 7, 6, 6, 0, 0 ],
+        ],
+        [   // walk A
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2 ],
+            [ 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 2, 2, 0, 0, 6, 6, 6, 6 ],
+            [ 6, 6, 0, 0, 7, 7, 0, 0 ],
+        ],
+        [   // mid
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 2, 2, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2 ],
+            [ 6, 6, 6, 6, 0, 0, 2, 2 ],
+            [ 7, 7, 6, 6, 0, 0, 6, 6 ],
+        ],
+    ];
+
+    private static readonly byte[][][] _legs2Side =
+    [
+        [   // idle
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 1, 1, 1, 1, 0, 0 ],
+            [ 0, 0, 6, 6, 6, 6, 6, 6 ],
+            [ 0, 0, 7, 7, 6, 6, 0, 0 ],
+        ],
+        [   // walk A
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 2, 2 ],
+            [ 1, 1, 1, 1, 0, 0, 0, 0 ],
+            [ 1, 1, 0, 0, 6, 6, 6, 6 ],
+            [ 6, 6, 0, 0, 7, 7, 0, 0 ],
+        ],
+        [   // mid
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 1, 1, 1, 1, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ],
+        [   // walk B
+            [ 4, 4, 4, 4, 4, 4, 4, 4 ],
+            [ 2, 2, 2, 2, 2, 2, 0, 0 ],
+            [ 0, 0, 0, 0, 1, 1, 1, 1 ],
+            [ 6, 6, 6, 6, 0, 0, 1, 1 ],
+            [ 7, 7, 6, 6, 0, 0, 6, 6 ],
+        ],
+    ];
+
+    public override byte[][][][] LegsPartsSide { get; } = [ _legs0Side, _legs1Side, _legs2Side ];
+
     // ── Head palettes — all resolved colors are from the 6-color hi-res set ──
     // Black=(0,0,0)  Green=(20,245,60)  Violet=(193,28,255)
     // White=(255,255,255)  Orange=(255,106,60)  Blue=(20,88,255)
