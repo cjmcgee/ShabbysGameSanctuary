@@ -103,10 +103,22 @@ public abstract class RetroSystem
     // Head/body variants typically carry 1 frame (static); legs carry 4 walk frames.
     // The base class uses Math.Min(frameIndex, variant.Length-1) so 1-frame parts
     // are safe to use alongside 4-frame legs.
+    //
+    // HeadParts/BodyParts/LegsParts = front/down-facing art (required).
+    // HeadPartsBack/BodyPartsBack/LegsPartsBack = back/up-facing (virtual, default = front).
+    // HeadPartsSide/BodyPartsSide/LegsPartsSide = side/right-facing (virtual, default = front).
 
     public abstract byte[][][][] HeadParts { get; }
     public abstract byte[][][][] BodyParts { get; }
     public abstract byte[][][][] LegsParts { get; }
+
+    public virtual byte[][][][] HeadPartsBack => HeadParts;
+    public virtual byte[][][][] BodyPartsBack => BodyParts;
+    public virtual byte[][][][] LegsPartsBack => LegsParts;
+
+    public virtual byte[][][][] HeadPartsSide => HeadParts;
+    public virtual byte[][][][] BodyPartsSide => BodyParts;
+    public virtual byte[][][][] LegsPartsSide => LegsParts;
 
     // ── Sprite palettes ───────────────────────────────────────────────────────
     // Expected counts: 5 HeadPalettes, 5 BodyPalettes, 4 LegsPalettes
@@ -199,36 +211,57 @@ public abstract class RetroSystem
 
     public AnimatedSprite BuildCharacterSprite(GraphicsDevice gd, CharacterAppearance a)
     {
-        var headVariant = HeadParts[a.HeadIndex];
-        var bodyVariant = BodyParts[a.BodyIndex];
-        var legsVariant = LegsParts[a.LegsIndex];
         var hp = HeadPalettes[a.HeadPaletteIndex];
         var bp = BodyPalettes[a.BodyPaletteIndex];
         var lp = LegsPalettes[a.LegsPaletteIndex];
 
         const int frames = 4;
-        var texture = new Texture2D(gd, CharWidth * frames, CharHeight);
-        var data    = new Color[CharWidth * frames * CharHeight];
+        // 3 facing rows stacked vertically: row0=down/front, row1=up/back, row2=right/side
+        var texture = new Texture2D(gd, CharWidth * frames, CharHeight * 3);
+        var data    = new Color[CharWidth * frames * CharHeight * 3];
 
-        for (int f = 0; f < frames; f++)
-        {
-            var headFrame = headVariant[Math.Min(f, headVariant.Length - 1)];
-            var bodyFrame = bodyVariant[Math.Min(f, bodyVariant.Length - 1)];
-            var legsFrame = legsVariant[Math.Min(f, legsVariant.Length - 1)];
-
-            PastePart(data, frames, headFrame, f, 0,                    hp.Resolve);
-            PastePart(data, frames, bodyFrame, f, HeadRows,             bp.Resolve);
-            PastePart(data, frames, legsFrame, f, HeadRows + BodyRows,  lp.Resolve);
-        }
+        PasteFacing(data, frames, 0, HeadParts,     BodyParts,     LegsParts,     a, hp, bp, lp);
+        PasteFacing(data, frames, 1, HeadPartsBack,  BodyPartsBack,  LegsPartsBack,  a, hp, bp, lp);
+        PasteFacing(data, frames, 2, HeadPartsSide,  BodyPartsSide,  LegsPartsSide,  a, hp, bp, lp);
 
         texture.SetData(data);
-        var walk   = SpriteAnimation.FromStrip("walk", texture, CharWidth, CharHeight, frames, 0, 0.15f);
-        var idle   = SpriteAnimation.FromStrip("idle", texture, CharWidth, CharHeight, 1,      0, 1.0f);
+
         var sprite = new AnimatedSprite(texture, CharWidth, CharHeight);
-        sprite.AddAnimation(walk);
-        sprite.AddAnimation(idle);
-        sprite.Play("idle");
+        sprite.AddAnimation(SpriteAnimation.FromStrip("walk_down",  texture, CharWidth, CharHeight, frames, 0, 0.15f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("idle_down",  texture, CharWidth, CharHeight, 1,      0, 1.0f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("walk_up",    texture, CharWidth, CharHeight, frames, 1, 0.15f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("idle_up",    texture, CharWidth, CharHeight, 1,      1, 1.0f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("walk_right", texture, CharWidth, CharHeight, frames, 2, 0.15f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("idle_right", texture, CharWidth, CharHeight, 1,      2, 1.0f));
+        // Non-directional fallbacks resolve to down-facing
+        sprite.AddAnimation(SpriteAnimation.FromStrip("walk",       texture, CharWidth, CharHeight, frames, 0, 0.15f));
+        sprite.AddAnimation(SpriteAnimation.FromStrip("idle",       texture, CharWidth, CharHeight, 1,      0, 1.0f));
+        sprite.Play("idle_down");
         return sprite;
+    }
+
+    private void PasteFacing(
+        Color[]              data,
+        int                  totalFrames,
+        int                  facingRow,
+        byte[][][][] headParts,
+        byte[][][][] bodyParts,
+        byte[][][][] legsParts,
+        CharacterAppearance  a,
+        HeadPalette          hp,
+        BodyPalette          bp,
+        LegsPalette          lp)
+    {
+        int baseRow     = facingRow * CharHeight;
+        var headVariant = headParts[a.HeadIndex];
+        var bodyVariant = bodyParts[a.BodyIndex];
+        var legsVariant = legsParts[a.LegsIndex];
+        for (int f = 0; f < totalFrames; f++)
+        {
+            PastePart(data, totalFrames, headVariant[Math.Min(f, headVariant.Length - 1)], f, baseRow,                          hp.Resolve);
+            PastePart(data, totalFrames, bodyVariant[Math.Min(f, bodyVariant.Length - 1)], f, baseRow + HeadRows,               bp.Resolve);
+            PastePart(data, totalFrames, legsVariant[Math.Min(f, legsVariant.Length - 1)], f, baseRow + HeadRows + BodyRows,    lp.Resolve);
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

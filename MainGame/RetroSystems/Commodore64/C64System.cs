@@ -718,6 +718,318 @@ public sealed class C64System : RetroSystem
 
     public override byte[][][][] LegsParts { get; } = [ _legs0, _legs1, _legs2 ];
 
+    // ── Back-facing heads (1 frame × 6 rows × 12 cols) ───────────────────────
+    // Shows back of head — hair/hat only, no face visible.
+
+    private static readonly byte[][][] _head0Back =   // basic — short hair, back view
+    [
+        [
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair top
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair
+            [ 0, 0, 2, 2, 1, 1, 1, 1, 2, 2, 0, 0 ],   // short hair — skin centre shows
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],   // back of neck
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head1Back =   // cap — back of hat
+    [
+        [
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // hat back
+            [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],   // back of head
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],   // back of neck
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head2Back =   // long hair — flows out from back
+    [
+        [
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair all across top
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair (long — covers head)
+            [ 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0 ],   // hair sides + neck centre
+            [ 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0 ],   // hair + chin
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    public override byte[][][][] HeadPartsBack { get; } = [ _head0Back, _head1Back, _head2Back ];
+
+    // ── Side-facing heads (1 frame × 6 rows × 12 cols, profile facing right) ─
+    // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
+
+    private static readonly byte[][][] _head0Side =   // basic — right-facing profile
+    [
+        [
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hair top
+            [ 0, 0, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0 ],   // hair trailing + face
+            [ 0, 0, 1, 1, 1, 1, 4, 4, 0, 0, 0, 0 ],   // face + eye (forward side)
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // lower face
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0 ],   // chin + nose protrudes right
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head1Side =   // cap — profile with hat brim forward
+    [
+        [
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // hat top
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim extends forward (right)
+            [ 0, 0, 1, 1, 1, 1, 4, 4, 0, 0, 0, 0 ],   // face + eye
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // lower face
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0 ],   // chin + nose
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    private static readonly byte[][][] _head2Side =   // long hair — profile, hair trails left
+    [
+        [
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hair all across top
+            [ 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0 ],   // hair trailing + face
+            [ 2, 2, 1, 1, 1, 1, 4, 4, 0, 0, 0, 0 ],   // hair edge + face + eye
+            [ 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // hair + lower face
+            [ 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0 ],   // hair + chin + nose
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        ],
+    ];
+
+    public override byte[][][][] HeadPartsSide { get; } = [ _head0Side, _head1Side, _head2Side ];
+
+    // ── Back-facing bodies (1 frame × 8 rows × 12 cols) ──────────────────────
+    // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
+
+    private static readonly byte[][][] _body0Back =   // casual shirt — back view
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0 ],   // shoulders + shirt back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper back
+            [ 0, 0, 2, 2, 3, 3, 3, 3, 2, 2, 0, 0 ],   // back crease/highlight centre
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // mid back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // lower back
+            [ 0, 0, 3, 3, 2, 2, 2, 2, 3, 3, 0, 0 ],   // side highlights
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // bottom
+        ],
+    ];
+
+    private static readonly byte[][][] _body1Back =   // formal — back view (no lapels/buttons)
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0 ],   // shoulders
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // upper back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // torso
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // lower back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // lower back
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // bottom
+        ],
+    ];
+
+    private static readonly byte[][][] _body2Back =   // jacket — back view
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket back (full)
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket lower
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 ],   // jacket bottom
+        ],
+    ];
+
+    public override byte[][][][] BodyPartsBack { get; } = [ _body0Back, _body1Back, _body2Back ];
+
+    // ── Side-facing bodies (1 frame × 8 rows × 12 cols, profile facing right) ─
+
+    private static readonly byte[][][] _body0Side =   // casual shirt — side view
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0 ],   // near shoulder + torso
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0 ],   // arm + chest
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0 ],   // arm + mid torso
+            [ 0, 0, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0 ],   // arm + torso
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // torso only
+            [ 0, 0, 0, 0, 2, 2, 3, 3, 0, 0, 0, 0 ],   // shirt highlight
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // bottom
+        ],
+    ];
+
+    private static readonly byte[][][] _body1Side =   // formal — side view
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 1, 1, 5, 5, 2, 2, 0, 0, 0, 0 ],   // lapel (near side) + shirt
+            [ 0, 0, 2, 2, 5, 5, 2, 2, 0, 0, 0, 0 ],   // lapel + torso
+            [ 0, 0, 2, 2, 4, 4, 2, 2, 0, 0, 0, 0 ],   // button visible from side
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // torso
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // lower torso
+            [ 0, 0, 0, 0, 4, 4, 2, 2, 0, 0, 0, 0 ],   // lower button
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // bottom
+        ],
+    ];
+
+    private static readonly byte[][][] _body2Side =   // jacket/hoodie — side view
+    [
+        [
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+            [ 0, 0, 5, 5, 5, 5, 2, 2, 0, 0, 0, 0 ],   // jacket open + shirt
+            [ 0, 0, 5, 5, 5, 5, 2, 2, 0, 0, 0, 0 ],   // jacket
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 0, 0, 0, 0 ],   // jacket + shirt
+            [ 0, 0, 5, 5, 4, 4, 2, 2, 0, 0, 0, 0 ],   // jacket + button
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 0, 0, 0, 0 ],   // jacket + shirt
+            [ 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // jacket lower
+            [ 0, 0, 5, 5, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shirt at hem
+        ],
+    ];
+
+    public override byte[][][][] BodyPartsSide { get; } = [ _body0Side, _body1Side, _body2Side ];
+
+    // ── Side-facing legs (4 frames × 7 rows × 12 cols, profile facing right) ─
+    // Legs stride forward (right) / backward (left) in alternating walk frames.
+
+    private static readonly byte[][][] _legs0Side =   // pants + belt — side walk
+    [
+        // Frame 0 — idle / standing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // upper pants
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // pants
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // pants
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // lower pants
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe extends right (forward)
+        ],
+        // Frame 1 — front foot forward (right)
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // back leg angles left
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],   // front leg angles right
+            [ 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0 ],   // legs spread
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // back shoe left / front shoe right
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // front shoe toe
+        ],
+        // Frame 2 — crossing / mid stride
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // legs crossing
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   // narrowing
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   //
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe centre
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe right
+        ],
+        // Frame 3 — back foot forward (right), near foot trailing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],   // far leg forward right
+            [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // near leg back left
+            [ 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0 ],   // legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // near shoe back / far shoe right
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // far shoe toe
+        ],
+    ];
+
+    private static readonly byte[][][] _legs1Side =   // formal trousers — side walk
+    [
+        // Frame 0 — idle
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // upper pants
+            [ 0, 0, 2, 2, 3, 3, 2, 2, 0, 0, 0, 0 ],   // crease visible from side
+            [ 0, 0, 2, 2, 3, 3, 2, 2, 0, 0, 0, 0 ],   // crease continues
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // lower pants
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe
+        ],
+        // Frame 1 — front foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 2, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 0 ],   // back leg with crease, angles left
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],   // front leg angles right
+            [ 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0 ],   // legs spread
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // front shoe toe
+        ],
+        // Frame 2 — crossing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 0, 0, 2, 2, 3, 3, 2, 2, 0, 0, 0, 0 ],   // crossing (crease visible)
+            [ 0, 0, 0, 0, 3, 3, 2, 2, 0, 0, 0, 0 ],   // narrowing
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0 ],   //
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe
+        ],
+        // Frame 3 — back foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hips
+            [ 0, 0, 0, 0, 2, 2, 3, 3, 2, 2, 0, 0 ],   // far leg forward right (crease)
+            [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // near leg back left
+            [ 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0 ],   // spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // far shoe toe
+        ],
+    ];
+
+    private static readonly byte[][][] _legs2Side =   // shorts + bare skin — side walk
+    [
+        // Frame 0 — idle
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // bare legs
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // bare legs
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe
+            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe
+        ],
+        // Frame 1 — front foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0 ],   // back shorts angles left
+            [ 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 ],   // bare legs spread
+            [ 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0 ],   // spread
+            [ 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // front shoe toe
+        ],
+        // Frame 2 — crossing
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts crossing
+            [ 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // bare legs
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ],   // narrowing
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoe
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0, 0 ],   // shoe toe
+        ],
+        // Frame 3 — back foot forward
+        [
+            [ 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],   // far shorts forward right
+            [ 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0 ],   // bare legs spread
+            [ 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0 ],   // spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // far shoe toe
+        ],
+    ];
+
+    public override byte[][][][] LegsPartsSide { get; } = [ _legs0Side, _legs1Side, _legs2Side ];
+
     // ── Head palettes (VIC-II skin/hair tones) ────────────────────────────────
 
     public override HeadPalette[] HeadPalettes { get; } =

@@ -828,7 +828,9 @@ namespace ChildhoodAdventure.Scenes
 
             if (move != Vector2.Zero)
             {
-                t.Velocity = Vector2.Normalize(move) * t.MaxSpeed;
+                var dir = Vector2.Normalize(move);
+                t.Velocity = dir * t.MaxSpeed;
+                t.Facing   = dir;
                 sc?.Play("walk");
             }
             else
