@@ -1,0 +1,26 @@
+// ── Petrov household dialogue ─────────────────────────────────────────────────
+// Speakers: Mr. Petrov, Mrs. Petrov (recent immigrants, Nadia's parents)
+// Mrs. Petrov speaks inside Mr. Petrov's first-visit branch when the player
+// mentions Nadia — both NPCs are interactable separately.
+
+title: MrPetrov
+---
+<<if visited("MrPetrov")>>
+    Mr. Petrov: Thank you for visiting. It means very much.
+<<else>>
+    Mr. Petrov: Good day! You are... neighbour child? Yes? Please, come.
+    Mr. Petrov: We are still learning. How to say. Everything is new.
+    -> How do you like it here?
+        Mr. Petrov: Is... quiet. Good quiet. In city we come from, not so quiet.
+        Mr. Petrov: We are... hopeful. Yes. That is right word. Hopeful.
+    -> Your daughter Nadia is very nice.
+        Mrs. Petrov: You meet Nadia? She is shy at first — good heart, big heart, but shy.
+        Mr. Petrov: She misses her grandmother very much. Is hard. But she is brave. Like her mother.
+<<endif>>
+===
+
+title: MrsPetrov
+---
+Mrs. Petrov: Oh! Guest! I make tea. Please sit, please sit.
+Mrs. Petrov: You are kind child. Nadia needs kind friends.
+===

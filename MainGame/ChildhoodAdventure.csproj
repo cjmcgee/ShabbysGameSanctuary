@@ -10,11 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TileEngine\TileEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Dialogue\**\*.yarn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,19 @@
+// ── Sam household dialogue ────────────────────────────────────────────────────
+// Speaker: Linda (Sam's mum; Sam is outside in the neighbourhood)
+
+title: Linda
+---
+<<if visited("Linda")>>
+    Linda: Sam's still outside. Go rescue them from whatever scheme they're hatching!
+<<else>>
+    Linda: Oh hello! You're Sam's friend, right? They're outside somewhere — probably causing mayhem.
+    Linda: I'm glad Sam has a friend like you. They talk about you all the time, you know.
+    Linda: Hey, if you two get hungry later — I've got snacks. The door is always open.
+    -> Thank you, Mrs...?
+        Linda: Linda! Just Linda. 'Mrs.' makes me feel ancient.
+        Linda: Now go find Sam before they rope someone into another 'expedition'.
+    -> We'll be careful!
+        Linda: Ha! You're already more responsible than Sam. That's... both reassuring and slightly concerning.
+        Linda: Go on, have fun.
+<<endif>>
+===

@@ -1,0 +1,18 @@
+// ── Santos household dialogue ─────────────────────────────────────────────────
+// Speaker: Maria Santos (single mum, Lucia's mother)
+
+title: Maria
+---
+<<if visited("Maria")>>
+    Maria: Mi casa es su casa, mijo. Come by whenever you like. The more friends Lucia has, the better.
+<<else>>
+    Maria: Oh! Hello! Come in, come in. I hope Lucia hasn't been causing trouble — she's been SO excited to meet everyone.
+    Maria: It's just the two of us here. Well, three counting little Carlos.
+    -> She seems really nice.
+        Maria: She is. She had to say goodbye to all her friends when we moved. Not one complaint.
+        Maria: ...I know it's harder for her than she lets on. She's protecting me, I think. At six years old, already protecting me.
+    -> What do you do for work?
+        Maria: I'm a nurse! Night shifts mostly — which means Lucia handles a lot on her own during the day.
+        Maria: She never complains. But sometimes I worry... I want more for her, you know? More than just getting by.
+<<endif>>
+===

@@ -1,0 +1,31 @@
+// ── Chen household dialogue ───────────────────────────────────────────────────
+// Speakers: Mr. Chen, Mrs. Chen
+
+title: MrChen
+---
+<<if visited("MrChen")>>
+    Mr. Chen: The door is always open, young friend. And the chess board is always waiting.
+<<else>>
+    Mr. Chen: Ah, a visitor! Come in, come in — my wife just made tea.
+    Mr. Chen: Tell me — do you know how to play chess? I have been looking for a worthy opponent. My grandchildren never visit...
+    -> I'd love to learn!
+        Mr. Chen: Wonderful! A student! Come back when you have time and I will teach you.
+        Mr. Chen: The game teaches patience — and patience, my young friend, teaches everything else.
+    -> I'm not very good at chess.
+        Mr. Chen: Nobody starts out good! I was terrible when I was your age. My grandfather nearly threw the board at me!
+        Mr. Chen: Come back sometime. We will learn together. Or argue. Either way is enjoyable.
+<<endif>>
+===
+
+title: MrsChen
+---
+<<if visited("MrsChen")>>
+    Mrs. Chen: Come back anytime, dear! There are always cookies.
+<<else>>
+    Mrs. Chen: Oh! Hello dear! Have you eaten today? I always make far too much.
+    Mrs. Chen: Here — take these sesame cookies home to your family. My mother's recipe. Ninety years old and still perfect.
+    Mrs. Chen: That family at the end of the block — the Petrovs — I brought some to them too when they arrived. They seemed so tired.
+    Mrs. Chen: Moving is hard. Even harder when everything is unfamiliar.
+    <<flag "received_chen_cookies">>
+<<endif>>
+===

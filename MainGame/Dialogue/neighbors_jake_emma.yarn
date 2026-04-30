@@ -1,0 +1,28 @@
+// ── Jake & Emma household dialogue ────────────────────────────────────────────
+// Speakers: Emma, Jake (two separate interactable NPCs)
+// Emma runs the main introduction; Jake has a short stateless greeting.
+
+title: Emma
+---
+<<if visited("Emma")>>
+    Emma: Come play games with us sometime! We need a tiebreaker judge.
+<<else>>
+    Emma: Oh hi! Jake — JAKE — come meet the neighbour kid!
+    Jake: Hey! Sorry about her. She gets excited.
+    Emma: We're still setting up but — do you want to see our game collection? We have SO MANY.
+    Jake: She means we have a problem. A fun problem, but still a problem.
+    -> What kind of games?
+        Jake: Board games, card games, video games — if it exists and has rules, we own it.
+        Emma: We're a little competitive. Just a tiny bit.
+        Jake: She means she has absolutely destroyed me at everything we have ever tried.
+        Emma: It is not my fault I am naturally gifted at things.
+    -> Nice to meet you both.
+        Jake: You too! Seriously — if you ever need anything, just knock. Borrow sugar, whatever.
+        Emma: Our door is open. Literally, we keep forgetting to close it. It's a whole thing.
+<<endif>>
+===
+
+title: Jake
+---
+Jake: Hey kid! Come by anytime. And tell your parents we said hello.
+===

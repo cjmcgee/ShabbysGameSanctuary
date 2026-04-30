@@ -1,0 +1,45 @@
+// ── Johnson household dialogue ────────────────────────────────────────────────
+// Speakers: DeShonda, Destiny, Tyler (three separate interactable NPCs)
+
+title: DeShonda
+---
+<<if visited("DeShonda")>>
+    DeShonda: Come back anytime, sweetheart. This house is always full of people and noise — one more is never a problem.
+<<else>>
+    DeShonda: Well hello! You must be from the neighbourhood. I'm DeShonda. Always happy to have visitors.
+    DeShonda: Have you met my daughter Destiny? She's right over there. And Tyler's around somewhere — probably being moody.
+<<endif>>
+===
+
+title: Destiny
+---
+<<if visited("Destiny")>>
+    Destiny: Practice makes perfect, they say. I say talent makes perfect. But I practice anyway.
+<<else>>
+    Destiny: Oh my GOD, finally someone who isn't my mom.
+    Destiny: I'm Destiny. I play guitar. Want to hear something?
+    -> Yes please!
+        Destiny: *plays a surprisingly good melody*
+        Destiny: Not bad for six months of lessons, right? Mom says I need to practice more. I'm practically already a prodigy.
+    -> Maybe later?
+        Destiny: Okay, okay. No pressure. Not everyone appreciates art right away.
+        Destiny: Come back when you're ready. I'll still be here being brilliant.
+<<endif>>
+===
+
+title: Tyler
+---
+<<if visited("Tyler")>>
+    Tyler: Still figuring things out. I'll get there. ...Probably.
+<<else>>
+    Tyler: Ugh. Another neighbourhood kid.
+    Tyler: Look, I'm busy. Not that it's any of your business, but I'm trying to figure out how to apologize to my best friend.
+    -> What happened?
+        Tyler: I said something dumb. The kind of dumb where you know it's wrong the second it comes out of your mouth, but it's too late.
+        Tyler: It's... look, it doesn't matter. Just — if you ever say something dumb to someone you care about?
+        Tyler: Apologize fast. Don't do the thing where you wait and hope they forget. They don't forget.
+    -> Sorry to bother you.
+        Tyler: You're not bothering me. I'm just... in a mood. Happens.
+        Tyler: Ask Destiny if you need anything. She's the friendly one.
+<<endif>>
+===

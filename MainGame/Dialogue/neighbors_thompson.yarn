@@ -1,0 +1,24 @@
+// ── Thompson household dialogue ───────────────────────────────────────────────
+// Speaker: Mr. Thompson (Vic Thompson, widower)
+// <<flag "met_thompson">> fires at the start of the first-visit branch so C# game
+// state is set as early as possible, matching the original synchronous behaviour.
+
+title: Thompson
+---
+<<if visited("Thompson")>>
+    Mr. Thompson: You came back. Hmph. Well. The kettle's on, if you want tea.
+<<else>>
+    <<flag "met_thompson">>
+    Mr. Thompson: ...What do you want?
+    Mr. Thompson: I'm not being rude. I just... I don't get many visitors. Takes me a moment.
+    -> Just saying hi.
+        Mr. Thompson: Hmph.
+        Mr. Thompson: ...You're the first person who's stopped by all week.
+        Mr. Thompson: Tell your parents I said hello. And thank your mother for the casserole she left last month. I never properly thanked her.
+    -> Do you need help with anything?
+        Mr. Thompson: ...
+        Mr. Thompson: The garden has gotten a bit wild. Margaret always kept it beautiful. I haven't had the... motivation.
+        Mr. Thompson: Not that I'm asking for help. I'm just — stating a fact.
+        Mr. Thompson: ...You could come back and look at it, I suppose. If you had nothing better to do.
+<<endif>>
+===

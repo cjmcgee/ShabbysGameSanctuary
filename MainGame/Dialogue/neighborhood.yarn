@@ -1,0 +1,49 @@
+// ── Neighbourhood outdoor dialogue ───────────────────────────────────────────
+// Speakers: Sam, Lucia, Nadia
+
+title: Sam
+---
+<<if visited("Sam")>>
+    Sam: Go talk to Nadia! I'll be right here if you need me.
+<<else>>
+    Sam: HEY! I've been waiting FOREVER. Where have you been?
+    Sam: Have you met the new family yet? The Petrovs? They just moved in at the far end. They have a kid our age!
+    -> Let's go say hi!
+        Sam: YES! Okay I'm a LITTLE nervous but also very excited.
+        Sam: I heard her name is Nadia. She's been sitting outside by herself all morning.
+    -> I'll check out the neighbourhood first.
+        Sam: Okay okay. Just... don't forget about Nadia, okay? She looked lonely.
+<<endif>>
+===
+
+title: Lucia
+---
+<<if visited("Lucia")>>
+    Lucia: Don't forget — tamales! Our door is always open!
+<<else>>
+    Lucia: ¡Hola! I mean, hi! Are you from this street too?
+    Lucia: I'm Lucia. We just moved here. It's okay so far — the park is really nice!
+    -> Nice to meet you! I live nearby.
+        Lucia: Oh cool!! You should come meet my mom — she's making tamales today!
+        Lucia: Just knock on our door whenever. She loves visitors.
+    -> Did you just move here?
+        Lucia: Yeah. Mamá got a new job nearby, so we moved. I miss my old school...
+        Lucia: But! New adventures, right? That's what Mamá says.
+<<endif>>
+===
+
+title: Nadia
+---
+<<if visited("Nadia")>>
+    Nadia: I am glad you talked to me. I was not sure anyone would.
+<<else>>
+    Nadia: ...Hello. I am Nadia.
+    Nadia: We come from very far away. Papa says this is a good place.
+    -> Do you like it here so far?
+        Nadia: It is... different. Very quiet street. My old city was always full of sounds.
+        Nadia: But people seem kind here. You seem kind.
+    -> Where did you come from?
+        Nadia: Very far east. We travel for many days. Mama says we have adventure now.
+        Nadia: I like adventure books. Do you?
+<<endif>>
+===

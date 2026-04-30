@@ -1,0 +1,20 @@
+// ── Devon household dialogue ──────────────────────────────────────────────────
+// Speaker: Devon (college student, solo household)
+
+title: Devon
+---
+<<if visited("Devon")>>
+    Devon: Still studying. Or trying to. Come back after finals — I'll actually be human again.
+<<else>>
+    Devon: Oh — hey. Sorry, I'm kind of deep in a study trance. Finals week is... a lot.
+    Devon: What are you studying? Oh — I mean, what am I studying. Philosophy.
+    -> What's philosophy?
+        Devon: It's the study of why people do what they do. Why anything exists. Whether choices matter.
+        Devon: Do you ever think about whether anything you choose actually matters? In a cosmic sense?
+        Devon: ...Sorry. That's a lot to dump on a kid. My advisor says I spend too much time in my head.
+        Devon: The short version: I study Big Questions. And right now I'm failing to answer the smaller ones, like this exam.
+    -> Sounds hard.
+        Devon: It is! But also... kind of beautiful? The harder the question, the more alive you feel asking it.
+        Devon: Anyway. Hi. I'm Devon. What's your name?
+<<endif>>
+===
