@@ -20,7 +20,7 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 public sealed class Atari2600System : RetroSystem
 {
     public override string Name        => "Atari 2600";
-    public override string Description => "16×16 tiles · 8×16 dbl-wide · 1-bit · 1-color/scanline sprites";
+    public override string Description => "16×16 tiles · 16×16 dbl-wide · 1-bit · 1-color/scanline sprites";
     public override int    NativeTileSize    => 16;
     public override float  DisplayScale      => 3.125f;
     protected override bool DoubleWidePixels          => true;
@@ -372,121 +372,124 @@ public sealed class Atari2600System : RetroSystem
 
     // ── Sprite dimensions ─────────────────────────────────────────────────────
     // HeadRows=5, BodyRows=7, LegsRows=4  (total 16)
-    // 4 logical pixels per row (2 physical pixels each).
+    // 8 logical pixels per row (2 physical pixels each, double-wide).
 
-    public override int CharWidth  => 8;
+    public override int CharWidth  => 16;
     public override int HeadRows   => 5;
     public override int BodyRows   => 7;
     public override int LegsRows   => 4;
 
-    // ── Head parts (8 wide × 5 rows, 1 frame) ────────────────────────────────
+    // ── Head parts (16 wide × 5 rows, 1 frame) ───────────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
     // Rule: each row uses at most ONE non-zero semantic index.
+    // Double-wide: col[2k+1] == col[2k] for all k.
 
     // Head 0: hair on top, dedicated eye row
     private static readonly byte[][][] _head0 =
     [[
-        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // hair
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // upper face
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // eyes
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // chin
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // hair
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // upper face
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // eyes
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
     ]];
 
-    // Head 1: cap / hat with full brim (already compliant)
+    // Head 1: cap / hat with full brim
     private static readonly byte[][][] _head1 =
     [[
-        [ 0, 0, 5, 5, 5, 5, 0, 0 ],   // hat top
-        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // eyes
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // face
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // hat crown
+        [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // hat brim
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // eyes
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // face
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
     ]];
 
     // Head 2: full hair — wide hair rows then face rows
     private static readonly byte[][][] _head2 =
     [[
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // hair top
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // hair wide
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // eyes
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // face/chin
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // hair top
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // hair wide
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // eyes
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // face/chin
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
     ]];
 
     public override byte[][][][] HeadParts { get; } = [ _head0, _head1, _head2 ];
 
-    // ── Body parts (8 wide × 7 rows, 1 frame) ────────────────────────────────
+    // ── Body parts (16 wide × 7 rows, 1 frame) ───────────────────────────────
     // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
     // Rule: each row uses at most ONE non-zero semantic index.
+    // Double-wide: col[2k+1] == col[2k] for all k.
 
     // Body 0: casual shirt — dedicated rows for buttons and highlight
     private static readonly byte[][][] _body0 =
     [[
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // buttons
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
-        [ 3, 3, 3, 3, 3, 3, 3, 3 ],   // full-row highlight
-        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // bottom narrow
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // buttons
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ],   // full-row highlight
+        [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // bottom narrow
     ]];
 
     // Body 1: collared / formal — full-row lapels, then shirt, buttons, highlight
     private static readonly byte[][][] _body1 =
     [[
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
-        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // lapels / collar (full row)
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // buttons
-        [ 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
-        [ 3, 3, 3, 3, 3, 3, 3, 3 ],   // full-row highlight
-        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // bottom narrow
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // lapels / collar
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // buttons
+        [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],   // shirt
+        [ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ],   // full-row highlight
+        [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // bottom narrow
     ]];
 
     // Body 2: jacket — jacket rows wrap shirt/button rows
     private static readonly byte[][][] _body2 =
     [[
-        [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // neck
-        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
-        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
-        [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // shirt centre visible
-        [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // buttons
-        [ 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
-        [ 0, 0, 5, 5, 5, 5, 0, 0 ],   // jacket bottom narrow
+        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
+        [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
+        [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
+        [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shirt centre visible
+        [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // buttons
+        [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ],   // jacket
+        [ 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // jacket bottom narrow
     ]];
 
     public override byte[][][][] BodyParts { get; } = [ _body0, _body1, _body2 ];
 
-    // ── Legs parts (8 wide × 4 rows, 4 frames) ───────────────────────────────
+    // ── Legs parts (16 wide × 4 rows, 4 frames) ──────────────────────────────
     // Idle: legs merged at centre; walk: legs spread to outer logical pixels.
     // Rule: each row uses at most ONE non-zero semantic index.
+    // Double-wide: col[2k+1] == col[2k] for all k.
 
-    // Legs 0: pants + belt (already compliant)
+    // Legs 0: pants + belt
     private static readonly byte[][][] _legs0 =
     [
         [   // idle
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // belt
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // pants
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 6, 6, 6, 6, 0, 0 ],   // shoes
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // pants
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // pants
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes
         ],
         [   // walk A — left foot forward
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 2, 2, 2, 2, 0, 0, 0, 0 ],   // left leg out
-            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],   // shoes spread
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 ],   // left leg out
+            [ 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes spread
         ],
         [   // mid
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // pants
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
         [   // walk B — right foot forward
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2 ],   // right leg out
-            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2 ],   // right leg out
+            [ 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes spread
         ],
     ];
 
@@ -494,57 +497,57 @@ public sealed class Atari2600System : RetroSystem
     private static readonly byte[][][] _legs1 =
     [
         [   // idle
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 6, 6, 6, 6, 0, 0 ],   // shoes (single color)
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes
         ],
         [   // walk A
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 2, 2, 2, 2, 0, 0, 0, 0 ],
-            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],   // shoes (single color)
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 ],   // left leg out
+            [ 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
         ],
         [   // mid
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
         [   // walk B
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2 ],
-            [ 2, 2, 0, 0, 0, 0, 2, 2 ],
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],   // shoes (single color)
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2 ],   // right leg out
+            [ 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
         ],
     ];
 
-    // Legs 2: shorts + bare skin below knee (already compliant)
+    // Legs 2: shorts + bare skin below knee
     private static readonly byte[][][] _legs2 =
     [
         [   // idle
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],   // belt
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],   // shorts
-            [ 0, 0, 1, 1, 1, 1, 0, 0 ],   // bare legs
-            [ 0, 0, 6, 6, 6, 6, 0, 0 ],   // shoes
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // bare legs
+            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0 ],   // shoes
         ],
         [   // walk A
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 2, 2, 2, 2, 0, 0, 0, 0 ],   // left shorts out
-            [ 1, 1, 0, 0, 0, 0, 1, 1 ],   // bare legs spread
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 ],   // left shorts out
+            [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 ],   // bare legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
         ],
         [   // mid
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],   // shorts
+            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // bare legs
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ],
         [   // walk B
-            [ 0, 0, 4, 4, 4, 4, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2 ],   // right shorts out
-            [ 1, 1, 0, 0, 0, 0, 1, 1 ],
-            [ 6, 6, 0, 0, 0, 0, 6, 6 ],
+            [ 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0 ],   // belt
+            [ 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2 ],   // right shorts out
+            [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 ],   // bare legs spread
+            [ 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6 ],   // shoes
         ],
     ];
 
