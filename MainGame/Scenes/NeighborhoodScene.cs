@@ -238,32 +238,32 @@ namespace ChildhoodAdventure.Scenes
             Engine.EntityWorld.RegisterTag("player", e);
             e.AddComponent(new TransformComponent(pos) { MaxSpeed = 95f });
             e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
-            e.AddComponent(new SpriteComponent
-            {
-                Sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player)
-            });
+            var playerSprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player);
+            playerSprite.Scale = 0.5f;
+            e.AddComponent(new SpriteComponent { Sprite = playerSprite });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = 7f;
             Engine.RenderSystem.Camera.CenterOn(pos);
             return e;
         }
 
-        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn)
+        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn, float scale = 1f)
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
             e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
-            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, appearance) });
+            var sprite = SpriteFactory.BuildCharacter(gd, appearance);
+            sprite.Scale = scale;
+            e.AddComponent(new SpriteComponent { Sprite = sprite });
             _npcTalks.Add((e, talkFn));
             return e;
         }
 
         private void SpawnOutdoorNpcs(GraphicsDevice gd)
         {
-            // Saturated Atari NTSC colours — every NPC a distinct primary/secondary
-            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8), NpcAppearances.Sam,   TalkToSam);
-            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8), NpcAppearances.Lucia, TalkToLucia);
-            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8), NpcAppearances.Nadia, TalkToNadia);
+            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8), NpcAppearances.Sam,   TalkToSam,   scale: 0.5f);
+            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8), NpcAppearances.Lucia, TalkToLucia, scale: 0.5f);
+            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8), NpcAppearances.Nadia, TalkToNadia, scale: 0.5f);
         }
 
         // ── Dialogue ─────────────────────────────────────────────────────────

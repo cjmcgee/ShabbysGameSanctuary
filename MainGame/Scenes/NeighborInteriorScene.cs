@@ -301,22 +301,23 @@ namespace ChildhoodAdventure.Scenes
             Engine.EntityWorld.RegisterTag("player", e);
             e.AddComponent(new TransformComponent(pos) { MaxSpeed = 90f });
             e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
-            e.AddComponent(new SpriteComponent
-            {
-                Sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player)
-            });
+            var playerSprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player);
+            playerSprite.Scale = 0.5f;
+            e.AddComponent(new SpriteComponent { Sprite = playerSprite });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = 8f;
             Engine.RenderSystem.Camera.CenterOn(pos);
             return e;
         }
 
-        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn)
+        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn, float scale = 1f)
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
             e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
-            e.AddComponent(new SpriteComponent { Sprite = SpriteFactory.BuildCharacter(gd, appearance) });
+            var sprite = SpriteFactory.BuildCharacter(gd, appearance);
+            sprite.Scale = scale;
+            e.AddComponent(new SpriteComponent { Sprite = sprite });
             _npcTalks.Add((e, talkFn));
             return e;
         }
@@ -732,7 +733,7 @@ namespace ChildhoodAdventure.Scenes
                             new("Destiny", "Practice makes perfect, they say. I say talent makes perfect. But I practice anyway."),
                         });
                     }
-                });
+                }, 0.5f);
 
             // Tyler — brooding in the corner
             SpawnNpc(gd, "Tyler", new Vector2(18 * 16 + 8, 4 * 16 + 8),
@@ -770,7 +771,7 @@ namespace ChildhoodAdventure.Scenes
                             new("Tyler", "Still figuring things out. I'll get there. ...Probably."),
                         });
                     }
-                });
+                }, 0.5f);
         }
 
         // ── Update ────────────────────────────────────────────────────────────
