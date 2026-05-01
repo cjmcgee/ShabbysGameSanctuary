@@ -6,7 +6,6 @@ using TileEngine.Collision;
 using TileEngine.Components;
 using TileEngine.Core;
 using TileEngine.ECS;
-using TileEngine.Gameplay;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -75,6 +74,12 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
             Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
+
+            // Load Yarn dialogue (no-op if already loaded from a prior scene)
+            var yarnDir = Path.Combine(AppContext.BaseDirectory, "Dialogue");
+            Engine.DialogueSystem.EnsureYarnLoaded(yarnDir);
+            Engine.DialogueSystem.RegisterCommandHandler("flag",
+                args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
 
             // Player
             _player = SpawnPlayer(gd, GameState.PlayerSpawnPosition);
@@ -198,121 +203,20 @@ namespace ChildhoodAdventure.Scenes
 
         private void SpawnDad(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), NpcAppearances.Dad, TalkToDad);
+            SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), NpcAppearances.Dad,
+                () => Engine.DialogueSystem.StartYarnNode("Dad"));
         }
 
         private void SpawnMom(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), NpcAppearances.Mom, TalkToMom);
+            SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), NpcAppearances.Mom,
+                () => Engine.DialogueSystem.StartYarnNode("Mom"));
         }
 
         private void SpawnJamie(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), NpcAppearances.Jamie, TalkToJamie, scale: 0.5f);
-        }
-
-        // ── Dialogue ─────────────────────────────────────────────────────────
-
-        private void TalkToDad()
-        {
-            if (!GameState.HasFlag("talked_dad"))
-            {
-                GameState.SetFlag("talked_dad");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Dad", "Hey champ! Ready for a big day? The whole neighbourhood is out there waiting."),
-                    new("Dad", "Remember to be kind to the neighbours, okay? Especially Mr. Thompson — he's been having a rough time lately.",
-                        choices: new[]
-                        {
-                            new DialogueChoice("What happened to Mr. Thompson?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Dad", "His wife Margaret passed away last winter. He's still getting used to being on his own."),
-                                    new("Dad", "Sometimes people just need to know someone's thinking of them. A quick hello goes a long way."),
-                                })),
-                            new DialogueChoice("I will, Dad.", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Dad", "That's my kid. Now go have fun — and be home before dinner!"),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Dad", "Remember — home before dinner!"),
-                });
-            }
-        }
-
-        private void TalkToMom()
-        {
-            if (!GameState.HasFlag("talked_mom"))
-            {
-                GameState.SetFlag("talked_mom");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Mom", "Good morning, sweetheart! I just put some cookies in the oven — they'll be ready when you get back."),
-                    new("Mom", "Oh! The Santos family moved in down the street — little Lucia would love a playmate. Maybe go say hello?",
-                        choices: new[]
-                        {
-                            new DialogueChoice("I'll go say hi to Lucia.", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Mom", "Wonderful! Maria works so hard for that girl. Be kind to them both."),
-                                })),
-                            new DialogueChoice("Who else should I visit?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Mom", "Well — Mrs. Chen always loves visitors. And the new family at the end of the block, the Petrovs, just arrived from very far away."),
-                                    new("Mom", "International moves are so hard. A friendly face would mean the world to them."),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Mom", "The cookies will be ready soon. Don't be too long!"),
-                });
-            }
-        }
-
-        private void TalkToJamie()
-        {
-            if (!GameState.HasFlag("talked_jamie"))
-            {
-                GameState.SetFlag("talked_jamie");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Jamie", "Go away! I'm building something VERY important.",
-                        choices: new[]
-                        {
-                            new DialogueChoice("What are you building?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Jamie", "A FORTRESS. For my stuffed animals. They need protection from... things."),
-                                    new("Jamie", "You can look but DON'T TOUCH anything."),
-                                })),
-                            new DialogueChoice("Okay, bye.", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Jamie", "BYE."),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Jamie", "Hey... do you know the new kid? Nadia? I saw her from my window."),
-                    new("Jamie", "She looks kind of sad. You should go say hi to her."),
-                });
-            }
+            SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), NpcAppearances.Jamie,
+                () => Engine.DialogueSystem.StartYarnNode("Jamie"), scale: 0.5f);
         }
 
         // ── Update ────────────────────────────────────────────────────────────

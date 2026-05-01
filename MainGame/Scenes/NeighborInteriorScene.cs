@@ -6,7 +6,6 @@ using TileEngine.Collision;
 using TileEngine.Components;
 using TileEngine.Core;
 using TileEngine.ECS;
-using TileEngine.Gameplay;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -103,6 +102,12 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
             Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
+
+            // Load Yarn dialogue (no-op if already loaded from a prior scene)
+            var yarnDir = Path.Combine(AppContext.BaseDirectory, "Dialogue");
+            Engine.DialogueSystem.EnsureYarnLoaded(yarnDir);
+            Engine.DialogueSystem.RegisterCommandHandler("flag",
+                args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
 
             _player = SpawnPlayer(gd, GameState.PlayerSpawnPosition);
             SpawnNpcs(gd, id);
@@ -337,441 +342,64 @@ namespace ChildhoodAdventure.Scenes
             }
         }
 
-        // ── Per-house NPC spawning & dialogue ────────────────────────────────
+        // ── Per-house NPC spawning ───────────────────────────────────────────
 
         private void SpawnChenNpcs(GraphicsDevice gd)
         {
-            // Mr. Chen — chess table area
-            SpawnNpc(gd, "Mr. Chen", new Vector2(5 * 16 + 8, 5 * 16 + 8),
-                NpcAppearances.MrChen, () =>
-                {
-                    if (!GameState.HasFlag("talked_mrchen"))
-                    {
-                        GameState.SetFlag("talked_mrchen");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Chen", "Ah, a visitor! Come in, come in — my wife just made tea."),
-                            new("Mr. Chen", "Tell me — do you know how to play chess? I have been looking for a worthy opponent. My grandchildren never visit...",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("I'd love to learn!", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mr. Chen", "Wonderful! A student! Come back when you have time and I will teach you."),
-                                            new("Mr. Chen", "The game teaches patience — and patience, my young friend, teaches everything else."),
-                                        })),
-                                    new DialogueChoice("I'm not very good at chess.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mr. Chen", "Nobody starts out good! I was terrible when I was your age. My grandfather nearly threw the board at me!"),
-                                            new("Mr. Chen", "Come back sometime. We will learn together. Or argue. Either way is enjoyable."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Chen", "The door is always open, young friend. And the chess board is always waiting."),
-                        });
-                    }
-                });
-
-            // Mrs. Chen — kitchen
-            SpawnNpc(gd, "Mrs. Chen", new Vector2(16 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.MrsChen, () =>
-                {
-                    if (!GameState.HasFlag("talked_mrschenC"))
-                    {
-                        GameState.SetFlag("talked_mrschenC");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mrs. Chen", "Oh! Hello dear! Have you eaten today? I always make far too much."),
-                            new("Mrs. Chen", "Here — take these sesame cookies home to your family. My mother's recipe. Ninety years old and still perfect."),
-                            new("Mrs. Chen", "That family at the end of the block — the Petrovs — I brought some to them too when they arrived. They seemed so tired."),
-                            new("Mrs. Chen", "Moving is hard. Even harder when everything is unfamiliar."),
-                        });
-                        GameState.SetFlag("received_chen_cookies");
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mrs. Chen", "Come back anytime, dear! There are always cookies."),
-                        });
-                    }
-                });
+            SpawnNpc(gd, "Mr. Chen",  new Vector2( 5 * 16 + 8,  5 * 16 + 8), NpcAppearances.MrChen,
+                () => Engine.DialogueSystem.StartYarnNode("MrChen"));
+            SpawnNpc(gd, "Mrs. Chen", new Vector2(16 * 16 + 8,  4 * 16 + 8), NpcAppearances.MrsChen,
+                () => Engine.DialogueSystem.StartYarnNode("MrsChen"));
         }
 
         private void SpawnDevonNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Devon", new Vector2(3 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Devon, () =>
-                {
-                    if (!GameState.HasFlag("talked_devon"))
-                    {
-                        GameState.SetFlag("talked_devon");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Devon", "Oh — hey. Sorry, I'm kind of deep in a study trance. Finals week is... a lot."),
-                            new("Devon", "What are you studying? Oh — I mean, what am I studying. Philosophy.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("What's philosophy?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Devon", "It's the study of why people do what they do. Why anything exists. Whether choices matter."),
-                                            new("Devon", "Do you ever think about whether anything you choose actually matters? In a cosmic sense?"),
-                                            new("Devon", "...Sorry. That's a lot to dump on a kid. My advisor says I spend too much time in my head."),
-                                            new("Devon", "The short version: I study Big Questions. And right now I'm failing to answer the smaller ones, like this exam."),
-                                        })),
-                                    new DialogueChoice("Sounds hard.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Devon", "It is! But also... kind of beautiful? The harder the question, the more alive you feel asking it."),
-                                            new("Devon", "Anyway. Hi. I'm Devon. What's your name?"),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Devon", "Still studying. Or trying to. Come back after finals — I'll actually be human again."),
-                        });
-                    }
-                });
+            SpawnNpc(gd, "Devon", new Vector2(3 * 16 + 8, 4 * 16 + 8), NpcAppearances.Devon,
+                () => Engine.DialogueSystem.StartYarnNode("Devon"));
         }
 
         private void SpawnJakeEmmaNpcs(GraphicsDevice gd)
         {
-            // Emma greets first
-            SpawnNpc(gd, "Emma", new Vector2(5 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Emma, () =>
-                {
-                    if (!GameState.HasFlag("talked_jakeemma"))
-                    {
-                        GameState.SetFlag("talked_jakeemma");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Emma", "Oh hi! Jake — JAKE — come meet the neighbour kid!"),
-                            new("Jake", "Hey! Sorry about her. She gets excited."),
-                            new("Emma", "We're still setting up but — do you want to see our game collection? We have SO MANY."),
-                            new("Jake", "She means we have a problem. A fun problem, but still a problem.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("What kind of games?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Jake", "Board games, card games, video games — if it exists and has rules, we own it."),
-                                            new("Emma", "We're a little competitive. Just a tiny bit."),
-                                            new("Jake", "She means she has absolutely destroyed me at everything we have ever tried."),
-                                            new("Emma", "It is not my fault I am naturally gifted at things."),
-                                        })),
-                                    new DialogueChoice("Nice to meet you both.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Jake", "You too! Seriously — if you ever need anything, just knock. Borrow sugar, whatever."),
-                                            new("Emma", "Our door is open. Literally, we keep forgetting to close it. It's a whole thing."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Emma", "Come play games with us sometime! We need a tiebreaker judge."),
-                        });
-                    }
-                });
-
-            // Jake is nearby
-            SpawnNpc(gd, "Jake", new Vector2(7 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Jake, () =>
-                {
-                    Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                    {
-                        new("Jake", "Hey kid! Come by anytime. And tell your parents we said hello."),
-                    });
-                });
+            SpawnNpc(gd, "Emma", new Vector2(5 * 16 + 8, 4 * 16 + 8), NpcAppearances.Emma,
+                () => Engine.DialogueSystem.StartYarnNode("Emma"));
+            SpawnNpc(gd, "Jake", new Vector2(7 * 16 + 8, 4 * 16 + 8), NpcAppearances.Jake,
+                () => Engine.DialogueSystem.StartYarnNode("Jake"));
         }
 
         private void SpawnThompsonNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Mr. Thompson", new Vector2(3 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.MrThompson, () =>
-                {
-                    if (!GameState.HasFlag("talked_thompson"))
-                    {
-                        GameState.SetFlag("talked_thompson");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Thompson", "...What do you want?"),
-                            new("Mr. Thompson", "I'm not being rude. I just... I don't get many visitors. Takes me a moment.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("Just saying hi.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mr. Thompson", "Hmph."),
-                                            new("Mr. Thompson", "...You're the first person who's stopped by all week."),
-                                            new("Mr. Thompson", "Tell your parents I said hello. And thank your mother for the casserole she left last month. I never properly thanked her."),
-                                        })),
-                                    new DialogueChoice("Do you need help with anything?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mr. Thompson", "..."),
-                                            new("Mr. Thompson", "The garden has gotten a bit wild. Margaret always kept it beautiful. I haven't had the... motivation."),
-                                            new("Mr. Thompson", "Not that I'm asking for help. I'm just — stating a fact."),
-                                            new("Mr. Thompson", "...You could come back and look at it, I suppose. If you had nothing better to do."),
-                                        })),
-                                }),
-                        });
-                        GameState.SetFlag("met_thompson");
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Thompson", "You came back. Hmph. Well. The kettle's on, if you want tea."),
-                        });
-                    }
-                });
+            SpawnNpc(gd, "Mr. Thompson", new Vector2(3 * 16 + 8, 4 * 16 + 8), NpcAppearances.MrThompson,
+                () => Engine.DialogueSystem.StartYarnNode("Thompson"));
         }
 
         private void SpawnSantosNpcs(GraphicsDevice gd)
         {
-            // Maria in the kitchen
-            SpawnNpc(gd, "Maria", new Vector2(16 * 16 + 8, 5 * 16 + 8),
-                NpcAppearances.Maria, () =>
-                {
-                    if (!GameState.HasFlag("talked_maria"))
-                    {
-                        GameState.SetFlag("talked_maria");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Maria", "Oh! Hello! Come in, come in. I hope Lucia hasn't been causing trouble — she's been SO excited to meet everyone."),
-                            new("Maria", "It's just the two of us here. Well, three counting little Carlos.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("She seems really nice.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Maria", "She is. She had to say goodbye to all her friends when we moved. Not one complaint."),
-                                            new("Maria", "...I know it's harder for her than she lets on. She's protecting me, I think. At six years old, already protecting me."),
-                                        })),
-                                    new DialogueChoice("What do you do for work?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Maria", "I'm a nurse! Night shifts mostly — which means Lucia handles a lot on her own during the day."),
-                                            new("Maria", "She never complains. But sometimes I worry... I want more for her, you know? More than just getting by."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Maria", "Mi casa es su casa, mijo. Come by whenever you like. The more friends Lucia has, the better."),
-                        });
-                    }
-                });
+            SpawnNpc(gd, "Maria", new Vector2(16 * 16 + 8, 5 * 16 + 8), NpcAppearances.Maria,
+                () => Engine.DialogueSystem.StartYarnNode("Maria"));
         }
 
         private void SpawnPetrovNpcs(GraphicsDevice gd)
         {
-            // Mr. Petrov — living area
-            SpawnNpc(gd, "Mr. Petrov", new Vector2(3 * 16 + 8, 5 * 16 + 8),
-                NpcAppearances.MrPetrov, () =>
-                {
-                    if (!GameState.HasFlag("talked_mrpetrov"))
-                    {
-                        GameState.SetFlag("talked_mrpetrov");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Petrov", "Good day! You are... neighbour child? Yes? Please, come."),
-                            new("Mr. Petrov", "We are still learning. How to say. Everything is new.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("How do you like it here?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mr. Petrov", "Is... quiet. Good quiet. In city we come from, not so quiet."),
-                                            new("Mr. Petrov", "We are... hopeful. Yes. That is right word. Hopeful."),
-                                        })),
-                                    new DialogueChoice("Your daughter Nadia is very nice.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Mrs. Petrov", "You meet Nadia? She is shy at first — good heart, big heart, but shy."),
-                                            new("Mr. Petrov", "She misses her grandmother very much. Is hard. But she is brave. Like her mother."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Mr. Petrov", "Thank you for visiting. It means very much."),
-                        });
-                    }
-                });
-
-            // Mrs. Petrov — kitchen with tea
-            SpawnNpc(gd, "Mrs. Petrov", new Vector2(16 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.MrsPetrov, () =>
-                {
-                    Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                    {
-                        new("Mrs. Petrov", "Oh! Guest! I make tea. Please sit, please sit."),
-                        new("Mrs. Petrov", "You are kind child. Nadia needs kind friends."),
-                    });
-                });
+            SpawnNpc(gd, "Mr. Petrov",  new Vector2( 3 * 16 + 8,  5 * 16 + 8), NpcAppearances.MrPetrov,
+                () => Engine.DialogueSystem.StartYarnNode("MrPetrov"));
+            SpawnNpc(gd, "Mrs. Petrov", new Vector2(16 * 16 + 8,  4 * 16 + 8), NpcAppearances.MrsPetrov,
+                () => Engine.DialogueSystem.StartYarnNode("MrsPetrov"));
         }
 
         private void SpawnSamNpcs(GraphicsDevice gd)
         {
-            // Sam's mum Linda
-            SpawnNpc(gd, "Linda", new Vector2(5 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Linda, () =>
-                {
-                    if (!GameState.HasFlag("talked_linda"))
-                    {
-                        GameState.SetFlag("talked_linda");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Linda", "Oh hello! You're Sam's friend, right? They're outside somewhere — probably causing mayhem."),
-                            new("Linda", "I'm glad Sam has a friend like you. They talk about you all the time, you know."),
-                            new("Linda", "Hey, if you two get hungry later — I've got snacks. The door is always open.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("Thank you, Mrs...?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Linda", "Linda! Just Linda. 'Mrs.' makes me feel ancient."),
-                                            new("Linda", "Now go find Sam before they rope someone into another 'expedition'."),
-                                        })),
-                                    new DialogueChoice("We'll be careful!", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Linda", "Ha! You're already more responsible than Sam. That's... both reassuring and slightly concerning."),
-                                            new("Linda", "Go on, have fun."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Linda", "Sam's still outside. Go rescue them from whatever scheme they're hatching!"),
-                        });
-                    }
-                });
+            SpawnNpc(gd, "Linda", new Vector2(5 * 16 + 8, 4 * 16 + 8), NpcAppearances.Linda,
+                () => Engine.DialogueSystem.StartYarnNode("Linda"));
         }
 
         private void SpawnJohnsonNpcs(GraphicsDevice gd)
         {
-            // DeShonda — living room
-            SpawnNpc(gd, "DeShonda", new Vector2(4 * 16 + 8, 6 * 16 + 8),
-                NpcAppearances.DeShonda, () =>
-                {
-                    if (!GameState.HasFlag("talked_deshonda"))
-                    {
-                        GameState.SetFlag("talked_deshonda");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("DeShonda", "Well hello! You must be from the neighbourhood. I'm DeShonda. Always happy to have visitors."),
-                            new("DeShonda", "Have you met my daughter Destiny? She's right over there. And Tyler's around somewhere — probably being moody."),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("DeShonda", "Come back anytime, sweetheart. This house is always full of people and noise — one more is never a problem."),
-                        });
-                    }
-                });
-
-            // Destiny — guitar area
-            SpawnNpc(gd, "Destiny", new Vector2(8 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Destiny, () =>
-                {
-                    if (!GameState.HasFlag("talked_destiny"))
-                    {
-                        GameState.SetFlag("talked_destiny");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Destiny", "Oh my GOD, finally someone who isn't my mom."),
-                            new("Destiny", "I'm Destiny. I play guitar. Want to hear something?",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("Yes please!", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Destiny", "*plays a surprisingly good melody*"),
-                                            new("Destiny", "Not bad for six months of lessons, right? Mom says I need to practice more. I'm practically already a prodigy."),
-                                        })),
-                                    new DialogueChoice("Maybe later?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Destiny", "Okay, okay. No pressure. Not everyone appreciates art right away."),
-                                            new("Destiny", "Come back when you're ready. I'll still be here being brilliant."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Destiny", "Practice makes perfect, they say. I say talent makes perfect. But I practice anyway."),
-                        });
-                    }
-                }, 0.5f);
-
-            // Tyler — brooding in the corner
-            SpawnNpc(gd, "Tyler", new Vector2(18 * 16 + 8, 4 * 16 + 8),
-                NpcAppearances.Tyler, () =>
-                {
-                    if (!GameState.HasFlag("talked_tyler"))
-                    {
-                        GameState.SetFlag("talked_tyler");
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Tyler", "Ugh. Another neighbourhood kid."),
-                            new("Tyler", "Look, I'm busy. Not that it's any of your business, but I'm trying to figure out how to apologize to my best friend.",
-                                choices: new[]
-                                {
-                                    new DialogueChoice("What happened?", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Tyler", "I said something dumb. The kind of dumb where you know it's wrong the second it comes out of your mouth, but it's too late."),
-                                            new("Tyler", "It's... look, it doesn't matter. Just — if you ever say something dumb to someone you care about?"),
-                                            new("Tyler", "Apologize fast. Don't do the thing where you wait and hope they forget. They don't forget."),
-                                        })),
-                                    new DialogueChoice("Sorry to bother you.", onSelected: () =>
-                                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                        {
-                                            new("Tyler", "You're not bothering me. I'm just... in a mood. Happens."),
-                                            new("Tyler", "Ask Destiny if you need anything. She's the friendly one."),
-                                        })),
-                                }),
-                        });
-                    }
-                    else
-                    {
-                        Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                        {
-                            new("Tyler", "Still figuring things out. I'll get there. ...Probably."),
-                        });
-                    }
-                }, 0.5f);
+            SpawnNpc(gd, "DeShonda", new Vector2( 4 * 16 + 8,  6 * 16 + 8), NpcAppearances.DeShonda,
+                () => Engine.DialogueSystem.StartYarnNode("DeShonda"));
+            SpawnNpc(gd, "Destiny",  new Vector2( 8 * 16 + 8,  4 * 16 + 8), NpcAppearances.Destiny,
+                () => Engine.DialogueSystem.StartYarnNode("Destiny"), scale: 0.5f);
+            SpawnNpc(gd, "Tyler",    new Vector2(18 * 16 + 8,  4 * 16 + 8), NpcAppearances.Tyler,
+                () => Engine.DialogueSystem.StartYarnNode("Tyler"),   scale: 0.5f);
         }
 
         // ── Update ────────────────────────────────────────────────────────────

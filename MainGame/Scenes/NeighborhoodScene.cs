@@ -6,7 +6,6 @@ using TileEngine.Collision;
 using TileEngine.Components;
 using TileEngine.Core;
 using TileEngine.ECS;
-using TileEngine.Gameplay;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -138,6 +137,12 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
+            // Load Yarn dialogue (no-op if already loaded from a prior scene)
+            var yarnDir = Path.Combine(AppContext.BaseDirectory, "Dialogue");
+            Engine.DialogueSystem.EnsureYarnLoaded(yarnDir);
+            Engine.DialogueSystem.RegisterCommandHandler("flag",
+                args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
+
             // Player
             _player = SpawnPlayer(gd, GameState.NeighborhoodReturnPosition);
 
@@ -261,115 +266,12 @@ namespace ChildhoodAdventure.Scenes
 
         private void SpawnOutdoorNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8), NpcAppearances.Sam,   TalkToSam,   scale: 0.5f);
-            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8), NpcAppearances.Lucia, TalkToLucia, scale: 0.5f);
-            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8), NpcAppearances.Nadia, TalkToNadia, scale: 0.5f);
-        }
-
-        // ── Dialogue ─────────────────────────────────────────────────────────
-
-        private void TalkToSam()
-        {
-            if (!GameState.HasFlag("talked_sam"))
-            {
-                GameState.SetFlag("talked_sam");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Sam", "HEY! I've been waiting FOREVER. Where have you been?"),
-                    new("Sam", "Have you met the new family yet? The Petrovs? They just moved in at the far end. They have a kid our age!",
-                        choices: new[]
-                        {
-                            new DialogueChoice("Let's go say hi!", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Sam", "YES! Okay I'm a LITTLE nervous but also very excited."),
-                                    new("Sam", "I heard her name is Nadia. She's been sitting outside by herself all morning."),
-                                })),
-                            new DialogueChoice("I'll check out the neighbourhood first.", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Sam", "Okay okay. Just... don't forget about Nadia, okay? She looked lonely."),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Sam", "Go talk to Nadia! I'll be right here if you need me."),
-                });
-            }
-        }
-
-        private void TalkToLucia()
-        {
-            if (!GameState.HasFlag("talked_lucia"))
-            {
-                GameState.SetFlag("talked_lucia");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Lucia", "¡Hola! I mean, hi! Are you from this street too?"),
-                    new("Lucia", "I'm Lucia. We just moved here. It's okay so far — the park is really nice!",
-                        choices: new[]
-                        {
-                            new DialogueChoice("Nice to meet you! I live nearby.", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Lucia", "Oh cool!! You should come meet my mom — she's making tamales today!"),
-                                    new("Lucia", "Just knock on our door whenever. She loves visitors."),
-                                })),
-                            new DialogueChoice("Did you just move here?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Lucia", "Yeah. Mamá got a new job nearby, so we moved. I miss my old school..."),
-                                    new("Lucia", "But! New adventures, right? That's what Mamá says."),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Lucia", "Don't forget — tamales! Our door is always open!"),
-                });
-            }
-        }
-
-        private void TalkToNadia()
-        {
-            if (!GameState.HasFlag("talked_nadia"))
-            {
-                GameState.SetFlag("talked_nadia");
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Nadia", "...Hello. I am Nadia."),
-                    new("Nadia", "We come from very far away. Papa says this is a good place.",
-                        choices: new[]
-                        {
-                            new DialogueChoice("Do you like it here so far?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Nadia", "It is... different. Very quiet street. My old city was always full of sounds."),
-                                    new("Nadia", "But people seem kind here. You seem kind."),
-                                })),
-                            new DialogueChoice("Where did you come from?", onSelected: () =>
-                                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                                {
-                                    new("Nadia", "Very far east. We travel for many days. Mama says we have adventure now."),
-                                    new("Nadia", "I like adventure books. Do you?"),
-                                })),
-                        }),
-                });
-            }
-            else
-            {
-                Engine.DialogueSystem.StartDialogue(new DialogueLine[]
-                {
-                    new("Nadia", "I am glad you talked to me. I was not sure anyone would."),
-                });
-            }
+            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8), NpcAppearances.Sam,
+                () => Engine.DialogueSystem.StartYarnNode("Sam"),   scale: 0.5f);
+            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8), NpcAppearances.Lucia,
+                () => Engine.DialogueSystem.StartYarnNode("Lucia"), scale: 0.5f);
+            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8), NpcAppearances.Nadia,
+                () => Engine.DialogueSystem.StartYarnNode("Nadia"), scale: 0.5f);
         }
 
         // ── Update ────────────────────────────────────────────────────────────
