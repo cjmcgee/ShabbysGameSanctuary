@@ -1,11 +1,7 @@
 using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using TileEngine.Collision;
-using TileEngine.Components;
 using TileEngine.Core;
-using TileEngine.ECS;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -17,7 +13,7 @@ namespace ChildhoodAdventure.Scenes
     /// Jamie (younger sibling) on the living room floor.
     /// Exit: walk to the front door at the bottom-centre of the map.
     /// </summary>
-    public class HomeInteriorScene : Scene
+    public class HomeInteriorScene : AdventureScene
     {
         // ── Tile GIDs (1-based) ──────────────────────────────────────────────
         private const int T_WOOD     = 1;   // warm wood floor
@@ -29,26 +25,19 @@ namespace ChildhoodAdventure.Scenes
         private const int T_COUNTER  = 7;   // light kitchen counter
         private const int T_WINDOW   = 8;   // window (light blue)
 
-        // Map dimensions (tiles)
         private const int MapW = 24, MapH = 18;
 
-        private Entity? _player;
-        private readonly List<(Entity Npc, Action TalkFn)> _npcTalks = new();
-        private Tilemap? _tilemap;
-        private KeyboardState _prevKeys;
-        private bool _transitioning;
+        protected override Color DialogueBorderColor => new(200, 180, 100);
 
         // ── Scene load ───────────────────────────────────────────────────────
 
-        protected override void OnLoad()
+        protected override void OnSceneLoad()
         {
             Name = "Home";
             GameState.ActiveScene = GameState.SceneType.Home;
             var gd  = Engine.GraphicsDevice;
             var sys = RetroSystemRegistry.Current;
 
-            // Build tileset from the active retro system's pixel art.
-            // GIDs 1-8 map to the TileTypes below in order.
             var tileset = sys.BuildTileset(gd, "home", new[]
             {
                 TileType.WoodFloor,   // 1
@@ -61,29 +50,21 @@ namespace ChildhoodAdventure.Scenes
                 TileType.Window,      // 8
             });
 
-            _tilemap = new Tilemap("home", MapW, MapH, 16, 16)
+            var tilemap = new Tilemap("home", MapW, MapH, 16, 16)
             {
                 BackgroundColor = Color.Black
             };
-            _tilemap.AddTileset(tileset);
-            BuildHomeMap(_tilemap);
+            tilemap.AddTileset(tileset);
+            BuildHomeMap(tilemap);
 
-            Engine.CollisionSystem.SetTilemap(_tilemap);
-            Engine.RenderSystem.TilemapRenderer.SetTilemap(_tilemap);
-            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, _tilemap.PixelWidth, _tilemap.PixelHeight);
+            Engine.CollisionSystem.SetTilemap(tilemap);
+            Engine.RenderSystem.TilemapRenderer.SetTilemap(tilemap);
+            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, tilemap.PixelWidth, tilemap.PixelHeight);
             Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
             Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
-            // Load Yarn dialogue from the embedded bundle (no-op after first call)
-            Engine.DialogueSystem.EnsureYarnLoaded(GetType().Assembly, AdventureGame.DialogueBundleResource);
-            Engine.DialogueSystem.RegisterCommandHandler("flag",
-                args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
-
-            // Player
-            _player = SpawnPlayer(gd, GameState.PlayerSpawnPosition);
-
-            // NPCs
+            SpawnPlayer(gd, GameState.PlayerSpawnPosition);
             SpawnDad(gd);
             SpawnMom(gd);
             SpawnJamie(gd);
@@ -97,49 +78,31 @@ namespace ChildhoodAdventure.Scenes
             var mid = map.AddLayer("mid", LayerType.Midground);
             var col = map.AddLayer("col", LayerType.Collision);
 
-            // Background floors
-            FillRect(bg, 1, 1, 22, 16, T_WOOD);       // all interior wood
-            FillRect(bg, 1, 1,  9, 13, T_CARPET);     // living room carpet
-            FillRect(bg, 12,1, 11, 13, T_KITCHEN);    // kitchen tile
+            FillRect(bg, 1, 1, 22, 16, T_WOOD);
+            FillRect(bg, 1, 1,  9, 13, T_CARPET);
+            FillRect(bg, 12,1, 11, 13, T_KITCHEN);
 
-            // Border walls
             FillRow(mid, col, 0,       T_WALL);
             FillRow(mid, col, MapH-1,  T_WALL);
             FillCol(mid, col, 0,       T_WALL);
             FillCol(mid, col, MapW-1,  T_WALL);
 
-            // Solid walls — no window cutouts (Adventure rectangles are unbroken)
-
-            // Partial vertical divider between living room and kitchen (y=1-7)
             for (int y = 1; y <= 7; y++) { mid.SetTile(11, y, T_WALL); col.SetTile(11, y, 1); }
-            // Opening at y=8-10 (archway)
 
-            // Front door: two walkable tiles in the bottom wall (exit to neighbourhood)
             mid.SetTile(11, MapH-1, T_DOOR); col.SetTile(11, MapH-1, 0);
             mid.SetTile(12, MapH-1, T_DOOR); col.SetTile(12, MapH-1, 0);
 
-            // ── Furniture (midground, blocked in collision) ──────────────────
-
-            // TV / bookshelf unit top-left
             PlaceFurniture(mid, col, 1, 1, 3, 1);
-            // Sofa (3 tiles wide, facing down)
             PlaceFurniture(mid, col, 2, 3, 3, 1);
-            // Coffee table
             PlaceFurniture(mid, col, 3, 5, 1, 1);
-            // Bookshelf on left wall
             PlaceFurniture(mid, col, 1, 7, 1, 2);
-            // Plant in corner
             mid.SetTile(9, 9, T_FURN); col.SetTile(9, 9, 1);
 
-            // Kitchen counters (top row, east side)
-            PlaceFurniture(mid, col, 13, 1, 8, 1); // counter top row
-            PlaceFurniture(mid, col, 22, 1, 1, 3); // fridge/appliance on right wall
-            // Stove break at x=19-20 col=0 (the counter has gaps for NPC)
+            PlaceFurniture(mid, col, 13, 1, 8, 1);
+            PlaceFurniture(mid, col, 22, 1, 1, 3);
             col.SetTile(19, 1, 0); col.SetTile(20, 1, 0);
 
-            // Dining table + chairs
             PlaceFurniture(mid, col, 14, 6, 3, 2);
-            // Chairs around table (decorative, not blocked)
             mid.SetTile(13, 6, T_FURN); mid.SetTile(13, 7, T_FURN);
             mid.SetTile(18, 6, T_FURN); mid.SetTile(18, 7, T_FURN);
         }
@@ -171,240 +134,31 @@ namespace ChildhoodAdventure.Scenes
                 }
         }
 
-        // ── Entity spawners ──────────────────────────────────────────────────
+        // ── NPC spawners ──────────────────────────────────────────────────────
 
-        private Entity SpawnPlayer(GraphicsDevice gd, Vector2 pos)
-        {
-            var e = Engine.EntityWorld.CreateEntity("Player");
-            Engine.EntityWorld.RegisterTag("player", e);
-            e.AddComponent(new TransformComponent(pos) { MaxSpeed = 90f });
-            e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
-            var playerSprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player);
-            playerSprite.Scale = 0.5f;
-            e.AddComponent(new SpriteComponent { Sprite = playerSprite });
-            Engine.RenderSystem.Camera.FollowTarget = pos;
-            Engine.RenderSystem.Camera.FollowSpeed  = 8f;
-            Engine.RenderSystem.Camera.CenterOn(pos);
-            return e;
-        }
-
-        private Entity SpawnNpc(GraphicsDevice gd, string name, Vector2 pos, CharacterAppearance appearance, Action talkFn, float scale = 1f)
-        {
-            var e = Engine.EntityWorld.CreateEntity(name);
-            e.AddComponent(new TransformComponent(pos));
-            e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
-            var sprite = SpriteFactory.BuildCharacter(gd, appearance);
-            sprite.Scale = scale;
-            e.AddComponent(new SpriteComponent { Sprite = sprite });
-            _npcTalks.Add((e, talkFn));
-            return e;
-        }
-
-        private void SpawnDad(GraphicsDevice gd)
-        {
+        private void SpawnDad(GraphicsDevice gd) =>
             SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), NpcAppearances.Dad,
                 () => Engine.DialogueSystem.StartYarnNode("Dad"));
-        }
 
-        private void SpawnMom(GraphicsDevice gd)
-        {
+        private void SpawnMom(GraphicsDevice gd) =>
             SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), NpcAppearances.Mom,
                 () => Engine.DialogueSystem.StartYarnNode("Mom"));
-        }
 
-        private void SpawnJamie(GraphicsDevice gd)
-        {
+        private void SpawnJamie(GraphicsDevice gd) =>
             SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), NpcAppearances.Jamie,
                 () => Engine.DialogueSystem.StartYarnNode("Jamie"), scale: 0.5f);
-        }
 
-        // ── Update ────────────────────────────────────────────────────────────
+        // ── Scene transitions ────────────────────────────────────────────────
 
-        public override void Update(GameTime gameTime)
+        protected override void CheckSceneTransitions()
         {
-            var keys = Keyboard.GetState();
-
-            // Snapshot dialogue state BEFORE processing — prevents the E press that
-            // closes a dialogue from immediately re-triggering an interaction in the
-            // same frame.
-            bool wasDialogueActive = Engine.DialogueSystem.IsActive;
-
-            HandleDialogueInput(keys);
-
-            if (!Engine.DialogueSystem.IsActive && !_transitioning)
-            {
-                HandlePlayerMovement(keys, gameTime);
-                if (!wasDialogueActive)
-                    HandleInteraction(keys);
-                CheckExitTrigger();
-            }
-
-            _prevKeys = keys;
-        }
-
-        private void HandleDialogueInput(KeyboardState keys)
-        {
-            if (!Engine.DialogueSystem.IsActive) return;
-
-            if (Engine.DialogueSystem.WaitingForChoice)
-            {
-                if (keys.IsKeyDown(Keys.Up)   && !_prevKeys.IsKeyDown(Keys.Up))
-                    Engine.DialogueSystem.MoveChoiceSelection(-1);
-                if (keys.IsKeyDown(Keys.Down) && !_prevKeys.IsKeyDown(Keys.Down))
-                    Engine.DialogueSystem.MoveChoiceSelection(1);
-                if (keys.IsKeyDown(Keys.E) && !_prevKeys.IsKeyDown(Keys.E))
-                    Engine.DialogueSystem.SelectChoice(Engine.DialogueSystem.SelectedChoiceIndex);
-            }
-            else if (keys.IsKeyDown(Keys.E) && !_prevKeys.IsKeyDown(Keys.E))
-            {
-                Engine.DialogueSystem.Advance();
-            }
-        }
-
-        private void HandlePlayerMovement(KeyboardState keys, GameTime gameTime)
-        {
-            if (_player == null) return;
-            var t = _player.GetComponent<TransformComponent>();
-            var sc = _player.GetComponent<SpriteComponent>();
-            if (t == null) return;
-
-            var move = Vector2.Zero;
-            if (keys.IsKeyDown(Keys.W) || keys.IsKeyDown(Keys.Up))    move.Y -= 1;
-            if (keys.IsKeyDown(Keys.S) || keys.IsKeyDown(Keys.Down))  move.Y += 1;
-            if (keys.IsKeyDown(Keys.A) || keys.IsKeyDown(Keys.Left))  move.X -= 1;
-            if (keys.IsKeyDown(Keys.D) || keys.IsKeyDown(Keys.Right)) move.X += 1;
-
-            if (move != Vector2.Zero)
-            {
-                var dir = Vector2.Normalize(move);
-                t.Velocity = dir * t.MaxSpeed;
-                t.Facing   = dir;
-                sc?.Play("walk");
-            }
-            else
-            {
-                t.Velocity = Vector2.Zero;
-                sc?.Play("idle");
-            }
-
-            Engine.CollisionSystem.MoveAndSlide(_player, (float)gameTime.ElapsedGameTime.TotalSeconds);
-            t.Velocity = Vector2.Zero;
-            Engine.RenderSystem.Camera.FollowTarget = t.Position;
-        }
-
-        private void HandleInteraction(KeyboardState keys)
-        {
-            if (!keys.IsKeyDown(Keys.E) || _prevKeys.IsKeyDown(Keys.E)) return;
-            if (_player == null) return;
-
-            var pt = _player.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
-
-            foreach (var (npc, talkFn) in _npcTalks)
-            {
-                var nt = npc.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
-                if (Vector2.Distance(pt, nt) < 30f)
-                {
-                    talkFn();
-                    return;
-                }
-            }
-        }
-
-        private void CheckExitTrigger()
-        {
-            if (_player == null) return;
-            var pos = _player.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
-
-            // Exit when player reaches the front door tiles (bottom-centre of map).
+            var pos = PlayerPosition;
             if (pos.Y >= (MapH - 2) * 16 - 2 && pos.X > 10 * 16 && pos.X < 13 * 16 + 16)
             {
-                _transitioning = true;
+                Transitioning = true;
                 GameState.NeighborhoodReturnPosition = new Vector2(40 * 16 + 8, 19 * 16 + 8);
                 Engine.LoadScene(new NeighborhoodScene());
             }
-        }
-
-        // ── Draw ──────────────────────────────────────────────────────────────
-
-        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            Engine.RenderSystem.DrawScene(Engine.EntityWorld, gameTime, Color.Black);
-            DrawUI(spriteBatch);
-        }
-
-        private Texture2D? _pixel;
-
-        private void DrawUI(SpriteBatch spriteBatch)
-        {
-            Engine.RenderSystem.BeginUI();
-            var sb = Engine.RenderSystem.SpriteBatch;
-
-            if (Engine.DialogueSystem.IsActive)
-                DrawDialogueBox(sb);
-
-            Engine.RenderSystem.EndUI();
-        }
-
-        private void DrawDialogueBox(SpriteBatch sb)
-        {
-            if (_pixel == null)
-            {
-                _pixel = new Texture2D(Engine.GraphicsDevice, 1, 1);
-                _pixel.SetData(new[] { Color.White });
-            }
-
-            var vp    = Engine.GraphicsDevice.Viewport;
-            var font  = Engine.RenderSystem.Font;
-            const float scale = 2f;
-            float lineH = PixelFont.CharH * scale;
-            int boxH = 110, boxY = vp.Height - boxH - 8;
-            int textX = 20, textMaxW = vp.Width - 40;
-
-            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, boxH), new Color(0, 0, 0, 215));
-            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, 2), new Color(200, 180, 100));
-            sb.Draw(_pixel, new Rectangle(8, boxY + boxH - 2, vp.Width - 16, 2), new Color(200, 180, 100));
-            sb.Draw(_pixel, new Rectangle(8, boxY, 2, boxH), new Color(200, 180, 100));
-            sb.Draw(_pixel, new Rectangle(vp.Width - 10, boxY, 2, boxH), new Color(200, 180, 100));
-
-            var line = Engine.DialogueSystem.CurrentLine;
-            if (line == null) return;
-
-            float cy = boxY + 8;
-            if (!string.IsNullOrEmpty(line.Speaker))
-            {
-                font.DrawText(sb, line.Speaker, new Vector2(textX, cy), Color.Yellow, scale);
-                cy += lineH + 2;
-            }
-
-            float bodyH = font.DrawWrappedText(sb, Engine.DialogueSystem.DisplayedText,
-                new Vector2(textX, cy), Color.White, textMaxW, scale);
-            float afterBody = cy + bodyH + 4;
-
-            if (Engine.DialogueSystem.WaitingForChoice)
-            {
-                var choices = Engine.DialogueSystem.VisibleChoices;
-                for (int i = 0; i < choices.Length; i++)
-                {
-                    bool sel     = i == Engine.DialogueSystem.SelectedChoiceIndex;
-                    bool enabled = choices[i].EnabledCondition?.Invoke() ?? true;
-                    Color color  = !enabled ? Color.DarkGray
-                                 : sel      ? Color.Yellow
-                                            : Color.LightGray;
-                    font.DrawText(sb, (sel && enabled ? "> " : "  ") + choices[i].Text,
-                        new Vector2(textX, afterBody + i * lineH), color, scale);
-                }
-            }
-            else if (Engine.DialogueSystem.IsTextComplete)
-            {
-                if ((int)(Engine.PlayTime.TotalSeconds * 2) % 2 == 0)
-                    font.DrawText(sb, "[ E ]",
-                        new Vector2(vp.Width - 68, boxY + boxH - lineH - 6), Color.Gray, scale);
-            }
-        }
-
-        protected override void OnUnload()
-        {
-            Engine.RenderSystem.LightingSystem.ClearLights();
         }
     }
 }
