@@ -9,6 +9,8 @@ namespace ChildhoodAdventure
 {
     public class AdventureGame : Game
     {
+        internal const string DialogueBundleResource = "ChildhoodAdventure.dialogue.bundle.gz";
+
         private readonly GraphicsDeviceManager _graphics;
         private GameEngine _engine = null!;
 

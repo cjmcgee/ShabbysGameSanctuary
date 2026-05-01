@@ -138,7 +138,7 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             // Load Yarn dialogue from the embedded bundle (no-op after first call)
-            Engine.DialogueSystem.EnsureYarnLoaded(GetType().Assembly);
+            Engine.DialogueSystem.EnsureYarnLoaded(GetType().Assembly, AdventureGame.DialogueBundleResource);
             Engine.DialogueSystem.RegisterCommandHandler("flag",
                 args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
 
