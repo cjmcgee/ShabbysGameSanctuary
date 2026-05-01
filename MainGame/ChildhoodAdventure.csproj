@@ -17,10 +17,53 @@
     <ProjectReference Include="..\TileEngine\TileEngine.csproj" />
   </ItemGroup>
 
+  <!-- ── Yarn dialogue bundling ──────────────────────────────────────────────
+       The .yarn source files are GZip-compressed into a single bundle at build
+       time and embedded as a managed resource.  No loose .yarn files are shipped
+       to end users.
+
+       $(MSBuildProjectDirectory)/obj/ is always present before CoreCompile runs,
+       making it a reliable location for the generated artefact.
+  -->
+  <PropertyGroup>
+    <_YarnBundlerProject>$(MSBuildProjectDirectory)/../Tools/YarnBundler/YarnBundler.csproj</_YarnBundlerProject>
+    <_YarnDialogueDir>$(MSBuildProjectDirectory)/Dialogue</_YarnDialogueDir>
+    <!-- Use the stable obj/ folder — avoids relying on $(IntermediateOutputPath),
+         which is not set when top-level PropertyGroups are evaluated. -->
+    <_YarnBundleOutput>$(MSBuildProjectDirectory)/obj/dialogue.bundle.gz</_YarnBundleOutput>
+  </PropertyGroup>
+
+  <!-- Declare all .yarn files as inputs for incremental-build tracking -->
   <ItemGroup>
-    <Content Include="Dialogue\**\*.yarn">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <YarnDialogueFile Include="Dialogue\**\*.yarn" />
   </ItemGroup>
+
+  <!--
+    Declare the bundle as an EmbeddedResource at evaluation time so the
+    standard PrepareResources / CreateManifestResourceNames pipeline picks it
+    up before the C# compiler runs.  The BundleYarnDialogue target below
+    ensures the file actually exists by the time any task tries to read it.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="$(_YarnBundleOutput)">
+      <LogicalName>ChildhoodAdventure.dialogue.bundle.gz</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!--
+    Generate (or update) the bundle before the compiler pipeline needs it.
+    Inputs/Outputs gives incremental build: only re-runs when .yarn files change.
+  -->
+  <Target Name="BundleYarnDialogue"
+          BeforeTargets="PrepareResources"
+          Inputs="@(YarnDialogueFile)"
+          Outputs="$(_YarnBundleOutput)">
+
+    <MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
+
+    <Exec Command="dotnet run --project &quot;$(_YarnBundlerProject)&quot; -- &quot;$(_YarnDialogueDir)&quot; &quot;$(_YarnBundleOutput)&quot;"
+          ConsoleToMsBuild="true" />
+
+  </Target>
 
 </Project>

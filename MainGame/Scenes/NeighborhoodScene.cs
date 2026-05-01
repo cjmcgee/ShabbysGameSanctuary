@@ -137,9 +137,8 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
-            // Load Yarn dialogue (no-op if already loaded from a prior scene)
-            var yarnDir = Path.Combine(AppContext.BaseDirectory, "Dialogue");
-            Engine.DialogueSystem.EnsureYarnLoaded(yarnDir);
+            // Load Yarn dialogue from the embedded bundle (no-op after first call)
+            Engine.DialogueSystem.EnsureYarnLoaded(GetType().Assembly);
             Engine.DialogueSystem.RegisterCommandHandler("flag",
                 args => { if (args.Length > 0) GameState.SetFlag(args[0]); });
 
