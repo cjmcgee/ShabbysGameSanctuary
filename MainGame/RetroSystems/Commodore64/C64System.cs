@@ -63,10 +63,10 @@ public sealed class C64System : RetroSystem
     // ── Sprite dimensions (12×21 total) ──────────────────────────────────────
     // 6 logical pixels per row (2 physical pixels each).
 
-    public override int CharWidth  => 12;
-    public override int HeadRows   => 6;
-    public override int BodyRows   => 8;
-    public override int LegsRows   => 7;
+    public override int CharWidth  => C64Sprites.CharWidth;
+    public override int HeadRows   => C64Sprites.HeadRows;
+    public override int BodyRows   => C64Sprites.BodyRows;
+    public override int LegsRows   => C64Sprites.LegsRows;
 
     // ── Head variants (1 frame × 6 rows × 12 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
@@ -117,111 +117,13 @@ public sealed class C64System : RetroSystem
 
     // ── Head palettes (VIC-II skin/hair tones) ────────────────────────────────
 
-    public override HeadPalette[] HeadPalettes { get; } =
-    [
-        new("fair/blonde",
-            Skin:      C64Palette.SkinLight,
-            Hair:      C64Palette.BrightYellow,   // VIC-II yellow
-            Highlight: C64Palette.SkinPale,
-            Eyes:      C64Palette.Blue,   // VIC-II blue
-            Accessory: C64Palette.Yellow),
-        new("fair/brown",
-            Skin:      C64Palette.SkinLight,
-            Hair:      C64Palette.DarkOlive,   // brown
-            Highlight: C64Palette.SkinPale,
-            Eyes:      C64Palette.DarkGray,
-            Accessory: C64Palette.DarkOlive),
-        new("medium/black",
-            Skin:      C64Palette.SkinTan,
-            Hair:      C64Palette.DoorBlack,
-            Highlight: C64Palette.SkinTan2,
-            Eyes:      C64Palette.DarkGray,
-            Accessory: C64Palette.DoorBlack),
-        new("dark/black",
-            Skin:      C64Palette.MidBrown,
-            Hair:      C64Palette.DoorBlack,
-            Highlight: C64Palette.SkinMedium,
-            Eyes:      C64Palette.Cyan,   // VIC-II cyan
-            Accessory: C64Palette.DoorBlack),
-        new("medium/auburn",
-            Skin:      C64Palette.SkinTan,
-            Hair:      C64Palette.DeepRed,   // VIC-II red — auburn
-            Highlight: C64Palette.SkinTan2,
-            Eyes:      C64Palette.Blue,
-            Accessory: C64Palette.DeepRed),
-    ];
+    public override HeadPalette[] HeadPalettes => C64Sprites.HeadPalettes;
 
     // ── Body palettes ─────────────────────────────────────────────────────────
 
-    public override BodyPalette[] BodyPalettes { get; } =
-    [
-        new("green",
-            Skin:           C64Palette.SkinLight,
-            Shirt:          C64Palette.Green,   // VIC-II green
-            ShirtHighlight: C64Palette.LightGreen,
-            Buttons:        C64Palette.White,
-            Accessory:      C64Palette.Cyan),
-        new("blue",
-            Skin:           C64Palette.SkinLight,
-            Shirt:          C64Palette.Blue,   // VIC-II blue
-            ShirtHighlight: C64Palette.MidBlue,
-            Buttons:        C64Palette.LightGrey,
-            Accessory:      C64Palette.BrightYellow),
-        new("red",
-            Skin:           C64Palette.SkinLight,
-            Shirt:          C64Palette.DeepRed,   // VIC-II red
-            ShirtHighlight: C64Palette.Salmon,
-            Buttons:        C64Palette.White,
-            Accessory:      C64Palette.BrightYellow),
-        new("white/light",
-            Skin:           C64Palette.SkinLight,
-            Shirt:          C64Palette.LightGrey,
-            ShirtHighlight: C64Palette.White,
-            Buttons:        C64Palette.Blue,
-            Accessory:      C64Palette.Green),
-        new("teal",
-            Skin:           C64Palette.SkinLight,
-            Shirt:          C64Palette.MidBlue,
-            ShirtHighlight: C64Palette.Cyan,
-            Buttons:        C64Palette.White,
-            Accessory:      C64Palette.MidMagenta),
-    ];
+    public override BodyPalette[] BodyPalettes => C64Sprites.BodyPalettes;
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
 
-    public override LegsPalette[] LegsPalettes { get; } =
-    [
-        new("blue jeans/brown shoes",
-            Skin:           C64Palette.SkinLight,
-            Pants:          C64Palette.Blue,   // VIC-II blue
-            PantsHighlight: C64Palette.MidBlue,
-            Belt:           C64Palette.DarkOlive,
-            BeltHighlight:  C64Palette.SkinTan3,
-            Shoes:          C64Palette.DarkBrown,
-            ShoeHighlight:  C64Palette.Brown),
-        new("black/black",
-            Skin:           C64Palette.SkinLight,
-            Pants:          C64Palette.DoorBlack,
-            PantsHighlight: C64Palette.DarkGray,
-            Belt:           C64Palette.DarkGray,
-            BeltHighlight:  C64Palette.Grey,
-            Shoes:          C64Palette.DoorBlack,
-            ShoeHighlight:  C64Palette.DarkGray),
-        new("khaki/tan",
-            Skin:           C64Palette.SkinLight,
-            Pants:          C64Palette.SkinTan3,
-            PantsHighlight: C64Palette.BrightYellow,
-            Belt:           C64Palette.DarkOlive,
-            BeltHighlight:  C64Palette.BurntOrange,
-            Shoes:          C64Palette.DarkOlive,
-            ShoeHighlight:  C64Palette.SkinMedium2),
-        new("gray/dark",
-            Skin:           C64Palette.SkinLight,
-            Pants:          C64Palette.Grey,
-            PantsHighlight: C64Palette.LightGrey,
-            Belt:           C64Palette.DarkGray,
-            BeltHighlight:  C64Palette.Grey,
-            Shoes:          C64Palette.DarkGray,
-            ShoeHighlight:  C64Palette.Grey),
-    ];
+    public override LegsPalette[] LegsPalettes => C64Sprites.LegPalettes;
 }

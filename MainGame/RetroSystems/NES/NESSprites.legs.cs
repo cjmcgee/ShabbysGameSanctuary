@@ -2,6 +2,44 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 
 public static partial class NESSprites
 {
+    public const int LegsRows = 9;
+
+    public static LegsPalette[] LegPalettes { get; } =
+        [
+            new("blue jeans/brown shoes",
+                Skin:           NESPalette.SkinFair,
+                Pants:          NESPalette.NesBlue,   // NES blue
+                PantsHighlight: NESPalette.Aqua,
+                Belt:           NESPalette.DarkBrown,
+                BeltHighlight:  NESPalette.RustOrange,
+                Shoes:          NESPalette.DarkestBrown,
+                ShoeHighlight:  NESPalette.WarmDoorWood),
+            new("black/black",
+                Skin:           NESPalette.SkinFair,
+                Pants:          NESPalette.DoorBlack,
+                PantsHighlight: NESPalette.RoadGray,
+                Belt:           NESPalette.RoadGray,
+                BeltHighlight:  NESPalette.SidewalkGray,
+                Shoes:          NESPalette.DoorBlack,
+                ShoeHighlight:  NESPalette.RoadGray),
+            new("khaki/tan",
+                Skin:           NESPalette.SkinFair,
+                Pants:          NESPalette.SkinTan,
+                PantsHighlight: NESPalette.PaleYellow,
+                Belt:           NESPalette.DarkBrown,
+                BeltHighlight:  NESPalette.MediumBrown,
+                Shoes:          NESPalette.DarkBrown,
+                ShoeHighlight:  NESPalette.MediumBrown),
+            new("gray/dark",
+                Skin:           NESPalette.SkinFair,
+                Pants:          NESPalette.SidewalkGray,
+                PantsHighlight: NESPalette.WallGray,
+                Belt:           NESPalette.RoadGray,
+                BeltHighlight:  NESPalette.SidewalkGray,
+                Shoes:          NESPalette.RoadGray,
+                ShoeHighlight:  NESPalette.SidewalkGray),
+        ];
+
     public static readonly byte[][][] Legs0 =   // pants + belt
     [
         // Frame 0 — idle

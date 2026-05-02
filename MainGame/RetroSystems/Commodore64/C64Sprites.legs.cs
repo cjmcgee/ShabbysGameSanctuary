@@ -2,6 +2,44 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
 public static partial class C64Sprites
 {
+    public const int LegsRows = 7;
+
+    public static LegsPalette[] LegPalettes { get; } =
+        [
+            new("blue jeans/brown shoes",
+                Skin:           C64Palette.SkinLight,
+                Pants:          C64Palette.Blue,   // VIC-II blue
+                PantsHighlight: C64Palette.MidBlue,
+                Belt:           C64Palette.DarkOlive,
+                BeltHighlight:  C64Palette.SkinTan3,
+                Shoes:          C64Palette.DarkBrown,
+                ShoeHighlight:  C64Palette.Brown),
+            new("black/black",
+                Skin:           C64Palette.SkinLight,
+                Pants:          C64Palette.DoorBlack,
+                PantsHighlight: C64Palette.DarkGray,
+                Belt:           C64Palette.DarkGray,
+                BeltHighlight:  C64Palette.Grey,
+                Shoes:          C64Palette.DoorBlack,
+                ShoeHighlight:  C64Palette.DarkGray),
+            new("khaki/tan",
+                Skin:           C64Palette.SkinLight,
+                Pants:          C64Palette.SkinTan3,
+                PantsHighlight: C64Palette.BrightYellow,
+                Belt:           C64Palette.DarkOlive,
+                BeltHighlight:  C64Palette.BurntOrange,
+                Shoes:          C64Palette.DarkOlive,
+                ShoeHighlight:  C64Palette.SkinMedium2),
+            new("gray/dark",
+                Skin:           C64Palette.SkinLight,
+                Pants:          C64Palette.Grey,
+                PantsHighlight: C64Palette.LightGrey,
+                Belt:           C64Palette.DarkGray,
+                BeltHighlight:  C64Palette.Grey,
+                Shoes:          C64Palette.DarkGray,
+                ShoeHighlight:  C64Palette.Grey),
+        ];
+
     public static readonly byte[][][] Legs0 =   // pants + belt
     [
         // Frame 0 — idle

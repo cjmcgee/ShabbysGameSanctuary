@@ -79,10 +79,10 @@ public sealed class AppleIISystem : RetroSystem
     //   • Cols 0 and 13 are typically 0 to keep the silhouette inside the
     //     visible 12-col band, mirroring the tile-edge convention.
 
-    public override int CharWidth  => 14;
-    public override int HeadRows   => 4;
-    public override int BodyRows   => 6;
-    public override int LegsRows   => 4;
+    public override int CharWidth  => AppleIISprites.CharWidth;
+    public override int HeadRows   => AppleIISprites.HeadRows;
+    public override int BodyRows   => AppleIISprites.BodyRows;
+    public override int LegsRows   => AppleIISprites.LegsRows;
 
     // ── Head variants (1 frame × 4 rows × 14 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
@@ -123,122 +123,13 @@ public sealed class AppleIISystem : RetroSystem
     // Black=(0,0,0)  Green=(20,245,60)  Violet=(193,28,255)
     // White=(255,255,255)  Orange=(255,106,60)  Blue=(20,88,255)
 
-    public override HeadPalette[] HeadPalettes { get; } =
-    [
-        new("fair/light-hair",
-            Skin:      AppleIIPalette.White,   // white
-            Hair:      AppleIIPalette.Orange,   // orange (blonde approximation)
-            Highlight: AppleIIPalette.White,   // white
-            Eyes:      AppleIIPalette.Blue,   // blue
-            Accessory: AppleIIPalette.Orange),  // orange
-
-        new("fair/dark-hair",
-            Skin:      AppleIIPalette.White,   // white
-            Hair:      AppleIIPalette.Black,   // black
-            Highlight: AppleIIPalette.White,   // white
-            Eyes:      AppleIIPalette.Black,   // black
-            Accessory: AppleIIPalette.Violet),  // violet
-
-        new("medium/black-hair",
-            Skin:      AppleIIPalette.Orange,   // orange
-            Hair:      AppleIIPalette.Black,   // black
-            Highlight: AppleIIPalette.White,   // white
-            Eyes:      AppleIIPalette.Blue,   // blue
-            Accessory: AppleIIPalette.Black),  // black
-
-        new("dark/black-hair",
-            Skin:      AppleIIPalette.Violet,   // violet
-            Hair:      AppleIIPalette.Black,   // black
-            Highlight: AppleIIPalette.Orange,   // orange
-            Eyes:      AppleIIPalette.White,   // white (contrast)
-            Accessory: AppleIIPalette.Black),  // black
-
-        new("medium/violet-hair",
-            Skin:      AppleIIPalette.Orange,   // orange
-            Hair:      AppleIIPalette.Violet,   // violet
-            Highlight: AppleIIPalette.White,   // white
-            Eyes:      AppleIIPalette.Blue,   // blue
-            Accessory: AppleIIPalette.Violet),  // violet
-    ];
+    public override HeadPalette[] HeadPalettes => AppleIISprites.HeadPalettes;
 
     // ── Body palettes ─────────────────────────────────────────────────────────
 
-    public override BodyPalette[] BodyPalettes { get; } =
-    [
-        new("green",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Shirt:          AppleIIPalette.Green,   // green
-            ShirtHighlight: AppleIIPalette.White,   // white
-            Buttons:        AppleIIPalette.Black,   // black
-            Accessory:      AppleIIPalette.Blue),  // blue
-
-        new("blue",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Shirt:          AppleIIPalette.Blue,   // blue
-            ShirtHighlight: AppleIIPalette.White,   // white
-            Buttons:        AppleIIPalette.Black,   // black
-            Accessory:      AppleIIPalette.Orange),  // orange
-
-        new("violet",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Shirt:          AppleIIPalette.Violet,   // violet
-            ShirtHighlight: AppleIIPalette.White,   // white
-            Buttons:        AppleIIPalette.Black,   // black
-            Accessory:      AppleIIPalette.Green),  // green
-
-        new("orange",
-            Skin:           AppleIIPalette.White,   // white
-            Shirt:          AppleIIPalette.Orange,   // orange
-            ShirtHighlight: AppleIIPalette.White,   // white
-            Buttons:        AppleIIPalette.Black,   // black
-            Accessory:      AppleIIPalette.Blue),  // blue
-
-        new("white",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Shirt:          AppleIIPalette.White,   // white
-            ShirtHighlight: AppleIIPalette.Blue,   // blue (distinguishable highlight)
-            Buttons:        AppleIIPalette.Black,   // black
-            Accessory:      AppleIIPalette.Green),  // green
-    ];
+    public override BodyPalette[] BodyPalettes => AppleIISprites.BodyPalettes;
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
 
-    public override LegsPalette[] LegsPalettes { get; } =
-    [
-        new("blue pants",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Pants:          AppleIIPalette.Blue,   // blue
-            PantsHighlight: AppleIIPalette.White,   // white
-            Belt:           AppleIIPalette.Black,   // black
-            BeltHighlight:  AppleIIPalette.White,   // white
-            Shoes:          AppleIIPalette.Black,   // black
-            ShoeHighlight:  AppleIIPalette.Orange),  // orange
-
-        new("violet pants",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Pants:          AppleIIPalette.Violet,   // violet
-            PantsHighlight: AppleIIPalette.White,   // white
-            Belt:           AppleIIPalette.Black,   // black
-            BeltHighlight:  AppleIIPalette.Orange,   // orange
-            Shoes:          AppleIIPalette.Black,   // black
-            ShoeHighlight:  AppleIIPalette.White),  // white
-
-        new("black pants",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Pants:          AppleIIPalette.Black,   // black
-            PantsHighlight: AppleIIPalette.Blue,   // blue
-            Belt:           AppleIIPalette.Orange,   // orange
-            BeltHighlight:  AppleIIPalette.White,   // white
-            Shoes:          AppleIIPalette.Black,   // black
-            ShoeHighlight:  AppleIIPalette.White),  // white
-
-        new("green pants",
-            Skin:           AppleIIPalette.Orange,   // orange
-            Pants:          AppleIIPalette.Green,   // green
-            PantsHighlight: AppleIIPalette.White,   // white
-            Belt:           AppleIIPalette.Black,   // black
-            BeltHighlight:  AppleIIPalette.Orange,   // orange
-            Shoes:          AppleIIPalette.Black,   // black
-            ShoeHighlight:  AppleIIPalette.White),  // white
-    ];
+    public override LegsPalette[] LegsPalettes => AppleIISprites.LegPalettes;
 }

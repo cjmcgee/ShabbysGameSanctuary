@@ -2,6 +2,47 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
 public static partial class CGASprites
 {
+    public const int LegsRows = 6;
+
+    public static LegsPalette[] LegPalettes { get; } =
+        [
+            new("cyan pants",
+                Skin:           CGAPalette.White,   // white
+                Pants:          CGAPalette.BrightCyan,   // cyan
+                PantsHighlight: CGAPalette.White,   // white
+                Belt:           CGAPalette.Black,   // black
+                BeltHighlight:  CGAPalette.White,   // white
+                Shoes:          CGAPalette.Black,   // black
+                ShoeHighlight:  CGAPalette.BrightMagenta),  // magenta
+
+            new("magenta pants",
+                Skin:           CGAPalette.White,   // white
+                Pants:          CGAPalette.BrightMagenta,   // magenta
+                PantsHighlight: CGAPalette.White,   // white
+                Belt:           CGAPalette.Black,   // black
+                BeltHighlight:  CGAPalette.White,   // white
+                Shoes:          CGAPalette.Black,   // black
+                ShoeHighlight:  CGAPalette.BrightCyan),  // cyan
+
+            new("black pants",
+                Skin:           CGAPalette.White,   // white
+                Pants:          CGAPalette.Black,   // black
+                PantsHighlight: CGAPalette.BrightCyan,   // cyan
+                Belt:           CGAPalette.BrightMagenta,   // magenta
+                BeltHighlight:  CGAPalette.White,   // white
+                Shoes:          CGAPalette.Black,   // black
+                ShoeHighlight:  CGAPalette.White),  // white
+
+            new("white pants",
+                Skin:           CGAPalette.White,   // white
+                Pants:          CGAPalette.White,   // white
+                PantsHighlight: CGAPalette.BrightCyan,   // cyan
+                Belt:           CGAPalette.Black,   // black
+                BeltHighlight:  CGAPalette.White,   // white
+                Shoes:          CGAPalette.BrightMagenta,   // magenta
+                ShoeHighlight:  CGAPalette.White),  // white
+        ];
+
     public static readonly byte[][][] Legs0 =
     [
         [   // idle

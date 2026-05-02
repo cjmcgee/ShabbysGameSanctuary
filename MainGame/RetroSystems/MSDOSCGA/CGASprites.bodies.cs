@@ -2,6 +2,47 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
 public static partial class CGASprites
 {
+    public const int CharWidth = 16;
+    public const int BodyRows = 6;
+
+    public static BodyPalette[] BodyPalettes { get; } =
+        [
+            new("cyan",
+                Skin:           CGAPalette.White,   // white
+                Shirt:          CGAPalette.BrightCyan,   // cyan
+                ShirtHighlight: CGAPalette.White,   // white
+                Buttons:        CGAPalette.Black,   // black
+                Accessory:      CGAPalette.BrightMagenta),  // magenta
+
+            new("magenta",
+                Skin:           CGAPalette.White,   // white
+                Shirt:          CGAPalette.BrightMagenta,   // magenta
+                ShirtHighlight: CGAPalette.White,   // white
+                Buttons:        CGAPalette.Black,   // black
+                Accessory:      CGAPalette.BrightCyan),  // cyan
+
+            new("white",
+                Skin:           CGAPalette.White,   // white
+                Shirt:          CGAPalette.White,   // white
+                ShirtHighlight: CGAPalette.BrightCyan,   // cyan (highlight distinguishable)
+                Buttons:        CGAPalette.Black,   // black
+                Accessory:      CGAPalette.BrightMagenta),  // magenta
+
+            new("black",
+                Skin:           CGAPalette.White,   // white
+                Shirt:          CGAPalette.Black,   // black
+                ShirtHighlight: CGAPalette.BrightCyan,   // cyan
+                Buttons:        CGAPalette.White,   // white
+                Accessory:      CGAPalette.BrightMagenta),  // magenta
+
+            new("magenta jacket",
+                Skin:           CGAPalette.White,   // white
+                Shirt:          CGAPalette.White,   // white shirt under jacket
+                ShirtHighlight: CGAPalette.BrightCyan,   // cyan
+                Buttons:        CGAPalette.Black,   // black
+                Accessory:      CGAPalette.BrightMagenta),  // magenta jacket
+        ];
+
     public static readonly byte[][][] Body0 =
     [[
         [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],

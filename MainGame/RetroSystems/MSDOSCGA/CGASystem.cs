@@ -49,10 +49,10 @@ public sealed class CGASystem : RetroSystem
 
     // ── Sprite dimensions ─────────────────────────────────────────────────────
 
-    public override int CharWidth  => 16;
-    public override int HeadRows   => 4;
-    public override int BodyRows   => 6;
-    public override int LegsRows   => 6;
+    public override int CharWidth  => CGASprites.CharWidth;
+    public override int HeadRows   => CGASprites.HeadRows;
+    public override int BodyRows   => CGASprites.BodyRows;
+    public override int LegsRows   => CGASprites.LegsRows;
 
     // ── Head parts (16 wide × 4 rows, 1 frame each) ──────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
@@ -101,122 +101,13 @@ public sealed class CGASystem : RetroSystem
     // ── Head palettes — all resolved colors are from the 4-color CGA set ─────
     // Black=(0,0,0)  Cyan=(85,255,255)  Magenta=(255,85,255)  White=(255,255,255)
 
-    public override HeadPalette[] HeadPalettes { get; } =
-    [
-        new("fair/blonde",
-            Skin:      CGAPalette.White,   // white
-            Hair:      CGAPalette.BrightMagenta,   // magenta (closest to blonde)
-            Highlight: CGAPalette.White,   // white
-            Eyes:      CGAPalette.BrightCyan,   // cyan
-            Accessory: CGAPalette.BrightMagenta),  // magenta
-
-        new("fair/dark-hair",
-            Skin:      CGAPalette.White,   // white
-            Hair:      CGAPalette.Black,   // black
-            Highlight: CGAPalette.White,   // white
-            Eyes:      CGAPalette.Black,   // black
-            Accessory: CGAPalette.BrightCyan),  // cyan
-
-        new("medium/black",
-            Skin:      CGAPalette.BrightCyan,   // cyan
-            Hair:      CGAPalette.Black,   // black
-            Highlight: CGAPalette.White,   // white
-            Eyes:      CGAPalette.Black,   // black
-            Accessory: CGAPalette.Black),  // black
-
-        new("dark/black",
-            Skin:      CGAPalette.BrightMagenta,   // magenta
-            Hair:      CGAPalette.Black,   // black
-            Highlight: CGAPalette.BrightCyan,   // cyan
-            Eyes:      CGAPalette.White,   // white (contrast)
-            Accessory: CGAPalette.Black),  // black
-
-        new("medium/magenta-hair",
-            Skin:      CGAPalette.BrightCyan,   // cyan
-            Hair:      CGAPalette.BrightMagenta,   // magenta
-            Highlight: CGAPalette.White,   // white
-            Eyes:      CGAPalette.Black,   // black
-            Accessory: CGAPalette.BrightMagenta),  // magenta
-    ];
+    public override HeadPalette[] HeadPalettes => CGASprites.HeadPalettes;
 
     // ── Body palettes ─────────────────────────────────────────────────────────
 
-    public override BodyPalette[] BodyPalettes { get; } =
-    [
-        new("cyan",
-            Skin:           CGAPalette.White,   // white
-            Shirt:          CGAPalette.BrightCyan,   // cyan
-            ShirtHighlight: CGAPalette.White,   // white
-            Buttons:        CGAPalette.Black,   // black
-            Accessory:      CGAPalette.BrightMagenta),  // magenta
-
-        new("magenta",
-            Skin:           CGAPalette.White,   // white
-            Shirt:          CGAPalette.BrightMagenta,   // magenta
-            ShirtHighlight: CGAPalette.White,   // white
-            Buttons:        CGAPalette.Black,   // black
-            Accessory:      CGAPalette.BrightCyan),  // cyan
-
-        new("white",
-            Skin:           CGAPalette.White,   // white
-            Shirt:          CGAPalette.White,   // white
-            ShirtHighlight: CGAPalette.BrightCyan,   // cyan (highlight distinguishable)
-            Buttons:        CGAPalette.Black,   // black
-            Accessory:      CGAPalette.BrightMagenta),  // magenta
-
-        new("black",
-            Skin:           CGAPalette.White,   // white
-            Shirt:          CGAPalette.Black,   // black
-            ShirtHighlight: CGAPalette.BrightCyan,   // cyan
-            Buttons:        CGAPalette.White,   // white
-            Accessory:      CGAPalette.BrightMagenta),  // magenta
-
-        new("magenta jacket",
-            Skin:           CGAPalette.White,   // white
-            Shirt:          CGAPalette.White,   // white shirt under jacket
-            ShirtHighlight: CGAPalette.BrightCyan,   // cyan
-            Buttons:        CGAPalette.Black,   // black
-            Accessory:      CGAPalette.BrightMagenta),  // magenta jacket
-    ];
+    public override BodyPalette[] BodyPalettes => CGASprites.BodyPalettes;
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
 
-    public override LegsPalette[] LegsPalettes { get; } =
-    [
-        new("cyan pants",
-            Skin:           CGAPalette.White,   // white
-            Pants:          CGAPalette.BrightCyan,   // cyan
-            PantsHighlight: CGAPalette.White,   // white
-            Belt:           CGAPalette.Black,   // black
-            BeltHighlight:  CGAPalette.White,   // white
-            Shoes:          CGAPalette.Black,   // black
-            ShoeHighlight:  CGAPalette.BrightMagenta),  // magenta
-
-        new("magenta pants",
-            Skin:           CGAPalette.White,   // white
-            Pants:          CGAPalette.BrightMagenta,   // magenta
-            PantsHighlight: CGAPalette.White,   // white
-            Belt:           CGAPalette.Black,   // black
-            BeltHighlight:  CGAPalette.White,   // white
-            Shoes:          CGAPalette.Black,   // black
-            ShoeHighlight:  CGAPalette.BrightCyan),  // cyan
-
-        new("black pants",
-            Skin:           CGAPalette.White,   // white
-            Pants:          CGAPalette.Black,   // black
-            PantsHighlight: CGAPalette.BrightCyan,   // cyan
-            Belt:           CGAPalette.BrightMagenta,   // magenta
-            BeltHighlight:  CGAPalette.White,   // white
-            Shoes:          CGAPalette.Black,   // black
-            ShoeHighlight:  CGAPalette.White),  // white
-
-        new("white pants",
-            Skin:           CGAPalette.White,   // white
-            Pants:          CGAPalette.White,   // white
-            PantsHighlight: CGAPalette.BrightCyan,   // cyan
-            Belt:           CGAPalette.Black,   // black
-            BeltHighlight:  CGAPalette.White,   // white
-            Shoes:          CGAPalette.BrightMagenta,   // magenta
-            ShoeHighlight:  CGAPalette.White),  // white
-    ];
+    public override LegsPalette[] LegsPalettes => CGASprites.LegPalettes;
 }

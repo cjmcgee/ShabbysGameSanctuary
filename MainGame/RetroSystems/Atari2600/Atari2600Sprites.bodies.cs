@@ -2,6 +2,53 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
 public static partial class Atari2600Sprites
 {
+    public const int CharWidth = 16;
+    public const int BodyRows = 7;
+
+    // ── Body palettes (5) ────────────────────────────────────────────────────
+    public static BodyPalette[] BodyPalettes { get; } =
+    [
+        new("Green",
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.VividGreen,
+            ShirtHighlight: Atari2600Palette.BrightCyan,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkGreen),
+
+        new("Blue",
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.BoldBlue,
+            ShirtHighlight: Atari2600Palette.BrightCyan,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.NearBlack),
+
+        new("Red",
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.VividRed,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkRed),
+
+        new("White",
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.NearWhite,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.MediumGray,
+            Accessory:      Atari2600Palette.LightGray),
+
+        new("Teal",
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.BrightCyan,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkTeal),
+    ];
+
+
+    // ── Body parts (16 wide × 7 rows, 1 frame) ───────────────────────────────
+    // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
+    // Rule: each row uses at most ONE non-zero semantic index.
+    // Double-wide: col[2k+1] == col[2k] for all k.
     public static readonly byte[][][] Body0 =
     [[
         [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
@@ -35,6 +82,7 @@ public static partial class Atari2600Sprites
         [ 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0 ],   // jacket bottom narrow
     ]];
 
+    // ── Back-facing bodies (no button row) ───────────────────────────────────
     public static readonly byte[][][] Body0Back =
     [[
         [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck

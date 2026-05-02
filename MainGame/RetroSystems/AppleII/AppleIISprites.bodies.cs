@@ -2,6 +2,47 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 
 public static partial class AppleIISprites
 {
+    public const int CharWidth = 14;
+    public const int BodyRows = 6;
+
+    public static BodyPalette[] BodyPalettes { get; } =
+        [
+            new("green",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Shirt:          AppleIIPalette.Green,   // green
+                ShirtHighlight: AppleIIPalette.White,   // white
+                Buttons:        AppleIIPalette.Black,   // black
+                Accessory:      AppleIIPalette.Blue),  // blue
+
+            new("blue",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Shirt:          AppleIIPalette.Blue,   // blue
+                ShirtHighlight: AppleIIPalette.White,   // white
+                Buttons:        AppleIIPalette.Black,   // black
+                Accessory:      AppleIIPalette.Orange),  // orange
+
+            new("violet",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Shirt:          AppleIIPalette.Violet,   // violet
+                ShirtHighlight: AppleIIPalette.White,   // white
+                Buttons:        AppleIIPalette.Black,   // black
+                Accessory:      AppleIIPalette.Green),  // green
+
+            new("orange",
+                Skin:           AppleIIPalette.White,   // white
+                Shirt:          AppleIIPalette.Orange,   // orange
+                ShirtHighlight: AppleIIPalette.White,   // white
+                Buttons:        AppleIIPalette.Black,   // black
+                Accessory:      AppleIIPalette.Blue),  // blue
+
+            new("white",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Shirt:          AppleIIPalette.White,   // white
+                ShirtHighlight: AppleIIPalette.Blue,   // blue (distinguishable highlight)
+                Buttons:        AppleIIPalette.Black,   // black
+                Accessory:      AppleIIPalette.Green),  // green
+        ];
+
     public static readonly byte[][][] Body0 =   // casual shirt
     [
         [

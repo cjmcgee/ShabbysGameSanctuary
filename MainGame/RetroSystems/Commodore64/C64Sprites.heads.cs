@@ -2,6 +2,42 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
 public static partial class C64Sprites
 {
+    public const int HeadRows = 6;
+
+    public static HeadPalette[] HeadPalettes { get; } =
+        [
+            new("fair/blonde",
+                Skin:      C64Palette.SkinLight,
+                Hair:      C64Palette.BrightYellow,   // VIC-II yellow
+                Highlight: C64Palette.SkinPale,
+                Eyes:      C64Palette.Blue,   // VIC-II blue
+                Accessory: C64Palette.Yellow),
+            new("fair/brown",
+                Skin:      C64Palette.SkinLight,
+                Hair:      C64Palette.DarkOlive,   // brown
+                Highlight: C64Palette.SkinPale,
+                Eyes:      C64Palette.DarkGray,
+                Accessory: C64Palette.DarkOlive),
+            new("medium/black",
+                Skin:      C64Palette.SkinTan,
+                Hair:      C64Palette.DoorBlack,
+                Highlight: C64Palette.SkinTan2,
+                Eyes:      C64Palette.DarkGray,
+                Accessory: C64Palette.DoorBlack),
+            new("dark/black",
+                Skin:      C64Palette.MidBrown,
+                Hair:      C64Palette.DoorBlack,
+                Highlight: C64Palette.SkinMedium,
+                Eyes:      C64Palette.Cyan,   // VIC-II cyan
+                Accessory: C64Palette.DoorBlack),
+            new("medium/auburn",
+                Skin:      C64Palette.SkinTan,
+                Hair:      C64Palette.DeepRed,   // VIC-II red — auburn
+                Highlight: C64Palette.SkinTan2,
+                Eyes:      C64Palette.Blue,
+                Accessory: C64Palette.DeepRed),
+        ];
+
     public static readonly byte[][][] Head0 =   // basic — hair top, two separate eyes
     [
         [

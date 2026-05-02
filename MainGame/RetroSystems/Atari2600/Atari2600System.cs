@@ -60,173 +60,20 @@ public sealed class Atari2600System : RetroSystem
     // ── Sprite dimensions ─────────────────────────────────────────────────────
     // HeadRows=5, BodyRows=7, LegsRows=4  (total 16)
     // 8 logical pixels per row (2 physical pixels each, double-wide).
-
-    public override int CharWidth  => 16;
-    public override int HeadRows   => 5;
-    public override int BodyRows   => 7;
-    public override int LegsRows   => 4;
-
-    // ── Head parts (16 wide × 5 rows, 1 frame) ───────────────────────────────
-    // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
-    // Rule: each row uses at most ONE non-zero semantic index.
-    // Double-wide: col[2k+1] == col[2k] for all k.
-
+    public override int CharWidth  => Atari2600Sprites.CharWidth;
+    public override int HeadRows   => Atari2600Sprites.HeadRows;
+    public override int BodyRows   => Atari2600Sprites.BodyRows;
+    public override int LegsRows   => Atari2600Sprites.LegsRows;
 
     public override byte[][][][] HeadParts { get; } = [ Atari2600Sprites.Head0, Atari2600Sprites.Head1, Atari2600Sprites.Head2 ];
-
-    // ── Body parts (16 wide × 7 rows, 1 frame) ───────────────────────────────
-    // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
-    // Rule: each row uses at most ONE non-zero semantic index.
-    // Double-wide: col[2k+1] == col[2k] for all k.
-
-
-    public override byte[][][][] BodyParts { get; } = [ Atari2600Sprites.Body0, Atari2600Sprites.Body1, Atari2600Sprites.Body2 ];
-
-    // ── Legs parts (16 wide × 4 rows, 4 frames) ──────────────────────────────
-    // Idle: legs merged at centre; walk: legs spread to outer logical pixels.
-    // Rule: each row uses at most ONE non-zero semantic index.
-    // Double-wide: col[2k+1] == col[2k] for all k.
-
-
-    public override byte[][][][] LegsParts { get; } = [ Atari2600Sprites.Legs0, Atari2600Sprites.Legs1, Atari2600Sprites.Legs2 ];
-
-    // ── Back-facing heads (no eye row, extra hair) ────────────────────────────
-
-
     public override byte[][][][] HeadPartsBack { get; } = [ Atari2600Sprites.Head0Back, Atari2600Sprites.Head1Back, Atari2600Sprites.Head2Back ];
-
-    // ── Back-facing bodies (no button row) ───────────────────────────────────
-
-
+    public override byte[][][][] BodyParts { get; } = [ Atari2600Sprites.Body0, Atari2600Sprites.Body1, Atari2600Sprites.Body2 ];
     public override byte[][][][] BodyPartsBack { get; } = [ Atari2600Sprites.Body0Back, Atari2600Sprites.Body1Back, Atari2600Sprites.Body2Back ];
-
-    // ── Side-facing legs (profile walk cycle, 4 frames) ──────────────────────
-    // Toe extends right; front foot swings right, back foot swings left.
-    // One-color-per-scanline rule still applies.
-
-
+    public override byte[][][][] LegsParts { get; } = [ Atari2600Sprites.Legs0, Atari2600Sprites.Legs1, Atari2600Sprites.Legs2 ];
     public override byte[][][][] LegsPartsSide { get; } = [ Atari2600Sprites.Legs0Side, Atari2600Sprites.Legs1Side, Atari2600Sprites.Legs2Side ];
-
-    // ── Head palettes (5) — all colours sourced from Atari2600Palette ────────
-    // Highlight slots that requested pure white are snapped to NearWhite, the
-    // brightest authentic Atari NTSC entry.
-
-    public override HeadPalette[] HeadPalettes { get; } =
-    [
-        new("Fair/Blonde",
-            Skin:      Atari2600Palette.NearWhite,
-            Hair:      Atari2600Palette.BrightYellow,
-            Highlight: Atari2600Palette.NearWhite,
-            Eyes:      Atari2600Palette.DarkSlate,
-            Accessory: Atari2600Palette.WarmAmber),
-
-        new("Fair/Brown",
-            Skin:      Atari2600Palette.NearWhite,
-            Hair:      Atari2600Palette.DarkBrown,
-            Highlight: Atari2600Palette.NearWhite,
-            Eyes:      Atari2600Palette.DarkSlate,
-            Accessory: Atari2600Palette.DarkBrown),
-
-        new("Medium/Black",
-            Skin:      Atari2600Palette.WarmAmber,
-            Hair:      Atari2600Palette.NearBlack,
-            Highlight: Atari2600Palette.NearWhite,
-            Eyes:      Atari2600Palette.NearBlack,
-            Accessory: Atari2600Palette.MediumGray),
-
-        new("Dark/Black",
-            Skin:      Atari2600Palette.DarkRed,
-            Hair:      Atari2600Palette.NearBlack,
-            Highlight: Atari2600Palette.WarmAmber,
-            Eyes:      Atari2600Palette.DarkSlate,
-            Accessory: Atari2600Palette.MediumGray),
-
-        new("Medium/Auburn",
-            Skin:      Atari2600Palette.WarmAmber,
-            Hair:      Atari2600Palette.VividRed,
-            Highlight: Atari2600Palette.NearWhite,
-            Eyes:      Atari2600Palette.DarkSlate,
-            Accessory: Atari2600Palette.MediumGray),
-    ];
-
-    // ── Body palettes (5) ────────────────────────────────────────────────────
-
-    public override BodyPalette[] BodyPalettes { get; } =
-    [
-        new("Green",
-            Skin:           Atari2600Palette.NearWhite,
-            Shirt:          Atari2600Palette.VividGreen,
-            ShirtHighlight: Atari2600Palette.BrightCyan,
-            Buttons:        Atari2600Palette.NearBlack,
-            Accessory:      Atari2600Palette.DarkGreen),
-
-        new("Blue",
-            Skin:           Atari2600Palette.NearWhite,
-            Shirt:          Atari2600Palette.BoldBlue,
-            ShirtHighlight: Atari2600Palette.BrightCyan,
-            Buttons:        Atari2600Palette.NearBlack,
-            Accessory:      Atari2600Palette.NearBlack),
-
-        new("Red",
-            Skin:           Atari2600Palette.NearWhite,
-            Shirt:          Atari2600Palette.VividRed,
-            ShirtHighlight: Atari2600Palette.NearWhite,
-            Buttons:        Atari2600Palette.NearBlack,
-            Accessory:      Atari2600Palette.DarkRed),
-
-        new("White",
-            Skin:           Atari2600Palette.NearWhite,
-            Shirt:          Atari2600Palette.NearWhite,
-            ShirtHighlight: Atari2600Palette.NearWhite,
-            Buttons:        Atari2600Palette.MediumGray,
-            Accessory:      Atari2600Palette.LightGray),
-
-        new("Teal",
-            Skin:           Atari2600Palette.NearWhite,
-            Shirt:          Atari2600Palette.BrightCyan,
-            ShirtHighlight: Atari2600Palette.NearWhite,
-            Buttons:        Atari2600Palette.NearBlack,
-            Accessory:      Atari2600Palette.DarkTeal),
-    ];
-
-    // ── Legs palettes (4) ────────────────────────────────────────────────────
-
-    public override LegsPalette[] LegsPalettes { get; } =
-    [
-        new("Blue Jeans/Brown",
-            Skin:           Atari2600Palette.NearWhite,
-            Pants:          Atari2600Palette.BoldBlue,
-            PantsHighlight: Atari2600Palette.BrightCyan,
-            Belt:           Atari2600Palette.WarmAmber,
-            BeltHighlight:  Atari2600Palette.BrightYellow,
-            Shoes:          Atari2600Palette.DarkBrown,
-            ShoeHighlight:  Atari2600Palette.WarmAmber),
-
-        new("Black/Black",
-            Skin:           Atari2600Palette.NearWhite,
-            Pants:          Atari2600Palette.NearBlack,
-            PantsHighlight: Atari2600Palette.MediumGray,
-            Belt:           Atari2600Palette.MediumGray,
-            BeltHighlight:  Atari2600Palette.LightGray,
-            Shoes:          Atari2600Palette.NearBlack,
-            ShoeHighlight:  Atari2600Palette.MediumGray),
-
-        new("Khaki/Tan",
-            Skin:           Atari2600Palette.NearWhite,
-            Pants:          Atari2600Palette.BrightYellow,
-            PantsHighlight: Atari2600Palette.NearWhite,
-            Belt:           Atari2600Palette.DarkBrown,
-            BeltHighlight:  Atari2600Palette.BrightYellow,
-            Shoes:          Atari2600Palette.DarkBrown,
-            ShoeHighlight:  Atari2600Palette.WarmAmber),
-
-        new("Gray/Dark",
-            Skin:           Atari2600Palette.NearWhite,
-            Pants:          Atari2600Palette.LightGray,
-            PantsHighlight: Atari2600Palette.NearWhite,
-            Belt:           Atari2600Palette.MediumGray,
-            BeltHighlight:  Atari2600Palette.LightGray,
-            Shoes:          Atari2600Palette.MediumGray,
-            ShoeHighlight:  Atari2600Palette.NearBlack),
-    ];
+    
+    public override LegsPalette[] LegsPalettes => Atari2600Sprites.LegPalettes;
+	public override BodyPalette[] BodyPalettes => Atari2600Sprites.BodyPalettes;
+	public override HeadPalette[] HeadPalettes => Atari2600Sprites.HeadPalettes;
+    
 }

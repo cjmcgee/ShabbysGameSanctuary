@@ -2,6 +2,46 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
 public static partial class CGASprites
 {
+    public const int HeadRows = 4;
+
+    public static HeadPalette[] HeadPalettes { get; } =
+        [
+            new("fair/blonde",
+                Skin:      CGAPalette.White,   // white
+                Hair:      CGAPalette.BrightMagenta,   // magenta (closest to blonde)
+                Highlight: CGAPalette.White,   // white
+                Eyes:      CGAPalette.BrightCyan,   // cyan
+                Accessory: CGAPalette.BrightMagenta),  // magenta
+
+            new("fair/dark-hair",
+                Skin:      CGAPalette.White,   // white
+                Hair:      CGAPalette.Black,   // black
+                Highlight: CGAPalette.White,   // white
+                Eyes:      CGAPalette.Black,   // black
+                Accessory: CGAPalette.BrightCyan),  // cyan
+
+            new("medium/black",
+                Skin:      CGAPalette.BrightCyan,   // cyan
+                Hair:      CGAPalette.Black,   // black
+                Highlight: CGAPalette.White,   // white
+                Eyes:      CGAPalette.Black,   // black
+                Accessory: CGAPalette.Black),  // black
+
+            new("dark/black",
+                Skin:      CGAPalette.BrightMagenta,   // magenta
+                Hair:      CGAPalette.Black,   // black
+                Highlight: CGAPalette.BrightCyan,   // cyan
+                Eyes:      CGAPalette.White,   // white (contrast)
+                Accessory: CGAPalette.Black),  // black
+
+            new("medium/magenta-hair",
+                Skin:      CGAPalette.BrightCyan,   // cyan
+                Hair:      CGAPalette.BrightMagenta,   // magenta
+                Highlight: CGAPalette.White,   // white
+                Eyes:      CGAPalette.Black,   // black
+                Accessory: CGAPalette.BrightMagenta),  // magenta
+        ];
+
     public static readonly byte[][][] Head0 =
     [[
         [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],

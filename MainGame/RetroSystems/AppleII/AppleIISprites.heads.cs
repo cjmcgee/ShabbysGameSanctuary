@@ -2,6 +2,46 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 
 public static partial class AppleIISprites
 {
+    public const int HeadRows = 4;
+
+    public static HeadPalette[] HeadPalettes { get; } =
+        [
+            new("fair/light-hair",
+                Skin:      AppleIIPalette.White,   // white
+                Hair:      AppleIIPalette.Orange,   // orange (blonde approximation)
+                Highlight: AppleIIPalette.White,   // white
+                Eyes:      AppleIIPalette.Blue,   // blue
+                Accessory: AppleIIPalette.Orange),  // orange
+
+            new("fair/dark-hair",
+                Skin:      AppleIIPalette.White,   // white
+                Hair:      AppleIIPalette.Black,   // black
+                Highlight: AppleIIPalette.White,   // white
+                Eyes:      AppleIIPalette.Black,   // black
+                Accessory: AppleIIPalette.Violet),  // violet
+
+            new("medium/black-hair",
+                Skin:      AppleIIPalette.Orange,   // orange
+                Hair:      AppleIIPalette.Black,   // black
+                Highlight: AppleIIPalette.White,   // white
+                Eyes:      AppleIIPalette.Blue,   // blue
+                Accessory: AppleIIPalette.Black),  // black
+
+            new("dark/black-hair",
+                Skin:      AppleIIPalette.Violet,   // violet
+                Hair:      AppleIIPalette.Black,   // black
+                Highlight: AppleIIPalette.Orange,   // orange
+                Eyes:      AppleIIPalette.White,   // white (contrast)
+                Accessory: AppleIIPalette.Black),  // black
+
+            new("medium/violet-hair",
+                Skin:      AppleIIPalette.Orange,   // orange
+                Hair:      AppleIIPalette.Violet,   // violet
+                Highlight: AppleIIPalette.White,   // white
+                Eyes:      AppleIIPalette.Blue,   // blue
+                Accessory: AppleIIPalette.Violet),  // violet
+        ];
+
     public static readonly byte[][][] Head0 =   // basic round head
     [
         [

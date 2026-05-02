@@ -46,10 +46,10 @@ public sealed class NESSystem : RetroSystem
 
     // ── Sprite dimensions (16×24 total) ──────────────────────────────────────
 
-    public override int CharWidth  => 16;
-    public override int HeadRows   => 6;
-    public override int BodyRows   => 9;
-    public override int LegsRows   => 9;
+    public override int CharWidth  => NESSprites.CharWidth;
+    public override int HeadRows   => NESSprites.HeadRows;
+    public override int BodyRows   => NESSprites.BodyRows;
+    public override int LegsRows   => NESSprites.LegsRows;
 
     // ── Head variants (1 frame × 6 rows × 16 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
@@ -97,111 +97,13 @@ public sealed class NESSystem : RetroSystem
 
     // ── Head palettes (NES PPU warm skin/hair tones) ──────────────────────────
 
-    public override HeadPalette[] HeadPalettes { get; } =
-    [
-        new("fair/blonde",
-            Skin:      NESPalette.SkinFair,
-            Hair:      NESPalette.BrightYellow,   // NES warm yellow
-            Highlight: NESPalette.SkinPale,
-            Eyes:      NESPalette.NesBlue,   // NES blue
-            Accessory: NESPalette.BrightYellow),
-        new("fair/brown",
-            Skin:      NESPalette.SkinFair,
-            Hair:      NESPalette.WarmDoorWood,   // NES wood brown
-            Highlight: NESPalette.SkinPale,
-            Eyes:      NESPalette.DoorBlack,
-            Accessory: NESPalette.WarmDoorWood),
-        new("medium/black",
-            Skin:      NESPalette.SkinTan,
-            Hair:      NESPalette.DoorBlack,
-            Highlight: NESPalette.SkinLight,
-            Eyes:      NESPalette.DoorBlack,
-            Accessory: NESPalette.DoorBlack),
-        new("dark/black",
-            Skin:      NESPalette.SkinDark,
-            Hair:      NESPalette.DoorBlack,
-            Highlight: NESPalette.SkinMedium,
-            Eyes:      NESPalette.Aqua,   // NES aqua
-            Accessory: NESPalette.DoorBlack),
-        new("medium/auburn",
-            Skin:      NESPalette.SkinTan,
-            Hair:      NESPalette.DarkRed,   // NES dark red
-            Highlight: NESPalette.SkinLight,
-            Eyes:      NESPalette.NesBlue,
-            Accessory: NESPalette.DarkRed),
-    ];
+    public override HeadPalette[] HeadPalettes => NESSprites.HeadPalettes;
 
     // ── Body palettes ─────────────────────────────────────────────────────────
 
-    public override BodyPalette[] BodyPalettes { get; } =
-    [
-        new("green",
-            Skin:           NESPalette.SkinFair,
-            Shirt:          NESPalette.NesGreen,   // NES green
-            ShirtHighlight: NESPalette.Aqua,
-            Buttons:        NESPalette.NearWhite,
-            Accessory:      NESPalette.NesBlue),
-        new("blue",
-            Skin:           NESPalette.SkinFair,
-            Shirt:          NESPalette.NesBlue,   // NES blue
-            ShirtHighlight: NESPalette.Aqua,
-            Buttons:        NESPalette.WallGray,
-            Accessory:      NESPalette.BrightYellow),
-        new("red",
-            Skin:           NESPalette.SkinFair,
-            Shirt:          NESPalette.DarkRed,   // NES dark red
-            ShirtHighlight: NESPalette.VividRed,
-            Buttons:        NESPalette.NearWhite,
-            Accessory:      NESPalette.BrightYellow),
-        new("white/light",
-            Skin:           NESPalette.SkinFair,
-            Shirt:          NESPalette.WallGray,
-            ShirtHighlight: NESPalette.NearWhite,
-            Buttons:        NESPalette.NesBlue,
-            Accessory:      NESPalette.NesGreen),
-        new("teal",
-            Skin:           NESPalette.SkinFair,
-            Shirt:          NESPalette.Aqua,   // NES aqua
-            ShirtHighlight: NESPalette.PaleCyan,
-            Buttons:        NESPalette.NearWhite,
-            Accessory:      NESPalette.MidMagenta),
-    ];
+    public override BodyPalette[] BodyPalettes => NESSprites.BodyPalettes;
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
 
-    public override LegsPalette[] LegsPalettes { get; } =
-    [
-        new("blue jeans/brown shoes",
-            Skin:           NESPalette.SkinFair,
-            Pants:          NESPalette.NesBlue,   // NES blue
-            PantsHighlight: NESPalette.Aqua,
-            Belt:           NESPalette.DarkBrown,
-            BeltHighlight:  NESPalette.RustOrange,
-            Shoes:          NESPalette.DarkestBrown,
-            ShoeHighlight:  NESPalette.WarmDoorWood),
-        new("black/black",
-            Skin:           NESPalette.SkinFair,
-            Pants:          NESPalette.DoorBlack,
-            PantsHighlight: NESPalette.RoadGray,
-            Belt:           NESPalette.RoadGray,
-            BeltHighlight:  NESPalette.SidewalkGray,
-            Shoes:          NESPalette.DoorBlack,
-            ShoeHighlight:  NESPalette.RoadGray),
-        new("khaki/tan",
-            Skin:           NESPalette.SkinFair,
-            Pants:          NESPalette.SkinTan,
-            PantsHighlight: NESPalette.PaleYellow,
-            Belt:           NESPalette.DarkBrown,
-            BeltHighlight:  NESPalette.MediumBrown,
-            Shoes:          NESPalette.DarkBrown,
-            ShoeHighlight:  NESPalette.MediumBrown),
-        new("gray/dark",
-            Skin:           NESPalette.SkinFair,
-            Pants:          NESPalette.SidewalkGray,
-            PantsHighlight: NESPalette.WallGray,
-            Belt:           NESPalette.RoadGray,
-            BeltHighlight:  NESPalette.SidewalkGray,
-            Shoes:          NESPalette.RoadGray,
-            ShoeHighlight:  NESPalette.SidewalkGray),
-    ];
+    public override LegsPalette[] LegsPalettes => NESSprites.LegPalettes;
 }

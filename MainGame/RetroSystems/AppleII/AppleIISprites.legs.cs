@@ -2,6 +2,47 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 
 public static partial class AppleIISprites
 {
+    public const int LegsRows = 4;
+
+    public static LegsPalette[] LegPalettes { get; } =
+        [
+            new("blue pants",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Pants:          AppleIIPalette.Blue,   // blue
+                PantsHighlight: AppleIIPalette.White,   // white
+                Belt:           AppleIIPalette.Black,   // black
+                BeltHighlight:  AppleIIPalette.White,   // white
+                Shoes:          AppleIIPalette.Black,   // black
+                ShoeHighlight:  AppleIIPalette.Orange),  // orange
+
+            new("violet pants",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Pants:          AppleIIPalette.Violet,   // violet
+                PantsHighlight: AppleIIPalette.White,   // white
+                Belt:           AppleIIPalette.Black,   // black
+                BeltHighlight:  AppleIIPalette.Orange,   // orange
+                Shoes:          AppleIIPalette.Black,   // black
+                ShoeHighlight:  AppleIIPalette.White),  // white
+
+            new("black pants",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Pants:          AppleIIPalette.Black,   // black
+                PantsHighlight: AppleIIPalette.Blue,   // blue
+                Belt:           AppleIIPalette.Orange,   // orange
+                BeltHighlight:  AppleIIPalette.White,   // white
+                Shoes:          AppleIIPalette.Black,   // black
+                ShoeHighlight:  AppleIIPalette.White),  // white
+
+            new("green pants",
+                Skin:           AppleIIPalette.Orange,   // orange
+                Pants:          AppleIIPalette.Green,   // green
+                PantsHighlight: AppleIIPalette.White,   // white
+                Belt:           AppleIIPalette.Black,   // black
+                BeltHighlight:  AppleIIPalette.Orange,   // orange
+                Shoes:          AppleIIPalette.Black,   // black
+                ShoeHighlight:  AppleIIPalette.White),  // white
+        ];
+
     public static readonly byte[][][] Legs0 =   // pants + belt
     [
         [   // idle

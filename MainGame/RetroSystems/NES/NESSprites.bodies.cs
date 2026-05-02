@@ -2,6 +2,43 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 
 public static partial class NESSprites
 {
+    public const int CharWidth = 16;
+    public const int BodyRows = 9;
+
+    public static BodyPalette[] BodyPalettes { get; } =
+        [
+            new("green",
+                Skin:           NESPalette.SkinFair,
+                Shirt:          NESPalette.NesGreen,   // NES green
+                ShirtHighlight: NESPalette.Aqua,
+                Buttons:        NESPalette.NearWhite,
+                Accessory:      NESPalette.NesBlue),
+            new("blue",
+                Skin:           NESPalette.SkinFair,
+                Shirt:          NESPalette.NesBlue,   // NES blue
+                ShirtHighlight: NESPalette.Aqua,
+                Buttons:        NESPalette.WallGray,
+                Accessory:      NESPalette.BrightYellow),
+            new("red",
+                Skin:           NESPalette.SkinFair,
+                Shirt:          NESPalette.DarkRed,   // NES dark red
+                ShirtHighlight: NESPalette.VividRed,
+                Buttons:        NESPalette.NearWhite,
+                Accessory:      NESPalette.BrightYellow),
+            new("white/light",
+                Skin:           NESPalette.SkinFair,
+                Shirt:          NESPalette.WallGray,
+                ShirtHighlight: NESPalette.NearWhite,
+                Buttons:        NESPalette.NesBlue,
+                Accessory:      NESPalette.NesGreen),
+            new("teal",
+                Skin:           NESPalette.SkinFair,
+                Shirt:          NESPalette.Aqua,   // NES aqua
+                ShirtHighlight: NESPalette.PaleCyan,
+                Buttons:        NESPalette.NearWhite,
+                Accessory:      NESPalette.MidMagenta),
+        ];
+
     public static readonly byte[][][] Body0 =   // casual shirt
     [
         [

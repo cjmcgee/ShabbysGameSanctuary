@@ -2,6 +2,52 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
 public static partial class Atari2600Sprites
 {
+    public const int LegsRows = 4;
+
+    // ── Legs palettes (4) ────────────────────────────────────────────────────
+    public static LegsPalette[] LegPalettes { get; } =
+    [
+        new("Blue Jeans/Brown",
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.BoldBlue,
+            PantsHighlight: Atari2600Palette.BrightCyan,
+            Belt:           Atari2600Palette.WarmAmber,
+            BeltHighlight:  Atari2600Palette.BrightYellow,
+            Shoes:          Atari2600Palette.DarkBrown,
+            ShoeHighlight:  Atari2600Palette.WarmAmber),
+
+        new("Black/Black",
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.NearBlack,
+            PantsHighlight: Atari2600Palette.MediumGray,
+            Belt:           Atari2600Palette.MediumGray,
+            BeltHighlight:  Atari2600Palette.LightGray,
+            Shoes:          Atari2600Palette.NearBlack,
+            ShoeHighlight:  Atari2600Palette.MediumGray),
+
+        new("Khaki/Tan",
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.BrightYellow,
+            PantsHighlight: Atari2600Palette.NearWhite,
+            Belt:           Atari2600Palette.DarkBrown,
+            BeltHighlight:  Atari2600Palette.BrightYellow,
+            Shoes:          Atari2600Palette.DarkBrown,
+            ShoeHighlight:  Atari2600Palette.WarmAmber),
+
+        new("Gray/Dark",
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.LightGray,
+            PantsHighlight: Atari2600Palette.NearWhite,
+            Belt:           Atari2600Palette.MediumGray,
+            BeltHighlight:  Atari2600Palette.LightGray,
+            Shoes:          Atari2600Palette.MediumGray,
+            ShoeHighlight:  Atari2600Palette.NearBlack),
+    ];
+
+    // ── Legs parts (16 wide × 4 rows, 4 frames) ──────────────────────────────
+    // Idle: legs merged at centre; walk: legs spread to outer logical pixels.
+    // Rule: each row uses at most ONE non-zero semantic index.
+    // Double-wide: col[2k+1] == col[2k] for all k.
     public static readonly byte[][][] Legs0 =
     [
         [   // idle
@@ -86,6 +132,9 @@ public static partial class Atari2600Sprites
         ],
     ];
 
+    // ── Side-facing legs (profile walk cycle, 4 frames) ──────────────────────
+    // Toe extends right; front foot swings right, back foot swings left.
+    // One-color-per-scanline rule still applies.
     public static readonly byte[][][] Legs0Side =
     [
         [   // idle — feet together, toe extends right

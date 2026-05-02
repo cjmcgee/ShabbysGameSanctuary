@@ -2,6 +2,42 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 
 public static partial class NESSprites
 {
+    public const int HeadRows = 6;
+
+    public static HeadPalette[] HeadPalettes { get; } =
+        [
+            new("fair/blonde",
+                Skin:      NESPalette.SkinFair,
+                Hair:      NESPalette.BrightYellow,   // NES warm yellow
+                Highlight: NESPalette.SkinPale,
+                Eyes:      NESPalette.NesBlue,   // NES blue
+                Accessory: NESPalette.BrightYellow),
+            new("fair/brown",
+                Skin:      NESPalette.SkinFair,
+                Hair:      NESPalette.WarmDoorWood,   // NES wood brown
+                Highlight: NESPalette.SkinPale,
+                Eyes:      NESPalette.DoorBlack,
+                Accessory: NESPalette.WarmDoorWood),
+            new("medium/black",
+                Skin:      NESPalette.SkinTan,
+                Hair:      NESPalette.DoorBlack,
+                Highlight: NESPalette.SkinLight,
+                Eyes:      NESPalette.DoorBlack,
+                Accessory: NESPalette.DoorBlack),
+            new("dark/black",
+                Skin:      NESPalette.SkinDark,
+                Hair:      NESPalette.DoorBlack,
+                Highlight: NESPalette.SkinMedium,
+                Eyes:      NESPalette.Aqua,   // NES aqua
+                Accessory: NESPalette.DoorBlack),
+            new("medium/auburn",
+                Skin:      NESPalette.SkinTan,
+                Hair:      NESPalette.DarkRed,   // NES dark red
+                Highlight: NESPalette.SkinLight,
+                Eyes:      NESPalette.NesBlue,
+                Accessory: NESPalette.DarkRed),
+        ];
+
     public static readonly byte[][][] Head0 =   // basic round head
     [
         [

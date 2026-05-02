@@ -2,6 +2,43 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
 public static partial class C64Sprites
 {
+    public const int CharWidth = 12;
+    public const int BodyRows = 8;
+
+    public static BodyPalette[] BodyPalettes { get; } =
+        [
+            new("green",
+                Skin:           C64Palette.SkinLight,
+                Shirt:          C64Palette.Green,   // VIC-II green
+                ShirtHighlight: C64Palette.LightGreen,
+                Buttons:        C64Palette.White,
+                Accessory:      C64Palette.Cyan),
+            new("blue",
+                Skin:           C64Palette.SkinLight,
+                Shirt:          C64Palette.Blue,   // VIC-II blue
+                ShirtHighlight: C64Palette.MidBlue,
+                Buttons:        C64Palette.LightGrey,
+                Accessory:      C64Palette.BrightYellow),
+            new("red",
+                Skin:           C64Palette.SkinLight,
+                Shirt:          C64Palette.DeepRed,   // VIC-II red
+                ShirtHighlight: C64Palette.Salmon,
+                Buttons:        C64Palette.White,
+                Accessory:      C64Palette.BrightYellow),
+            new("white/light",
+                Skin:           C64Palette.SkinLight,
+                Shirt:          C64Palette.LightGrey,
+                ShirtHighlight: C64Palette.White,
+                Buttons:        C64Palette.Blue,
+                Accessory:      C64Palette.Green),
+            new("teal",
+                Skin:           C64Palette.SkinLight,
+                Shirt:          C64Palette.MidBlue,
+                ShirtHighlight: C64Palette.Cyan,
+                Buttons:        C64Palette.White,
+                Accessory:      C64Palette.MidMagenta),
+        ];
+
     public static readonly byte[][][] Body0 =   // casual shirt
     [
         [
