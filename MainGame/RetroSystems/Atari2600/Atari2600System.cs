@@ -398,44 +398,46 @@ public sealed class Atari2600System : RetroSystem
 
     public override byte[][][][] LegsPartsSide { get; } = [ _legs0Side, _legs1Side, _legs2Side ];
 
-    // ── Head palettes (5) — drawn from NTSC Atari palette ────────────────────
+    // ── Head palettes (5) — all colours sourced from Atari2600Palette ────────
+    // Highlight slots that requested pure white are snapped to NearWhite, the
+    // brightest authentic Atari NTSC entry.
 
     public override HeadPalette[] HeadPalettes { get; } =
     [
         new("Fair/Blonde",
-            Skin:      new Color(220, 220, 200),
-            Hair:      new Color(220, 220,   0),   // bright yellow
-            Highlight: new Color(255, 255, 255),
-            Eyes:      new Color( 28,  28,  40),
-            Accessory: new Color(188, 140,  56)),  // amber hat
+            Skin:      Atari2600Palette.NearWhite,
+            Hair:      Atari2600Palette.BrightYellow,
+            Highlight: Atari2600Palette.NearWhite,
+            Eyes:      Atari2600Palette.DarkSlate,
+            Accessory: Atari2600Palette.WarmAmber),
 
         new("Fair/Brown",
-            Skin:      new Color(220, 220, 200),
-            Hair:      new Color(124,  72,   8),   // dark brown
-            Highlight: new Color(255, 255, 255),
-            Eyes:      new Color( 28,  28,  40),
-            Accessory: new Color(124,  72,   8)),
+            Skin:      Atari2600Palette.NearWhite,
+            Hair:      Atari2600Palette.DarkBrown,
+            Highlight: Atari2600Palette.NearWhite,
+            Eyes:      Atari2600Palette.DarkSlate,
+            Accessory: Atari2600Palette.DarkBrown),
 
         new("Medium/Black",
-            Skin:      new Color(188, 140,  56),   // warm amber
-            Hair:      new Color( 20,  12,   4),   // near-black
-            Highlight: new Color(220, 220, 200),
-            Eyes:      new Color( 20,  12,   4),
-            Accessory: new Color(104, 104, 104)),
+            Skin:      Atari2600Palette.WarmAmber,
+            Hair:      Atari2600Palette.NearBlack,
+            Highlight: Atari2600Palette.NearWhite,
+            Eyes:      Atari2600Palette.NearBlack,
+            Accessory: Atari2600Palette.MediumGray),
 
         new("Dark/Black",
-            Skin:      new Color(132,   4,   4),   // dark red
-            Hair:      new Color( 20,  12,   4),
-            Highlight: new Color(188, 140,  56),
-            Eyes:      new Color( 28,  28,  40),
-            Accessory: new Color(104, 104, 104)),
+            Skin:      Atari2600Palette.DarkRed,
+            Hair:      Atari2600Palette.NearBlack,
+            Highlight: Atari2600Palette.WarmAmber,
+            Eyes:      Atari2600Palette.DarkSlate,
+            Accessory: Atari2600Palette.MediumGray),
 
         new("Medium/Auburn",
-            Skin:      new Color(188, 140,  56),
-            Hair:      new Color(200,  20,  20),   // vivid red
-            Highlight: new Color(220, 220, 200),
-            Eyes:      new Color( 28,  28,  40),
-            Accessory: new Color(104, 104, 104)),
+            Skin:      Atari2600Palette.WarmAmber,
+            Hair:      Atari2600Palette.VividRed,
+            Highlight: Atari2600Palette.NearWhite,
+            Eyes:      Atari2600Palette.DarkSlate,
+            Accessory: Atari2600Palette.MediumGray),
     ];
 
     // ── Body palettes (5) ────────────────────────────────────────────────────
@@ -443,39 +445,39 @@ public sealed class Atari2600System : RetroSystem
     public override BodyPalette[] BodyPalettes { get; } =
     [
         new("Green",
-            Skin:           new Color(220, 220, 200),
-            Shirt:          new Color(  0, 188,   0),
-            ShirtHighlight: new Color(  0, 200, 220),
-            Buttons:        new Color( 20,  12,   4),
-            Accessory:      new Color(  0, 100,   0)),
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.VividGreen,
+            ShirtHighlight: Atari2600Palette.BrightCyan,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkGreen),
 
         new("Blue",
-            Skin:           new Color(220, 220, 200),
-            Shirt:          new Color( 36,  80, 200),
-            ShirtHighlight: new Color(  0, 200, 220),
-            Buttons:        new Color( 20,  12,   4),
-            Accessory:      new Color( 20,  12,   4)),
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.BoldBlue,
+            ShirtHighlight: Atari2600Palette.BrightCyan,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.NearBlack),
 
         new("Red",
-            Skin:           new Color(220, 220, 200),
-            Shirt:          new Color(200,  20,  20),
-            ShirtHighlight: new Color(220, 220, 200),
-            Buttons:        new Color( 20,  12,   4),
-            Accessory:      new Color(132,   4,   4)),
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.VividRed,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkRed),
 
         new("White",
-            Skin:           new Color(220, 220, 200),
-            Shirt:          new Color(220, 220, 200),
-            ShirtHighlight: new Color(255, 255, 255),
-            Buttons:        new Color(104, 104, 104),
-            Accessory:      new Color(148, 148, 132)),
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.NearWhite,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.MediumGray,
+            Accessory:      Atari2600Palette.LightGray),
 
         new("Teal",
-            Skin:           new Color(220, 220, 200),
-            Shirt:          new Color(  0, 200, 220),
-            ShirtHighlight: new Color(220, 220, 200),
-            Buttons:        new Color( 20,  12,   4),
-            Accessory:      new Color(  0, 100, 120)),
+            Skin:           Atari2600Palette.NearWhite,
+            Shirt:          Atari2600Palette.BrightCyan,
+            ShirtHighlight: Atari2600Palette.NearWhite,
+            Buttons:        Atari2600Palette.NearBlack,
+            Accessory:      Atari2600Palette.DarkTeal),
     ];
 
     // ── Legs palettes (4) ────────────────────────────────────────────────────
@@ -483,39 +485,39 @@ public sealed class Atari2600System : RetroSystem
     public override LegsPalette[] LegsPalettes { get; } =
     [
         new("Blue Jeans/Brown",
-            Skin:          new Color(220, 220, 200),
-            Pants:         new Color( 36,  80, 200),
-            PantsHighlight:new Color(  0, 200, 220),
-            Belt:          new Color(188, 140,  56),
-            BeltHighlight: new Color(220, 220,   0),
-            Shoes:         new Color(124,  72,   8),
-            ShoeHighlight: new Color(188, 140,  56)),
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.BoldBlue,
+            PantsHighlight: Atari2600Palette.BrightCyan,
+            Belt:           Atari2600Palette.WarmAmber,
+            BeltHighlight:  Atari2600Palette.BrightYellow,
+            Shoes:          Atari2600Palette.DarkBrown,
+            ShoeHighlight:  Atari2600Palette.WarmAmber),
 
         new("Black/Black",
-            Skin:          new Color(220, 220, 200),
-            Pants:         new Color( 20,  12,   4),
-            PantsHighlight:new Color(104, 104, 104),
-            Belt:          new Color(104, 104, 104),
-            BeltHighlight: new Color(148, 148, 132),
-            Shoes:         new Color( 20,  12,   4),
-            ShoeHighlight: new Color(104, 104, 104)),
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.NearBlack,
+            PantsHighlight: Atari2600Palette.MediumGray,
+            Belt:           Atari2600Palette.MediumGray,
+            BeltHighlight:  Atari2600Palette.LightGray,
+            Shoes:          Atari2600Palette.NearBlack,
+            ShoeHighlight:  Atari2600Palette.MediumGray),
 
         new("Khaki/Tan",
-            Skin:          new Color(220, 220, 200),
-            Pants:         new Color(220, 220,   0),
-            PantsHighlight:new Color(220, 220, 200),
-            Belt:          new Color(124,  72,   8),
-            BeltHighlight: new Color(220, 220,   0),
-            Shoes:         new Color(124,  72,   8),
-            ShoeHighlight: new Color(188, 140,  56)),
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.BrightYellow,
+            PantsHighlight: Atari2600Palette.NearWhite,
+            Belt:           Atari2600Palette.DarkBrown,
+            BeltHighlight:  Atari2600Palette.BrightYellow,
+            Shoes:          Atari2600Palette.DarkBrown,
+            ShoeHighlight:  Atari2600Palette.WarmAmber),
 
         new("Gray/Dark",
-            Skin:          new Color(220, 220, 200),
-            Pants:         new Color(148, 148, 132),
-            PantsHighlight:new Color(220, 220, 200),
-            Belt:          new Color(104, 104, 104),
-            BeltHighlight: new Color(148, 148, 132),
-            Shoes:         new Color(104, 104, 104),
-            ShoeHighlight: new Color( 20,  12,   4)),
+            Skin:           Atari2600Palette.NearWhite,
+            Pants:          Atari2600Palette.LightGray,
+            PantsHighlight: Atari2600Palette.NearWhite,
+            Belt:           Atari2600Palette.MediumGray,
+            BeltHighlight:  Atari2600Palette.LightGray,
+            Shoes:          Atari2600Palette.MediumGray,
+            ShoeHighlight:  Atari2600Palette.NearBlack),
     ];
 }

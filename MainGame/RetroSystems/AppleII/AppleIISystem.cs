@@ -408,39 +408,39 @@ public sealed class AppleIISystem : RetroSystem
     public override HeadPalette[] HeadPalettes { get; } =
     [
         new("fair/light-hair",
-            Skin:      new Color(255, 255, 255),   // white
-            Hair:      new Color(255, 106,  60),   // orange (blonde approximation)
-            Highlight: new Color(255, 255, 255),   // white
-            Eyes:      new Color( 20,  88, 255),   // blue
-            Accessory: new Color(255, 106,  60)),  // orange
+            Skin:      AppleIIPalette.White,   // white
+            Hair:      AppleIIPalette.Orange,   // orange (blonde approximation)
+            Highlight: AppleIIPalette.White,   // white
+            Eyes:      AppleIIPalette.Blue,   // blue
+            Accessory: AppleIIPalette.Orange),  // orange
 
         new("fair/dark-hair",
-            Skin:      new Color(255, 255, 255),   // white
-            Hair:      new Color(  0,   0,   0),   // black
-            Highlight: new Color(255, 255, 255),   // white
-            Eyes:      new Color(  0,   0,   0),   // black
-            Accessory: new Color(193,  28, 255)),  // violet
+            Skin:      AppleIIPalette.White,   // white
+            Hair:      AppleIIPalette.Black,   // black
+            Highlight: AppleIIPalette.White,   // white
+            Eyes:      AppleIIPalette.Black,   // black
+            Accessory: AppleIIPalette.Violet),  // violet
 
         new("medium/black-hair",
-            Skin:      new Color(255, 106,  60),   // orange
-            Hair:      new Color(  0,   0,   0),   // black
-            Highlight: new Color(255, 255, 255),   // white
-            Eyes:      new Color( 20,  88, 255),   // blue
-            Accessory: new Color(  0,   0,   0)),  // black
+            Skin:      AppleIIPalette.Orange,   // orange
+            Hair:      AppleIIPalette.Black,   // black
+            Highlight: AppleIIPalette.White,   // white
+            Eyes:      AppleIIPalette.Blue,   // blue
+            Accessory: AppleIIPalette.Black),  // black
 
         new("dark/black-hair",
-            Skin:      new Color(193,  28, 255),   // violet
-            Hair:      new Color(  0,   0,   0),   // black
-            Highlight: new Color(255, 106,  60),   // orange
-            Eyes:      new Color(255, 255, 255),   // white (contrast)
-            Accessory: new Color(  0,   0,   0)),  // black
+            Skin:      AppleIIPalette.Violet,   // violet
+            Hair:      AppleIIPalette.Black,   // black
+            Highlight: AppleIIPalette.Orange,   // orange
+            Eyes:      AppleIIPalette.White,   // white (contrast)
+            Accessory: AppleIIPalette.Black),  // black
 
         new("medium/violet-hair",
-            Skin:      new Color(255, 106,  60),   // orange
-            Hair:      new Color(193,  28, 255),   // violet
-            Highlight: new Color(255, 255, 255),   // white
-            Eyes:      new Color( 20,  88, 255),   // blue
-            Accessory: new Color(193,  28, 255)),  // violet
+            Skin:      AppleIIPalette.Orange,   // orange
+            Hair:      AppleIIPalette.Violet,   // violet
+            Highlight: AppleIIPalette.White,   // white
+            Eyes:      AppleIIPalette.Blue,   // blue
+            Accessory: AppleIIPalette.Violet),  // violet
     ];
 
     // ── Body palettes ─────────────────────────────────────────────────────────
@@ -448,39 +448,39 @@ public sealed class AppleIISystem : RetroSystem
     public override BodyPalette[] BodyPalettes { get; } =
     [
         new("green",
-            Skin:           new Color(255, 106,  60),   // orange
-            Shirt:          new Color( 20, 245,  60),   // green
-            ShirtHighlight: new Color(255, 255, 255),   // white
-            Buttons:        new Color(  0,   0,   0),   // black
-            Accessory:      new Color( 20,  88, 255)),  // blue
+            Skin:           AppleIIPalette.Orange,   // orange
+            Shirt:          AppleIIPalette.Green,   // green
+            ShirtHighlight: AppleIIPalette.White,   // white
+            Buttons:        AppleIIPalette.Black,   // black
+            Accessory:      AppleIIPalette.Blue),  // blue
 
         new("blue",
-            Skin:           new Color(255, 106,  60),   // orange
-            Shirt:          new Color( 20,  88, 255),   // blue
-            ShirtHighlight: new Color(255, 255, 255),   // white
-            Buttons:        new Color(  0,   0,   0),   // black
-            Accessory:      new Color(255, 106,  60)),  // orange
+            Skin:           AppleIIPalette.Orange,   // orange
+            Shirt:          AppleIIPalette.Blue,   // blue
+            ShirtHighlight: AppleIIPalette.White,   // white
+            Buttons:        AppleIIPalette.Black,   // black
+            Accessory:      AppleIIPalette.Orange),  // orange
 
         new("violet",
-            Skin:           new Color(255, 106,  60),   // orange
-            Shirt:          new Color(193,  28, 255),   // violet
-            ShirtHighlight: new Color(255, 255, 255),   // white
-            Buttons:        new Color(  0,   0,   0),   // black
-            Accessory:      new Color( 20, 245,  60)),  // green
+            Skin:           AppleIIPalette.Orange,   // orange
+            Shirt:          AppleIIPalette.Violet,   // violet
+            ShirtHighlight: AppleIIPalette.White,   // white
+            Buttons:        AppleIIPalette.Black,   // black
+            Accessory:      AppleIIPalette.Green),  // green
 
         new("orange",
-            Skin:           new Color(255, 255, 255),   // white
-            Shirt:          new Color(255, 106,  60),   // orange
-            ShirtHighlight: new Color(255, 255, 255),   // white
-            Buttons:        new Color(  0,   0,   0),   // black
-            Accessory:      new Color( 20,  88, 255)),  // blue
+            Skin:           AppleIIPalette.White,   // white
+            Shirt:          AppleIIPalette.Orange,   // orange
+            ShirtHighlight: AppleIIPalette.White,   // white
+            Buttons:        AppleIIPalette.Black,   // black
+            Accessory:      AppleIIPalette.Blue),  // blue
 
         new("white",
-            Skin:           new Color(255, 106,  60),   // orange
-            Shirt:          new Color(255, 255, 255),   // white
-            ShirtHighlight: new Color( 20,  88, 255),   // blue (distinguishable highlight)
-            Buttons:        new Color(  0,   0,   0),   // black
-            Accessory:      new Color( 20, 245,  60)),  // green
+            Skin:           AppleIIPalette.Orange,   // orange
+            Shirt:          AppleIIPalette.White,   // white
+            ShirtHighlight: AppleIIPalette.Blue,   // blue (distinguishable highlight)
+            Buttons:        AppleIIPalette.Black,   // black
+            Accessory:      AppleIIPalette.Green),  // green
     ];
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
@@ -488,39 +488,39 @@ public sealed class AppleIISystem : RetroSystem
     public override LegsPalette[] LegsPalettes { get; } =
     [
         new("blue pants",
-            Skin:           new Color(255, 106,  60),   // orange
-            Pants:          new Color( 20,  88, 255),   // blue
-            PantsHighlight: new Color(255, 255, 255),   // white
-            Belt:           new Color(  0,   0,   0),   // black
-            BeltHighlight:  new Color(255, 255, 255),   // white
-            Shoes:          new Color(  0,   0,   0),   // black
-            ShoeHighlight:  new Color(255, 106,  60)),  // orange
+            Skin:           AppleIIPalette.Orange,   // orange
+            Pants:          AppleIIPalette.Blue,   // blue
+            PantsHighlight: AppleIIPalette.White,   // white
+            Belt:           AppleIIPalette.Black,   // black
+            BeltHighlight:  AppleIIPalette.White,   // white
+            Shoes:          AppleIIPalette.Black,   // black
+            ShoeHighlight:  AppleIIPalette.Orange),  // orange
 
         new("violet pants",
-            Skin:           new Color(255, 106,  60),   // orange
-            Pants:          new Color(193,  28, 255),   // violet
-            PantsHighlight: new Color(255, 255, 255),   // white
-            Belt:           new Color(  0,   0,   0),   // black
-            BeltHighlight:  new Color(255, 106,  60),   // orange
-            Shoes:          new Color(  0,   0,   0),   // black
-            ShoeHighlight:  new Color(255, 255, 255)),  // white
+            Skin:           AppleIIPalette.Orange,   // orange
+            Pants:          AppleIIPalette.Violet,   // violet
+            PantsHighlight: AppleIIPalette.White,   // white
+            Belt:           AppleIIPalette.Black,   // black
+            BeltHighlight:  AppleIIPalette.Orange,   // orange
+            Shoes:          AppleIIPalette.Black,   // black
+            ShoeHighlight:  AppleIIPalette.White),  // white
 
         new("black pants",
-            Skin:           new Color(255, 106,  60),   // orange
-            Pants:          new Color(  0,   0,   0),   // black
-            PantsHighlight: new Color( 20,  88, 255),   // blue
-            Belt:           new Color(255, 106,  60),   // orange
-            BeltHighlight:  new Color(255, 255, 255),   // white
-            Shoes:          new Color(  0,   0,   0),   // black
-            ShoeHighlight:  new Color(255, 255, 255)),  // white
+            Skin:           AppleIIPalette.Orange,   // orange
+            Pants:          AppleIIPalette.Black,   // black
+            PantsHighlight: AppleIIPalette.Blue,   // blue
+            Belt:           AppleIIPalette.Orange,   // orange
+            BeltHighlight:  AppleIIPalette.White,   // white
+            Shoes:          AppleIIPalette.Black,   // black
+            ShoeHighlight:  AppleIIPalette.White),  // white
 
         new("green pants",
-            Skin:           new Color(255, 106,  60),   // orange
-            Pants:          new Color( 20, 245,  60),   // green
-            PantsHighlight: new Color(255, 255, 255),   // white
-            Belt:           new Color(  0,   0,   0),   // black
-            BeltHighlight:  new Color(255, 106,  60),   // orange
-            Shoes:          new Color(  0,   0,   0),   // black
-            ShoeHighlight:  new Color(255, 255, 255)),  // white
+            Skin:           AppleIIPalette.Orange,   // orange
+            Pants:          AppleIIPalette.Green,   // green
+            PantsHighlight: AppleIIPalette.White,   // white
+            Belt:           AppleIIPalette.Black,   // black
+            BeltHighlight:  AppleIIPalette.Orange,   // orange
+            Shoes:          AppleIIPalette.Black,   // black
+            ShoeHighlight:  AppleIIPalette.White),  // white
     ];
 }

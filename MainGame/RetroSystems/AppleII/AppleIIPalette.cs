@@ -2,17 +2,19 @@ using Microsoft.Xna.Framework;
 
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-// Apple II hi-res 6-color artifact palette — black, green, violet, white, orange, blue.
 public class AppleIIPalette : Palette
 {
+	// ── Tile palette ───────────────────────────────────────────────────────
+	public static readonly Color Black          = new(  0,   0,   0);   //  0  black
+	public static readonly Color Green          = new( 20, 245,  60);   //  1  green
+	public static readonly Color Violet         = new(193,  28, 255);   //  2  violet
+	public static readonly Color White          = new(255, 255, 255);   //  3  white
+	public static readonly Color Orange         = new(255, 106,  60);   //  4  orange
+	public static readonly Color Blue           = new( 20,  88, 255);   //  5  blue
+
 	public AppleIIPalette() : base(
 		[
-			new Color(  0,   0,   0),   //  0 black
-			new Color( 20, 245,  60),   //  1 green
-			new Color(193,  28, 255),   //  2 violet
-			new Color(255, 255, 255),   //  3 white
-			new Color(255, 106,  60),   //  4 orange
-			new Color( 20,  88, 255),   //  5 blue
+			Black, Green, Violet, White, Orange, Blue,
 		])
 	{
 	}

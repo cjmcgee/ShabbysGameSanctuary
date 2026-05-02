@@ -647,35 +647,35 @@ public sealed class NESSystem : RetroSystem
     public override HeadPalette[] HeadPalettes { get; } =
     [
         new("fair/blonde",
-            Skin:      new Color(228, 192, 148),
-            Hair:      new Color(248, 216,  96),   // NES warm yellow
-            Highlight: new Color(244, 212, 172),
-            Eyes:      new Color( 40,  80, 196),   // NES blue
-            Accessory: new Color(248, 216,  96)),
+            Skin:      NESPalette.SkinFair,
+            Hair:      NESPalette.BrightYellow,   // NES warm yellow
+            Highlight: NESPalette.SkinPale,
+            Eyes:      NESPalette.NesBlue,   // NES blue
+            Accessory: NESPalette.BrightYellow),
         new("fair/brown",
-            Skin:      new Color(228, 192, 148),
-            Hair:      new Color(120,  64,   8),   // NES wood brown
-            Highlight: new Color(244, 212, 172),
-            Eyes:      new Color( 44,  28,   0),
-            Accessory: new Color(120,  64,   8)),
+            Skin:      NESPalette.SkinFair,
+            Hair:      NESPalette.WarmDoorWood,   // NES wood brown
+            Highlight: NESPalette.SkinPale,
+            Eyes:      NESPalette.DoorBlack,
+            Accessory: NESPalette.WarmDoorWood),
         new("medium/black",
-            Skin:      new Color(188, 136,  72),
-            Hair:      new Color( 44,  28,   0),
-            Highlight: new Color(216, 168, 100),
-            Eyes:      new Color( 44,  28,   0),
-            Accessory: new Color( 44,  28,   0)),
+            Skin:      NESPalette.SkinTan,
+            Hair:      NESPalette.DoorBlack,
+            Highlight: NESPalette.SkinLight,
+            Eyes:      NESPalette.DoorBlack,
+            Accessory: NESPalette.DoorBlack),
         new("dark/black",
-            Skin:      new Color(120,  80,  36),
-            Hair:      new Color( 44,  28,   0),
-            Highlight: new Color(148,  96,  48),
-            Eyes:      new Color( 96, 180, 196),   // NES aqua
-            Accessory: new Color( 44,  28,   0)),
+            Skin:      NESPalette.SkinDark,
+            Hair:      NESPalette.DoorBlack,
+            Highlight: NESPalette.SkinMedium,
+            Eyes:      NESPalette.Aqua,   // NES aqua
+            Accessory: NESPalette.DoorBlack),
         new("medium/auburn",
-            Skin:      new Color(188, 136,  72),
-            Hair:      new Color(148,   0,   0),   // NES dark red
-            Highlight: new Color(216, 168, 100),
-            Eyes:      new Color( 40,  80, 196),
-            Accessory: new Color(148,   0,   0)),
+            Skin:      NESPalette.SkinTan,
+            Hair:      NESPalette.DarkRed,   // NES dark red
+            Highlight: NESPalette.SkinLight,
+            Eyes:      NESPalette.NesBlue,
+            Accessory: NESPalette.DarkRed),
     ];
 
     // ── Body palettes ─────────────────────────────────────────────────────────
@@ -683,35 +683,35 @@ public sealed class NESSystem : RetroSystem
     public override BodyPalette[] BodyPalettes { get; } =
     [
         new("green",
-            Skin:           new Color(228, 192, 148),
-            Shirt:          new Color( 56, 128,  56),   // NES green
-            ShirtHighlight: new Color( 96, 180, 196),
-            Buttons:        new Color(236, 236, 220),
-            Accessory:      new Color( 40,  80, 196)),
+            Skin:           NESPalette.SkinFair,
+            Shirt:          NESPalette.NesGreen,   // NES green
+            ShirtHighlight: NESPalette.Aqua,
+            Buttons:        NESPalette.NearWhite,
+            Accessory:      NESPalette.NesBlue),
         new("blue",
-            Skin:           new Color(228, 192, 148),
-            Shirt:          new Color( 40,  80, 196),   // NES blue
-            ShirtHighlight: new Color( 96, 180, 196),
-            Buttons:        new Color(168, 168, 160),
-            Accessory:      new Color(248, 216,  96)),
+            Skin:           NESPalette.SkinFair,
+            Shirt:          NESPalette.NesBlue,   // NES blue
+            ShirtHighlight: NESPalette.Aqua,
+            Buttons:        NESPalette.WallGray,
+            Accessory:      NESPalette.BrightYellow),
         new("red",
-            Skin:           new Color(228, 192, 148),
-            Shirt:          new Color(148,   0,   0),   // NES dark red
-            ShirtHighlight: new Color(220,  20,  20),
-            Buttons:        new Color(236, 236, 220),
-            Accessory:      new Color(248, 216,  96)),
+            Skin:           NESPalette.SkinFair,
+            Shirt:          NESPalette.DarkRed,   // NES dark red
+            ShirtHighlight: NESPalette.VividRed,
+            Buttons:        NESPalette.NearWhite,
+            Accessory:      NESPalette.BrightYellow),
         new("white/light",
-            Skin:           new Color(228, 192, 148),
-            Shirt:          new Color(168, 168, 160),
-            ShirtHighlight: new Color(236, 236, 220),
-            Buttons:        new Color( 40,  80, 196),
-            Accessory:      new Color( 56, 128,  56)),
+            Skin:           NESPalette.SkinFair,
+            Shirt:          NESPalette.WallGray,
+            ShirtHighlight: NESPalette.NearWhite,
+            Buttons:        NESPalette.NesBlue,
+            Accessory:      NESPalette.NesGreen),
         new("teal",
-            Skin:           new Color(228, 192, 148),
-            Shirt:          new Color( 96, 180, 196),   // NES aqua
-            ShirtHighlight: new Color(196, 232, 228),
-            Buttons:        new Color(236, 236, 220),
-            Accessory:      new Color(204,  68, 204)),
+            Skin:           NESPalette.SkinFair,
+            Shirt:          NESPalette.Aqua,   // NES aqua
+            ShirtHighlight: NESPalette.PaleCyan,
+            Buttons:        NESPalette.NearWhite,
+            Accessory:      NESPalette.MidMagenta),
     ];
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
@@ -719,36 +719,36 @@ public sealed class NESSystem : RetroSystem
     public override LegsPalette[] LegsPalettes { get; } =
     [
         new("blue jeans/brown shoes",
-            Skin:           new Color(228, 192, 148),
-            Pants:          new Color( 40,  80, 196),   // NES blue
-            PantsHighlight: new Color( 96, 180, 196),
-            Belt:           new Color( 96,  40,   0),
-            BeltHighlight:  new Color(180,  80,   8),
-            Shoes:          new Color( 60,  30,   0),
-            ShoeHighlight:  new Color(120,  64,   8)),
+            Skin:           NESPalette.SkinFair,
+            Pants:          NESPalette.NesBlue,   // NES blue
+            PantsHighlight: NESPalette.Aqua,
+            Belt:           NESPalette.DarkBrown,
+            BeltHighlight:  NESPalette.RustOrange,
+            Shoes:          NESPalette.DarkestBrown,
+            ShoeHighlight:  NESPalette.WarmDoorWood),
         new("black/black",
-            Skin:           new Color(228, 192, 148),
-            Pants:          new Color( 44,  28,   0),
-            PantsHighlight: new Color( 64,  64,  64),
-            Belt:           new Color( 64,  64,  64),
-            BeltHighlight:  new Color(128, 128, 128),
-            Shoes:          new Color( 44,  28,   0),
-            ShoeHighlight:  new Color( 64,  64,  64)),
+            Skin:           NESPalette.SkinFair,
+            Pants:          NESPalette.DoorBlack,
+            PantsHighlight: NESPalette.RoadGray,
+            Belt:           NESPalette.RoadGray,
+            BeltHighlight:  NESPalette.SidewalkGray,
+            Shoes:          NESPalette.DoorBlack,
+            ShoeHighlight:  NESPalette.RoadGray),
         new("khaki/tan",
-            Skin:           new Color(228, 192, 148),
-            Pants:          new Color(188, 136,  72),
-            PantsHighlight: new Color(240, 240, 140),
-            Belt:           new Color( 96,  40,   0),
-            BeltHighlight:  new Color(148,  80,  16),
-            Shoes:          new Color( 96,  40,   0),
-            ShoeHighlight:  new Color(148,  80,  16)),
+            Skin:           NESPalette.SkinFair,
+            Pants:          NESPalette.SkinTan,
+            PantsHighlight: NESPalette.PaleYellow,
+            Belt:           NESPalette.DarkBrown,
+            BeltHighlight:  NESPalette.MediumBrown,
+            Shoes:          NESPalette.DarkBrown,
+            ShoeHighlight:  NESPalette.MediumBrown),
         new("gray/dark",
-            Skin:           new Color(228, 192, 148),
-            Pants:          new Color(128, 128, 128),
-            PantsHighlight: new Color(168, 168, 160),
-            Belt:           new Color( 64,  64,  64),
-            BeltHighlight:  new Color(128, 128, 128),
-            Shoes:          new Color( 64,  64,  64),
-            ShoeHighlight:  new Color(128, 128, 128)),
+            Skin:           NESPalette.SkinFair,
+            Pants:          NESPalette.SidewalkGray,
+            PantsHighlight: NESPalette.WallGray,
+            Belt:           NESPalette.RoadGray,
+            BeltHighlight:  NESPalette.SidewalkGray,
+            Shoes:          NESPalette.RoadGray,
+            ShoeHighlight:  NESPalette.SidewalkGray),
     ];
 }
