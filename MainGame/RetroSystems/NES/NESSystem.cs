@@ -25,16 +25,21 @@ public sealed class NESSystem : RetroSystem
     protected override Palette TilePalette { get; } = new NESPalette();
 
     public override ScenePalette ScenePalette { get; } = new(
-        HouseBeige:  NESPalette.NearWhite,
-        HouseYellow: NESPalette.PaleYellow,
-        HousePink:   NESPalette.VividRed,           // no pink → vivid red
-        HouseTeal:   NESPalette.Aqua,
-        HouseGray:   NESPalette.SidewalkLight,
-        HouseBlue:   NESPalette.NesBlue,
-        HouseLime:   NESPalette.LeafGreen,
-        HousePurple: NESPalette.MidMagenta,
-        HouseOrange: NESPalette.RustOrange,
-        Door:        NESPalette.DoorBlack);
+        HouseBeige:   NESPalette.NearWhite,
+        HouseYellow:  NESPalette.PaleYellow,
+        HousePink:    NESPalette.VividRed,           // no pink → vivid red
+        HouseTeal:    NESPalette.Aqua,
+        HouseGray:    NESPalette.SidewalkLight,
+        HouseBlue:    NESPalette.NesBlue,
+        HouseLime:    NESPalette.LeafGreen,
+        HousePurple:  NESPalette.MidMagenta,
+        HouseOrange:  NESPalette.RustOrange,
+        Door:         NESPalette.DoorBlack,
+        UiBackground: NESPalette.DarkBackground,
+        UiText:       NESPalette.NearWhite,
+        UiAccent:     NESPalette.PaleYellow,
+        UiChoice:     NESPalette.SidewalkLight,
+        UiDim:        NESPalette.SidewalkGray);
 
     protected override byte[][] GetTilePixels(TileType type, Color accentColor) => type switch
     {

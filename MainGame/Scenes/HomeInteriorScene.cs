@@ -27,7 +27,9 @@ namespace ChildhoodAdventure.Scenes
 
         private const int MapW = 24, MapH = 18;
 
-        protected override Color DialogueBorderColor => new(200, 180, 100);
+        // Warm tone for the player's home — pulls from the active system's palette.
+        protected override Color DialogueBorderColor =>
+            RetroSystemRegistry.Current.ScenePalette.HouseYellow;
 
         // ── Scene load ───────────────────────────────────────────────────────
 

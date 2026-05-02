@@ -36,16 +36,21 @@ public sealed class C64System : RetroSystem
     protected override Palette TilePalette { get; } = new C64Palette();
 
     public override ScenePalette ScenePalette { get; } = new(
-        HouseBeige:  C64Palette.White,
-        HouseYellow: C64Palette.Yellow,
-        HousePink:   C64Palette.MidMagenta,         // sprite-only ext
-        HouseTeal:   C64Palette.Cyan,
-        HouseGray:   C64Palette.LightGrey,
-        HouseBlue:   C64Palette.Blue,
-        HouseLime:   C64Palette.LightGreen,         // sprite-only ext
-        HousePurple: C64Palette.MidMagenta,         // no violet → reuse magenta
-        HouseOrange: C64Palette.BurntOrange,        // sprite-only ext
-        Door:        C64Palette.DoorBlack);
+        HouseBeige:   C64Palette.White,
+        HouseYellow:  C64Palette.Yellow,
+        HousePink:    C64Palette.MidMagenta,         // sprite-only ext
+        HouseTeal:    C64Palette.Cyan,
+        HouseGray:    C64Palette.LightGrey,
+        HouseBlue:    C64Palette.Blue,
+        HouseLime:    C64Palette.LightGreen,         // sprite-only ext
+        HousePurple:  C64Palette.MidMagenta,         // no violet → reuse magenta
+        HouseOrange:  C64Palette.BurntOrange,        // sprite-only ext
+        Door:         C64Palette.DoorBlack,
+        UiBackground: C64Palette.Black,
+        UiText:       C64Palette.White,
+        UiAccent:     C64Palette.Yellow,
+        UiChoice:     C64Palette.LightGrey,
+        UiDim:        C64Palette.Grey);
 
     // ── Tile pixel art (24×24) ───────────────────────────────────────────────
     // All rows obey the double-wide rule: col[2k+1] == col[2k] (12 logical cols).

@@ -32,8 +32,12 @@ namespace ChildhoodAdventure.Scenes
         protected virtual float CameraFollowSpeed => 8f;
         protected virtual float InteractionRadius => 1.875f;
 
+        // Dialog colours default to the active retro system's UI palette;
+        // scenes override DialogueBorderColor with one of the system's house
+        // tones to give the box per-scene flavour.
         protected abstract Color DialogueBorderColor { get; }
-        protected virtual  Color DialogueSpeakerColor => Color.Yellow;
+        protected virtual  Color DialogueSpeakerColor =>
+            RetroSystemRegistry.Current.ScenePalette.UiAccent;
 
         // ── Lifecycle ────────────────────────────────────────────────────────
 
@@ -203,13 +207,14 @@ namespace ChildhoodAdventure.Scenes
 
             var vp    = Engine.GraphicsDevice.Viewport;
             var font  = Engine.RenderSystem.Font;
+            var sp    = RetroSystemRegistry.Current.ScenePalette;
             const float scale = 2f;
             float lineH = PixelFont.CharH * scale;
             int boxH = 110, boxY = vp.Height - boxH - 8;
             int textX = 20, textMaxW = vp.Width - 40;
 
             var border = DialogueBorderColor;
-            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, boxH), new Color(0, 0, 0, 215));
+            sb.Draw(_pixel, new Rectangle(8, boxY, vp.Width - 16, boxH), sp.UiBackground * 0.85f);
             sb.Draw(_pixel, new Rectangle(8, boxY,              vp.Width - 16, 2),    border);
             sb.Draw(_pixel, new Rectangle(8, boxY + boxH - 2,   vp.Width - 16, 2),    border);
             sb.Draw(_pixel, new Rectangle(8, boxY,              2,             boxH), border);
@@ -226,7 +231,7 @@ namespace ChildhoodAdventure.Scenes
             }
 
             float bodyH = font.DrawWrappedText(sb, Engine.DialogueSystem.DisplayedText,
-                new Vector2(textX, cy), Color.White, textMaxW, scale);
+                new Vector2(textX, cy), sp.UiText, textMaxW, scale);
             float afterBody = cy + bodyH + 4;
 
             if (Engine.DialogueSystem.WaitingForChoice)
@@ -236,9 +241,9 @@ namespace ChildhoodAdventure.Scenes
                 {
                     bool sel     = i == Engine.DialogueSystem.SelectedChoiceIndex;
                     bool enabled = choices[i].EnabledCondition?.Invoke() ?? true;
-                    Color color  = !enabled ? Color.DarkGray
-                                 : sel      ? Color.Yellow
-                                            : Color.LightGray;
+                    Color color  = !enabled ? sp.UiDim
+                                 : sel      ? sp.UiAccent
+                                            : sp.UiChoice;
                     font.DrawText(sb, (sel && enabled ? "> " : "  ") + choices[i].Text,
                         new Vector2(textX, afterBody + i * lineH), color, scale);
                 }
@@ -247,7 +252,7 @@ namespace ChildhoodAdventure.Scenes
             {
                 if ((int)(Engine.PlayTime.TotalSeconds * 2) % 2 == 0)
                     font.DrawText(sb, "[ E ]",
-                        new Vector2(vp.Width - 68, boxY + boxH - lineH - 6), Color.Gray, scale);
+                        new Vector2(vp.Width - 68, boxY + boxH - lineH - 6), sp.UiDim, scale);
             }
         }
     }

@@ -62,8 +62,11 @@ namespace ChildhoodAdventure.Scenes
         protected override float CameraFollowSpeed => 7f;
         protected override float InteractionRadius => 2f;     // 2 tiles
 
-        protected override Color DialogueBorderColor  => new(120, 200, 120);
-        protected override Color DialogueSpeakerColor => Color.LightGreen;
+        // Outdoor green border; speaker name uses the same tone for cohesion.
+        protected override Color DialogueBorderColor  =>
+            RetroSystemRegistry.Current.ScenePalette.HouseLime;
+        protected override Color DialogueSpeakerColor =>
+            RetroSystemRegistry.Current.ScenePalette.HouseLime;
 
         // ── Scene load ───────────────────────────────────────────────────────
 

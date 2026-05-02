@@ -44,16 +44,21 @@ public sealed class AppleIISystem : RetroSystem
     // Apple II hi-res has only 6 colours; warm/yellow/orange roles all share
     // Orange, blue/teal share Blue, etc.
     public override ScenePalette ScenePalette { get; } = new(
-        HouseBeige:  AppleIIPalette.White,
-        HouseYellow: AppleIIPalette.Orange,
-        HousePink:   AppleIIPalette.Violet,
-        HouseTeal:   AppleIIPalette.Blue,
-        HouseGray:   AppleIIPalette.White,
-        HouseBlue:   AppleIIPalette.Blue,
-        HouseLime:   AppleIIPalette.Green,
-        HousePurple: AppleIIPalette.Violet,
-        HouseOrange: AppleIIPalette.Orange,
-        Door:        AppleIIPalette.Black);
+        HouseBeige:   AppleIIPalette.White,
+        HouseYellow:  AppleIIPalette.Orange,
+        HousePink:    AppleIIPalette.Violet,
+        HouseTeal:    AppleIIPalette.Blue,
+        HouseGray:    AppleIIPalette.White,
+        HouseBlue:    AppleIIPalette.Blue,
+        HouseLime:    AppleIIPalette.Green,
+        HousePurple:  AppleIIPalette.Violet,
+        HouseOrange:  AppleIIPalette.Orange,
+        Door:         AppleIIPalette.Black,
+        UiBackground: AppleIIPalette.Black,
+        UiText:       AppleIIPalette.White,
+        UiAccent:     AppleIIPalette.Orange,
+        UiChoice:     AppleIIPalette.Green,
+        UiDim:        AppleIIPalette.Violet);
 
     // ── Tile pixel art (14×14, Apple II hi-res rules) ────────────────────────
     //   col 0 / col 13 always 0           (predictable black at tile borders)

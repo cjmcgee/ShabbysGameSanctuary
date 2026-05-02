@@ -27,16 +27,21 @@ public sealed class CGASystem : RetroSystem
     // CGA mode-4 palette 1 has only 4 colours; many house tones collapse onto
     // the same palette entry, mirroring authentic CGA limitations.
     public override ScenePalette ScenePalette { get; } = new(
-        HouseBeige:  CGAPalette.White,
-        HouseYellow: CGAPalette.BrightCyan,
-        HousePink:   CGAPalette.BrightMagenta,
-        HouseTeal:   CGAPalette.BrightCyan,
-        HouseGray:   CGAPalette.White,
-        HouseBlue:   CGAPalette.BrightCyan,
-        HouseLime:   CGAPalette.BrightCyan,
-        HousePurple: CGAPalette.BrightMagenta,
-        HouseOrange: CGAPalette.BrightMagenta,
-        Door:        CGAPalette.Black);
+        HouseBeige:   CGAPalette.White,
+        HouseYellow:  CGAPalette.BrightCyan,
+        HousePink:    CGAPalette.BrightMagenta,
+        HouseTeal:    CGAPalette.BrightCyan,
+        HouseGray:    CGAPalette.White,
+        HouseBlue:    CGAPalette.BrightCyan,
+        HouseLime:    CGAPalette.BrightCyan,
+        HousePurple:  CGAPalette.BrightMagenta,
+        HouseOrange:  CGAPalette.BrightMagenta,
+        Door:         CGAPalette.Black,
+        UiBackground: CGAPalette.Black,
+        UiText:       CGAPalette.White,
+        UiAccent:     CGAPalette.BrightCyan,
+        UiChoice:     CGAPalette.White,
+        UiDim:        CGAPalette.BrightMagenta);
 
     // ── Tile pixel art (16×16, indices 0–3 only) ─────────────────────────────
 
