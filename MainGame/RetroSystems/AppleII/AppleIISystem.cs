@@ -28,19 +28,16 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 ///   • Character sprites: 8×16 (HeadRows=4, BodyRows=7, LegsRows=5). Sprite
 ///     art is hand-authored with horizontally-doubled pixels for a chunky,
 ///     period-appropriate look; no runtime double-wide enforcement is needed.
-///   • Native screen: 280×192. DisplayScale 3.125 shows exactly 192 world
-///     pixels tall at a 600px viewport.
-///   • MaxZoomOutArea (280×384) limits zoom-out to roughly 2× native height.
+///   • Native screen: 280×192 → DefaultTilesTall = 12 (192 / 16 native tile)
+///   • MaxTilesTall = 24 (~2× zoom out)
 /// </summary>
 public sealed class AppleIISystem : RetroSystem
 {
     public override string Name        => "Apple II";
-    public override string Description => "14×14 tiles · 8×16 sprites · 280×192 native · Hi-res 6-color w/ NTSC palette rules";
-    public override int    NativeTileSize => 14;
-    public override float  DisplayScale   => 3.125f;
-
-    // Native Apple II Hi-res: 280×192. MaxZoomOutArea caps zoom-out roughly at 2× native height.
-    public override Vector2? MaxZoomOutArea => new Vector2(280, 384);
+    public override string Description => "14-px tiles · 8×16 sprites · 12 tiles tall · Hi-res 6-color w/ NTSC palette rules";
+    public override int   NativeTilePixels => 14;
+    public override float DefaultTilesTall => 12f;     // native 280×192 → 12 tiles vertically
+    public override float MaxTilesTall     => 24f;     // ~2× zoom out
 
     // TODO: need to simulate color fringing for any text!
     // ── Apple II hi-res 6-color palette ──────────────────────────────────────

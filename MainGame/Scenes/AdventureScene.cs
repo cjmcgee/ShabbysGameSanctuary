@@ -27,9 +27,10 @@ namespace ChildhoodAdventure.Scenes
 
         // ── Customization points ─────────────────────────────────────────────
 
-        protected virtual float PlayerMaxSpeed    => 90f;
+        // All in tile-space units: speed in tiles/sec, radius in tiles.
+        protected virtual float PlayerMaxSpeed    => 5.6f;   // ~5.6 tiles/sec
         protected virtual float CameraFollowSpeed => 8f;
-        protected virtual float InteractionRadius => 30f;
+        protected virtual float InteractionRadius => 1.875f; // ~30 px at old 16-px scale
 
         protected abstract Color DialogueBorderColor { get; }
         protected virtual  Color DialogueSpeakerColor => Color.Yellow;
@@ -61,9 +62,10 @@ namespace ChildhoodAdventure.Scenes
             var e = Engine.EntityWorld.CreateEntity("Player");
             Engine.EntityWorld.RegisterTag("player", e);
             e.AddComponent(new TransformComponent(pos) { MaxSpeed = PlayerMaxSpeed });
-            e.AddComponent(new CollisionComponent(10, 6, new Vector2(-5, -3)));
+            // Hitbox: 0.625 × 0.375 tiles centred on the entity position (was 10×6 px).
+            e.AddComponent(new CollisionComponent(0.625f, 0.375f, new Vector2(-0.3125f, -0.1875f)));
             var sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player);
-            sprite.Scale = 0.5f;
+            sprite.FrameTileSize *= 0.5f;     // child-sized
             e.AddComponent(new SpriteComponent { Sprite = sprite });
             Engine.RenderSystem.Camera.FollowTarget = pos;
             Engine.RenderSystem.Camera.FollowSpeed  = CameraFollowSpeed;
@@ -77,9 +79,10 @@ namespace ChildhoodAdventure.Scenes
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
-            e.AddComponent(new CollisionComponent(10, 8, new Vector2(-5, -4)) { IsSolid = true });
+            // Hitbox: 0.625 × 0.5 tiles centred on the entity position (was 10×8 px).
+            e.AddComponent(new CollisionComponent(0.625f, 0.5f, new Vector2(-0.3125f, -0.25f)) { IsSolid = true });
             var sprite = SpriteFactory.BuildCharacter(gd, appearance);
-            sprite.Scale = scale;
+            if (scale != 1f) sprite.FrameTileSize *= scale;
             e.AddComponent(new SpriteComponent { Sprite = sprite });
             _npcTalks.Add((e, talkFn));
             return e;

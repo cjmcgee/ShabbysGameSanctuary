@@ -7,8 +7,15 @@ namespace ChildhoodAdventure.RetroSystems;
 /// <summary>
 /// Defines the visual characteristics of a retro gaming platform.
 ///
-/// Tile canvases are always 16×16 world pixels; subclasses provide native-resolution
-/// pixel art which is nearest-neighbour upscaled by BuildTileset.
+/// Each system declares its art at whatever resolution it wants. The engine treats
+/// world coordinates as TILES (float); pixel sizes only matter for the texture
+/// handed off to MonoGame at render time.
+///
+/// A system specifies:
+///   • <see cref="NativeTilePixels"/>   — texture resolution per built tile (free choice)
+///   • <see cref="CharTileWidth"/>/<see cref="CharTileHeight"/> — character size in tiles
+///   • <see cref="DefaultTilesTall"/>   — initial vertical zoom (tiles tall)
+///   • <see cref="MaxTilesTall"/>       — zoom-out limit (tiles tall)
 ///
 /// Character sprites are assembled from three independent parts — head, body, legs —
 /// each defined as pixel arrays using semantic color indices rather than direct palette
@@ -28,8 +35,25 @@ public abstract class RetroSystem
 
     public abstract string Name         { get; }
     public abstract string Description  { get; }
-    public abstract int    NativeTileSize{ get; }
-    public abstract float  DisplayScale  { get; }
+
+    /// <summary>
+    /// Texture resolution per built tile, in pixels. The system can pick any
+    /// value — higher values give a more uniform upscale when source art has
+    /// non-divisor dimensions, at the cost of texture memory.
+    /// </summary>
+    public abstract int NativeTilePixels { get; }
+
+    /// <summary>
+    /// Initial vertical zoom: how many tiles fill the viewport from top to bottom.
+    /// Drives the camera's starting <see cref="Rendering.Camera.TilesTall"/>.
+    /// </summary>
+    public abstract float DefaultTilesTall { get; }
+
+    /// <summary>
+    /// Maximum tiles visible vertically (zoom-out floor). Defaults to 2× the
+    /// default to roughly mirror the original "2× native" cap.
+    /// </summary>
+    public virtual float MaxTilesTall => DefaultTilesTall * 2f;
 
     /// <summary>
     /// True for systems (Atari 2600, C64) where each logical pixel occupies two
@@ -37,13 +61,6 @@ public abstract class RetroSystem
     /// always copy the value from the preceding even column.
     /// </summary>
     protected virtual bool DoubleWidePixels => false;
-
-    /// <summary>
-    /// Maximum world-pixel area the camera may reveal at once (X=width, Y=height).
-    /// Null means no additional constraint beyond map fill. Override to enforce a
-    /// zoom-out floor tied to the system's native resolution.
-    /// </summary>
-    public virtual Vector2? MaxZoomOutArea => null;
 
     /// <summary>
     /// When true, each tile is quantized to 1-bit color at build time: palette index 0
@@ -91,12 +108,26 @@ public abstract class RetroSystem
     protected abstract byte[][] GetTilePixels(TileType tileType, Color accentColor);
 
     // ── Sprite dimensions ────────────────────────────────────────────────────
+    // CharWidth/HeadRows/BodyRows/LegsRows are TEXTURE-PIXEL sizes used during
+    // BuildCharacterSprite to slice and assemble the sprite sheet.
 
     public abstract int CharWidth  { get; }
     public abstract int HeadRows   { get; }
     public abstract int BodyRows   { get; }
     public abstract int LegsRows   { get; }
     public int CharHeight => HeadRows + BodyRows + LegsRows;
+
+    /// <summary>
+    /// Logical character width in TILES. Default derives from CharWidth scaled
+    /// by NativeTilePixels so the proportions match the system's tile art.
+    /// </summary>
+    public virtual float CharTileWidth  => CharWidth  / (float)NativeTilePixels;
+
+    /// <summary>
+    /// Logical character height in TILES. Default derives from CharHeight scaled
+    /// by NativeTilePixels so the proportions match the system's tile art.
+    /// </summary>
+    public virtual float CharTileHeight => CharHeight / (float)NativeTilePixels;
 
     // ── Sprite part pixel art ─────────────────────────────────────────────────
     // Layout: [variantIndex][animFrame][row][col]
@@ -142,7 +173,7 @@ public abstract class RetroSystem
         effectivePalette[TilePalette.Length] =
             accentColor == default ? new Color(180, 180, 180) : accentColor;
 
-        const int target = 16;
+        int target = NativeTilePixels;
         int   count   = tileTypes.Length;
         var   texture = new Texture2D(gd, target * count, target);
         var   data    = new Color[target * count * target];
@@ -226,7 +257,8 @@ public abstract class RetroSystem
 
         texture.SetData(data);
 
-        var sprite = new AnimatedSprite(texture, CharWidth, CharHeight);
+        var sprite = new AnimatedSprite(texture, CharWidth, CharHeight,
+            new Vector2(CharTileWidth, CharTileHeight));
         sprite.AddAnimation(SpriteAnimation.FromStrip("walk_down",  texture, CharWidth, CharHeight, frames, 0, 0.15f));
         sprite.AddAnimation(SpriteAnimation.FromStrip("idle_down",  texture, CharWidth, CharHeight, 1,      0, 1.0f));
         sprite.AddAnimation(SpriteAnimation.FromStrip("walk_up",    texture, CharWidth, CharHeight, frames, 1, 0.15f));

@@ -12,21 +12,19 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 ///   • Multicolor sprites: up to 4 semantic colors per part frame (transparent + 2 globals + 1 unique)
 ///   • Character sprites: 12×21 (HeadRows=6, BodyRows=8, LegsRows=7)
 ///   • Native screen: 160×200 (double-wide pixels → 80 unique columns × 200 rows)
-///   • DisplayScale 3.0 shows exactly 200 world pixels tall at a 600px viewport
-///   • MaxZoomOutArea (320×400) limits zoom-out to 2× native in each direction
+///   • Native height 200px → DefaultTilesTall = 12.5
+///   • MaxTilesTall = 25 (~2× zoom out)
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
 public sealed class C64System : RetroSystem
 {
     public override string Name        => "Commodore 64";
-    public override string Description => "24×24 tiles · 12×21 dbl-wide · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";
-    public override int    NativeTileSize    => 24;
-    public override float  DisplayScale      => 3.0f;
+    public override string Description => "24-px tiles · 12.5 tiles tall · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";
+    public override int   NativeTilePixels  => 24;
+    public override float DefaultTilesTall  => 12.5f;   // native 160×200 → 12.5 tiles vertically
+    public override float MaxTilesTall      => 25f;     // ~2× zoom out
     protected override bool DoubleWidePixels => true;
-
-    // Native C64 screen: 160×200. MaxZoomOutArea caps at 2× native in each direction.
-    public override Vector2? MaxZoomOutArea => new Vector2(320, 400);
 
     // VIC-II multicolor: palette index 7 (C64 grey) acts as the shared global color register.
     // Each tile may use it freely plus up to 3 additional local indices.

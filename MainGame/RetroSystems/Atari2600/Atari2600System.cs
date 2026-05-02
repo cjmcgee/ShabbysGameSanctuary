@@ -12,23 +12,21 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 ///   • 128-color NTSC palette; sprites are hard-edged silhouettes
 ///   • Character sprites: 8×16 (Adventure-duck proportions)
 ///   • Native screen: 160×192 (double-wide pixels → 80 unique columns × 192 rows)
-///   • DisplayScale ≈3.125 so a 600px-tall viewport shows ~192 world pixels (native height)
-///   • MaxZoomOutArea (320×384) limits zoom-out to 2× native in each direction
+///   • Native height 192px → DefaultTilesTall = 12
+///   • MaxTilesTall = 24 (~2× zoom out)
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
 public sealed class Atari2600System : RetroSystem
 {
     public override string Name        => "Atari 2600";
-    public override string Description => "16×16 tiles · 16×16 dbl-wide · 1-bit · 1-color/scanline sprites";
-    public override int    NativeTileSize    => 16;
-    public override float  DisplayScale      => 3.125f;
+    public override string Description => "16-px tiles dbl-wide · 12 tiles tall · 1-bit · 1-color/scanline sprites";
+    public override int   NativeTilePixels  => 16;
+    public override float DefaultTilesTall  => 12f;   // native 160×192 → 12 tiles vertically
+    public override float MaxTilesTall      => 24f;   // ~2× zoom out
     protected override bool DoubleWidePixels          => true;
     protected override bool OneBitTiles               => true;
     protected override bool SpriteOneColorPerScanline => true;
-
-    // 2× the Atari's native 160×192 screen — the most the camera will ever reveal.
-    public override Vector2? MaxZoomOutArea => new Vector2(320, 384);
 
     // ── Tile palette ─────────────────────────────────────────────────────────
     // Index 0 = background fill (black).

@@ -12,10 +12,10 @@ namespace ChildhoodAdventure
     /// </summary>
     public static class GameState
     {
-        // Where the player appears when entering the next scene.
-        // Always 16-based pixel coordinates (world tile size is fixed at 16px).
+        // Where the player appears when entering the next scene. All positions are
+        // in tile-space (float). +0.5 puts the entity at the centre of a tile.
         public static Vector2 PlayerSpawnPosition { get; set; }
-            = new Vector2(12 * 16 + 8, 15 * 16 + 8);   // default: inside player's home
+            = new Vector2(12.5f, 15.5f);   // default: inside player's home
 
         // Which neighbor's interior to build when loading NeighborInteriorScene.
         public static HouseId? TargetInterior { get; set; }
@@ -23,7 +23,7 @@ namespace ChildhoodAdventure
         // Where the player re-appears in the neighborhood after exiting any interior.
         // Default: sidewalk in front of the player's own house (door at tile x=40, sidewalk y=19).
         public static Vector2 NeighborhoodReturnPosition { get; set; }
-            = new Vector2(40 * 16 + 8, 19 * 16 + 8);
+            = new Vector2(40.5f, 19.5f);
 
         // Story/conversation flags.
         private static readonly HashSet<string> _flags = new();

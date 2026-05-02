@@ -94,11 +94,12 @@ namespace ChildhoodAdventure
             if (delta == 0) return;
 
             var camera = _engine.RenderSystem.Camera;
-            // Each scroll notch (±120) scales zoom by 10%.
-            float factor = delta > 0 ? 1.1f : 1f / 1.1f;
+            // Each scroll notch (±120) changes the visible-tile count by ~10%.
+            // Scrolling up zooms IN (fewer tiles visible).
+            float factor = delta > 0 ? 1f / 1.1f : 1.1f;
             int notches = Math.Abs(delta) / 120;
             for (int i = 0; i < Math.Max(notches, 1); i++)
-                camera.Zoom *= factor;
+                camera.TilesTall *= factor;
         }
 
         private void HandleSystemSwitch(KeyboardState keys)

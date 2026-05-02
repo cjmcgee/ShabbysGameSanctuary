@@ -58,9 +58,9 @@ namespace ChildhoodAdventure.Scenes
 
         private const int HouseStartY = 4, HouseH = 15, HouseDoorY = 18;
 
-        protected override float PlayerMaxSpeed    => 95f;
+        protected override float PlayerMaxSpeed    => 5.94f;  // ~5.9 tiles/sec
         protected override float CameraFollowSpeed => 7f;
-        protected override float InteractionRadius => 32f;
+        protected override float InteractionRadius => 2f;     // 2 tiles
 
         protected override Color DialogueBorderColor  => new(120, 200, 120);
         protected override Color DialogueSpeakerColor => Color.LightGreen;
@@ -98,9 +98,9 @@ namespace ChildhoodAdventure.Scenes
             }, firstGid: 1);
 
             var houseTexture  = BuildHouseTextureSlab(gd, sys, houseColors);
-            var tilesetHouses = new Tileset("hood_houses", houseTexture, 16, 16, firstGid: 4);
+            var tilesetHouses = new Tileset("hood_houses", houseTexture, sys.NativeTilePixels, sys.NativeTilePixels, firstGid: 4);
 
-            var tilemap = new Tilemap("hood", MapW, MapH, 16, 16)
+            var tilemap = new Tilemap("hood", MapW, MapH)
             {
                 BackgroundColor = Color.Black
             };
@@ -110,9 +110,9 @@ namespace ChildhoodAdventure.Scenes
 
             Engine.CollisionSystem.SetTilemap(tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(tilemap);
-            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, tilemap.PixelWidth, tilemap.PixelHeight);
-            Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
-            Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
+            Engine.RenderSystem.Camera.Bounds       = new RectangleF(0, 0, tilemap.Width, tilemap.Height);
+            Engine.RenderSystem.Camera.MaxTilesTall = sys.MaxTilesTall;
+            Engine.RenderSystem.Camera.TilesTall    = sys.DefaultTilesTall;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             SpawnPlayer(gd, GameState.NeighborhoodReturnPosition);
@@ -124,7 +124,7 @@ namespace ChildhoodAdventure.Scenes
         private static Texture2D BuildHouseTextureSlab(
             GraphicsDevice gd, RetroSystem sys, Color[] houseColors)
         {
-            const int tileSize = 16;
+            int tileSize = sys.NativeTilePixels;
             int count   = houseColors.Length;
             var texture = new Texture2D(gd, tileSize * count, tileSize);
             var data    = new Color[tileSize * count * tileSize];
@@ -191,11 +191,11 @@ namespace ChildhoodAdventure.Scenes
 
         private void SpawnOutdoorNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Sam",   new Vector2(49 * 16 + 8, 21 * 16 + 8), NpcAppearances.Sam,
+            SpawnNpc(gd, "Sam",   new Vector2(49.5f, 21.5f), NpcAppearances.Sam,
                 () => Engine.DialogueSystem.StartYarnNode("Sam"),   scale: 0.5f);
-            SpawnNpc(gd, "Lucia", new Vector2(58 * 16 + 8, 21 * 16 + 8), NpcAppearances.Lucia,
+            SpawnNpc(gd, "Lucia", new Vector2(58.5f, 21.5f), NpcAppearances.Lucia,
                 () => Engine.DialogueSystem.StartYarnNode("Lucia"), scale: 0.5f);
-            SpawnNpc(gd, "Nadia", new Vector2(67 * 16 + 8, 21 * 16 + 8), NpcAppearances.Nadia,
+            SpawnNpc(gd, "Nadia", new Vector2(67.5f, 21.5f), NpcAppearances.Nadia,
                 () => Engine.DialogueSystem.StartYarnNode("Nadia"), scale: 0.5f);
         }
 
@@ -203,16 +203,16 @@ namespace ChildhoodAdventure.Scenes
 
         protected override void CheckSceneTransitions()
         {
-            var pos = PlayerPosition;
-            float pTileX = pos.X / 16f;
-            float pTileY = pos.Y / 16f;
+            var pos = PlayerPosition;       // already in tile-space
+            float pTileX = pos.X;
+            float pTileY = pos.Y;
 
             if (pTileY < HouseDoorY - 0.5f || pTileY > HouseDoorY + 0.5f) return;
 
             if (MathF.Abs(pTileX - 40f) < 0.6f)
             {
                 Transitioning = true;
-                GameState.PlayerSpawnPosition = new Vector2(12 * 16 + 8, 15 * 16 + 8);
+                GameState.PlayerSpawnPosition = new Vector2(12.5f, 15.5f);
                 Engine.LoadScene(new HomeInteriorScene());
                 return;
             }
@@ -223,8 +223,8 @@ namespace ChildhoodAdventure.Scenes
                 {
                     Transitioning = true;
                     GameState.TargetInterior  = h.Id;
-                    GameState.PlayerSpawnPosition        = new Vector2(11 * 16 + 8, 13 * 16 + 8);
-                    GameState.NeighborhoodReturnPosition = new Vector2(h.DoorX * 16 + 8, 19 * 16 + 8);
+                    GameState.PlayerSpawnPosition        = new Vector2(11.5f, 13.5f);
+                    GameState.NeighborhoodReturnPosition = new Vector2(h.DoorX + 0.5f, 19.5f);
                     Engine.LoadScene(new NeighborInteriorScene());
                     return;
                 }

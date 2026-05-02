@@ -19,16 +19,20 @@ namespace ChildhoodAdventure
         public static AnimatedSprite BuildCharacter(GraphicsDevice gd, CharacterAppearance appearance)
             => RetroSystemRegistry.Current.BuildCharacterSprite(gd, appearance);
 
-        /// <summary>Creates a static flat-color sprite (for map objects / items).</summary>
-        public static AnimatedSprite BuildStatic(GraphicsDevice gd, int w, int h, Color color)
+        /// <summary>
+        /// Creates a static flat-colour sprite. <paramref name="pixelW"/>/<paramref name="pixelH"/>
+        /// are texture dimensions; <paramref name="tileSize"/> is the world-space size in tiles.
+        /// </summary>
+        public static AnimatedSprite BuildStatic(GraphicsDevice gd, int pixelW, int pixelH, Vector2 tileSize, Color color)
         {
-            var tex  = new Texture2D(gd, w, h);
-            tex.SetData(Enumerable.Repeat(color, w * h).ToArray());
+            var tex  = new Texture2D(gd, pixelW, pixelH);
+            tex.SetData(Enumerable.Repeat(color, pixelW * pixelH).ToArray());
 
             var idle = new SpriteAnimation("idle",
-                new[] { new AnimationFrame(new Rectangle(0, 0, w, h), 1f) });
+                new[] { new AnimationFrame(new Rectangle(0, 0, pixelW, pixelH), 1f) });
 
-            var sprite = new AnimatedSprite(tex, w, h) { Origin = new Vector2(w / 2f, h / 2f) };
+            var sprite = new AnimatedSprite(tex, pixelW, pixelH, tileSize)
+                { Origin = new Vector2(pixelW / 2f, pixelH / 2f) };
             sprite.AddAnimation(idle);
             sprite.Play("idle");
             return sprite;

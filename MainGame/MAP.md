@@ -215,7 +215,18 @@ A serious with serious people coming and going. This place seems obsessed with s
 Why do donut shops always have the biggest and most windows of any shop? This place is welcoming with display cases overflowing with every treat you could imagine, but somehow the place smells more of coffee than than sugar glaze. Comfortable booths that somehow see their peak usage at about 6 AM. The combination of these factors make this the glowing beacon of the morning waking well before the sun. 
 
 #### Downtown
-The town is roughly split into the suburban area on the west side of the river and the denser and older downtown area on the east side of the river.  
+The town is roughly split into the suburban area on the west side of the river and the denser and older downtown area on the east side of the river. The downtown area has streets of Victorian style shops and streets of the same styled row homes. There are some free standing buildings, but these are usually the municipal buildings. Like the impressive library, courthouse and town hall. There are a few more modern style buildings, but they make a bit of an effort to fit in the the neighbors' stylings. A few of the road still have the cobblestone dating back to the 1800s, but even that has been patched with blacktop in places. 
+
+#### Electronics repair
+A tiny shop cluttered with parts and work orders. There are a few repaired items for sale up front, but usually the shopkeep is in the back working on a customer's item. Unlike most of the people in this town the shopkeep here is quite knowledgeable about tech and is enthusiastic to talk about it. Among the displayed item and repair parts you can spot and few very unique items that will definitely spark geekiest of all conversations. 
+
+#### Electronics store
+A little shop serving the most common consumer electronic needs. Packed with items of all kinds, but every corner something fascinating. Hi-fi component system to boom boxes, synthesizers and drum machines, VCRs and TVs, phones and answering machines, even a few gaming systems and games. Everything stacked high to the ceiling with the promise of more in the back. Some "super sale" seems to always be going on and the salesman is always a bit overaggressive, trying to seem knowledgeable to close the sale. At least to the adults; unaccompanied kids are viewed with a high degree of suspicion.
+
+#### Fairgrounds
+
+
+#### Event center
 
 #### Fairground Bathrooms
 
@@ -228,10 +239,10 @@ The town is roughly split into the suburban area on the west side of the river a
 
 
 
-Electronics repair
-Electronics store
-Event center
-Fairgrounds
+
+
+
+
 Fancy clothes store
 Fancy gym
 Fancy restaurant

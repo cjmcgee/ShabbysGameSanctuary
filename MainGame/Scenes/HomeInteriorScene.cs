@@ -50,7 +50,7 @@ namespace ChildhoodAdventure.Scenes
                 TileType.Window,      // 8
             });
 
-            var tilemap = new Tilemap("home", MapW, MapH, 16, 16)
+            var tilemap = new Tilemap("home", MapW, MapH)
             {
                 BackgroundColor = Color.Black
             };
@@ -59,9 +59,9 @@ namespace ChildhoodAdventure.Scenes
 
             Engine.CollisionSystem.SetTilemap(tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(tilemap);
-            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, tilemap.PixelWidth, tilemap.PixelHeight);
-            Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
-            Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
+            Engine.RenderSystem.Camera.Bounds       = new RectangleF(0, 0, tilemap.Width, tilemap.Height);
+            Engine.RenderSystem.Camera.MaxTilesTall = sys.MaxTilesTall;
+            Engine.RenderSystem.Camera.TilesTall    = sys.DefaultTilesTall;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             SpawnPlayer(gd, GameState.PlayerSpawnPosition);
@@ -137,15 +137,15 @@ namespace ChildhoodAdventure.Scenes
         // ── NPC spawners ──────────────────────────────────────────────────────
 
         private void SpawnDad(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Dad", new Vector2(5 * 16 + 8, 6 * 16 + 8), NpcAppearances.Dad,
+            SpawnNpc(gd, "Dad", new Vector2(5.5f, 6.5f), NpcAppearances.Dad,
                 () => Engine.DialogueSystem.StartYarnNode("Dad"));
 
         private void SpawnMom(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Mom", new Vector2(17 * 16 + 8, 3 * 16 + 8), NpcAppearances.Mom,
+            SpawnNpc(gd, "Mom", new Vector2(17.5f, 3.5f), NpcAppearances.Mom,
                 () => Engine.DialogueSystem.StartYarnNode("Mom"));
 
         private void SpawnJamie(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Jamie", new Vector2(3 * 16 + 8, 11 * 16 + 8), NpcAppearances.Jamie,
+            SpawnNpc(gd, "Jamie", new Vector2(3.5f, 11.5f), NpcAppearances.Jamie,
                 () => Engine.DialogueSystem.StartYarnNode("Jamie"), scale: 0.5f);
 
         // ── Scene transitions ────────────────────────────────────────────────
@@ -153,10 +153,10 @@ namespace ChildhoodAdventure.Scenes
         protected override void CheckSceneTransitions()
         {
             var pos = PlayerPosition;
-            if (pos.Y >= (MapH - 2) * 16 - 2 && pos.X > 10 * 16 && pos.X < 13 * 16 + 16)
+            if (pos.Y >= (MapH - 2) - 0.125f && pos.X > 10f && pos.X < 14f)
             {
                 Transitioning = true;
-                GameState.NeighborhoodReturnPosition = new Vector2(40 * 16 + 8, 19 * 16 + 8);
+                GameState.NeighborhoodReturnPosition = new Vector2(40.5f, 19.5f);
                 Engine.LoadScene(new NeighborhoodScene());
             }
         }

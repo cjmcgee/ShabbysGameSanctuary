@@ -89,7 +89,7 @@ namespace ChildhoodAdventure.Scenes
                 TileType.Plant,       // 10
             }, accentColor: accentColor, firstGid: 1);
 
-            var tilemap = new Tilemap("interior", MapW, MapH, 16, 16)
+            var tilemap = new Tilemap("interior", MapW, MapH)
             {
                 BackgroundColor = Color.Black
             };
@@ -98,9 +98,9 @@ namespace ChildhoodAdventure.Scenes
 
             Engine.CollisionSystem.SetTilemap(tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(tilemap);
-            Engine.RenderSystem.Camera.Bounds         = new Rectangle(0, 0, tilemap.PixelWidth, tilemap.PixelHeight);
-            Engine.RenderSystem.Camera.MaxWorldVisible = sys.MaxZoomOutArea;
-            Engine.RenderSystem.Camera.Zoom            = sys.DisplayScale;
+            Engine.RenderSystem.Camera.Bounds       = new RectangleF(0, 0, tilemap.Width, tilemap.Height);
+            Engine.RenderSystem.Camera.MaxTilesTall = sys.MaxTilesTall;
+            Engine.RenderSystem.Camera.TilesTall    = sys.DefaultTilesTall;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
             SpawnPlayer(gd, GameState.PlayerSpawnPosition);
@@ -289,51 +289,51 @@ namespace ChildhoodAdventure.Scenes
 
         private void SpawnChenNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Mr. Chen",  new Vector2( 5 * 16 + 8,  5 * 16 + 8), NpcAppearances.MrChen,
+            SpawnNpc(gd, "Mr. Chen",  new Vector2(5.5f, 5.5f), NpcAppearances.MrChen,
                 () => Engine.DialogueSystem.StartYarnNode("MrChen"));
-            SpawnNpc(gd, "Mrs. Chen", new Vector2(16 * 16 + 8,  4 * 16 + 8), NpcAppearances.MrsChen,
+            SpawnNpc(gd, "Mrs. Chen", new Vector2(16.5f, 4.5f), NpcAppearances.MrsChen,
                 () => Engine.DialogueSystem.StartYarnNode("MrsChen"));
         }
 
         private void SpawnDevonNpcs(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Devon", new Vector2(3 * 16 + 8, 4 * 16 + 8), NpcAppearances.Devon,
+            SpawnNpc(gd, "Devon", new Vector2(3.5f, 4.5f), NpcAppearances.Devon,
                 () => Engine.DialogueSystem.StartYarnNode("Devon"));
 
         private void SpawnJakeEmmaNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Emma", new Vector2(5 * 16 + 8, 4 * 16 + 8), NpcAppearances.Emma,
+            SpawnNpc(gd, "Emma", new Vector2(5.5f, 4.5f), NpcAppearances.Emma,
                 () => Engine.DialogueSystem.StartYarnNode("Emma"));
-            SpawnNpc(gd, "Jake", new Vector2(7 * 16 + 8, 4 * 16 + 8), NpcAppearances.Jake,
+            SpawnNpc(gd, "Jake", new Vector2(7.5f, 4.5f), NpcAppearances.Jake,
                 () => Engine.DialogueSystem.StartYarnNode("Jake"));
         }
 
         private void SpawnThompsonNpcs(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Mr. Thompson", new Vector2(3 * 16 + 8, 4 * 16 + 8), NpcAppearances.MrThompson,
+            SpawnNpc(gd, "Mr. Thompson", new Vector2(3.5f, 4.5f), NpcAppearances.MrThompson,
                 () => Engine.DialogueSystem.StartYarnNode("Thompson"));
 
         private void SpawnSantosNpcs(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Maria", new Vector2(16 * 16 + 8, 5 * 16 + 8), NpcAppearances.Maria,
+            SpawnNpc(gd, "Maria", new Vector2(16.5f, 5.5f), NpcAppearances.Maria,
                 () => Engine.DialogueSystem.StartYarnNode("Maria"));
 
         private void SpawnPetrovNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Mr. Petrov",  new Vector2( 3 * 16 + 8,  5 * 16 + 8), NpcAppearances.MrPetrov,
+            SpawnNpc(gd, "Mr. Petrov",  new Vector2(3.5f, 5.5f), NpcAppearances.MrPetrov,
                 () => Engine.DialogueSystem.StartYarnNode("MrPetrov"));
-            SpawnNpc(gd, "Mrs. Petrov", new Vector2(16 * 16 + 8,  4 * 16 + 8), NpcAppearances.MrsPetrov,
+            SpawnNpc(gd, "Mrs. Petrov", new Vector2(16.5f, 4.5f), NpcAppearances.MrsPetrov,
                 () => Engine.DialogueSystem.StartYarnNode("MrsPetrov"));
         }
 
         private void SpawnSamNpcs(GraphicsDevice gd) =>
-            SpawnNpc(gd, "Linda", new Vector2(5 * 16 + 8, 4 * 16 + 8), NpcAppearances.Linda,
+            SpawnNpc(gd, "Linda", new Vector2(5.5f, 4.5f), NpcAppearances.Linda,
                 () => Engine.DialogueSystem.StartYarnNode("Linda"));
 
         private void SpawnJohnsonNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "DeShonda", new Vector2( 4 * 16 + 8,  6 * 16 + 8), NpcAppearances.DeShonda,
+            SpawnNpc(gd, "DeShonda", new Vector2(4.5f, 6.5f), NpcAppearances.DeShonda,
                 () => Engine.DialogueSystem.StartYarnNode("DeShonda"));
-            SpawnNpc(gd, "Destiny",  new Vector2( 8 * 16 + 8,  4 * 16 + 8), NpcAppearances.Destiny,
+            SpawnNpc(gd, "Destiny",  new Vector2(8.5f, 4.5f), NpcAppearances.Destiny,
                 () => Engine.DialogueSystem.StartYarnNode("Destiny"), scale: 0.5f);
-            SpawnNpc(gd, "Tyler",    new Vector2(18 * 16 + 8,  4 * 16 + 8), NpcAppearances.Tyler,
+            SpawnNpc(gd, "Tyler",    new Vector2(18.5f, 4.5f), NpcAppearances.Tyler,
                 () => Engine.DialogueSystem.StartYarnNode("Tyler"),   scale: 0.5f);
         }
 
@@ -342,7 +342,7 @@ namespace ChildhoodAdventure.Scenes
         protected override void CheckSceneTransitions()
         {
             var pos = PlayerPosition;
-            if (pos.Y >= (MapH - 2) * 16 - 2 && pos.X > 9 * 16 && pos.X < 12 * 16 + 16)
+            if (pos.Y >= (MapH - 2) - 0.125f && pos.X > 9f && pos.X < 13f)
             {
                 Transitioning = true;
                 Engine.LoadScene(new NeighborhoodScene());

@@ -10,20 +10,18 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 ///   • 4-color fixed palette: black, bright cyan, bright magenta, white
 ///     (IBM CGA mode 4 palette 1 — the most iconic CGA look)
 ///   • Character sprites: 8×16 (CGA text-mode character proportions)
-///   • DisplayScale 3.0: a 600px-tall viewport shows exactly 200 world pixels (native height)
-///   • MaxZoomOutArea (640×400) limits zoom-out to 2× native in each direction
+///   • Native height 200px → DefaultTilesTall = 12.5
+///   • MaxTilesTall = 25 (~2× zoom out)
 ///
 /// Sprite split: HeadRows=4, BodyRows=6, LegsRows=6 (total 16)
 /// </summary>
 public sealed class CGASystem : RetroSystem
 {
     public override string Name        => "MS-DOS CGA";
-    public override string Description => "16×16 tiles & sprites · 320×200 · Mode 4 palette 1 (black/cyan/magenta/white)";
-    public override int    NativeTileSize => 16;
-    public override float  DisplayScale   => 3.0f;
-
-    // Native CGA: 320×200. MaxZoomOutArea caps at 2× native in each direction.
-    public override Vector2? MaxZoomOutArea => new Vector2(640, 400);
+    public override string Description => "16-px tiles · 12.5 tiles tall · Mode 4 palette 1 (black/cyan/magenta/white)";
+    public override int   NativeTilePixels => 16;
+    public override float DefaultTilesTall => 12.5f;   // native 320×200 → 12.5 tiles vertically
+    public override float MaxTilesTall     => 25f;     // ~2× zoom out
 
     // ── CGA mode-4 palette 1 (high intensity) ────────────────────────────────
     protected override Color[] TilePalette { get; } =
