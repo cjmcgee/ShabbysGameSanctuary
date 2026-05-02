@@ -27,7 +27,9 @@ public enum TileType
     Grass,
     Road,
     Sidewalk,
-    HouseExterior,
+    HouseExterior,   // exterior siding (uses per-house accent colour)
+    HouseRoof,       // dark shingled roof
+    Bush,            // green decorative shrub on grass
 
     // Per-house tint (accent color supplied at build time by scene)
     Accent,

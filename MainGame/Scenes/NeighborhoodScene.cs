@@ -7,66 +7,72 @@ namespace ChildhoodAdventure.Scenes
 {
     /// <summary>
     /// The outdoor neighbourhood: one tree-lined street with nine homes.
-    /// The player can walk between houses, chat with neighbours outside,
-    /// and step on any front door to enter that home.
+    /// Each house is built from real tiles — a dark roof, accent-coloured
+    /// siding, windows and a centred front door — instead of being a single
+    /// flat slab. Per-house identity comes from the active system's
+    /// <see cref="ScenePalette"/> mapping a house tone onto its siding.
     ///
     /// Street layout (tile rows):
-    ///   y  0- 3  : north grass
-    ///   y  4-18  : house facades (roof overhead y=4-6, walls y=7-17, door y=18)
-    ///   y 19     : north sidewalk
-    ///   y 20-21  : road
-    ///   y 22     : south sidewalk
-    ///   y 23-37  : south grass / open space
+    ///   y  0- 5  : north grass
+    ///   y  6- 9  : house facades (roof / wall / window / door rows)
+    ///   y 10     : north sidewalk
+    ///   y 11-12  : road
+    ///   y 13     : south sidewalk
+    ///   y 14-21  : south grass / open space
     ///
     /// Houses left-to-right (all 7 tiles wide):
     ///   Chen | Devon | Jake&amp;Emma | Thompson | Player | Sam | Santos | Petrov | Johnson
     /// </summary>
     public class NeighborhoodScene : AdventureScene
     {
-        // ── Tile GIDs ────────────────────────────────────────────────────────
-        private const int T_GRASS    =  1;
-        private const int T_ROAD     =  2;
-        private const int T_SIDEWALK =  3;
-        private const int T_BEIGE    =  4;  // Player's home
-        private const int T_YELLOW   =  5;  // Sam
-        private const int T_PINK     =  6;  // Santos
-        private const int T_TEAL     =  7;  // Chen
-        private const int T_GRAY     =  8;  // Thompson
-        private const int T_BLUE     =  9;  // Petrov
-        private const int T_GREEN    = 10;  // Jake & Emma
-        private const int T_PURPLE   = 11;  // Devon
-        private const int T_DOOR     = 12;
-        private const int T_WINDOW   = 13;
-        private const int T_BUSH     = 14;
-        private const int T_ORANGE   = 15;  // Johnson
+        // ── Base tileset GIDs (firstGid: 1) ──────────────────────────────────
+        private const int T_GRASS    = 1;
+        private const int T_ROAD     = 2;
+        private const int T_SIDEWALK = 3;
+        private const int T_BUSH     = 4;
 
-        private const int MapW = 82, MapH = 38;
+        // Per-house tilesets follow base. Each house allocates 4 GIDs:
+        // roof, siding, window, door (in that order).
+        private const int FirstHouseGid = 5;
+        private const int TilesPerHouse = 4;
 
-        private record HouseData(HouseId Id, int X, int WallGid, int DoorX);
+        private const int MapW = 82, MapH = 22;
+        private const int HouseW = 7, HouseStartY = 6;
+        private const int HouseDoorY = 9;     // bottom row of the house = the door row
+        private const int SidewalkN_Y = 10;
 
-        private static readonly HouseData[] _neighborHouses =
-        {
-            new(HouseId.Chen,        1,  T_TEAL,   4),
-            new(HouseId.Devon,      10,  T_PURPLE, 13),
-            new(HouseId.JakeAndEmma,19,  T_GREEN,  22),
-            new(HouseId.Thompson,   28,  T_GRAY,   31),
-            new(HouseId.Sam,        46,  T_YELLOW, 49),
-            new(HouseId.Santos,     55,  T_PINK,   58),
-            new(HouseId.Petrov,     64,  T_BLUE,   67),
-            new(HouseId.Johnson,    73,  T_ORANGE, 76),
-        };
-
-        private const int HouseStartY = 4, HouseH = 15, HouseDoorY = 18;
-
-        protected override float PlayerMaxSpeed    => 5.94f;  // ~5.9 tiles/sec
+        protected override float PlayerMaxSpeed    => 5.94f;
         protected override float CameraFollowSpeed => 7f;
-        protected override float InteractionRadius => 2f;     // 2 tiles
+        protected override float InteractionRadius => 2f;
 
         // Outdoor green border; speaker name uses the same tone for cohesion.
         protected override Color DialogueBorderColor  =>
             RetroSystemRegistry.Current.ScenePalette.HouseLime;
         protected override Color DialogueSpeakerColor =>
             RetroSystemRegistry.Current.ScenePalette.HouseLime;
+
+        // ── House catalogue ──────────────────────────────────────────────────
+        // Index 0 reserved for the player's own home; the eight neighbour
+        // homes follow. Order is significant: it controls the per-house GID
+        // allocation in the tileset.
+        private record HouseEntry(HouseId? Id, int X, Color SidingColor);
+
+        private static HouseEntry[] BuildHouseList()
+        {
+            var sp = RetroSystemRegistry.Current.ScenePalette;
+            return
+            [
+                new(null,                    37, sp.HouseBeige),    // player home (centre)
+                new(HouseId.Chen,             1, sp.HouseTeal),
+                new(HouseId.Devon,           10, sp.HousePurple),
+                new(HouseId.JakeAndEmma,     19, sp.HouseLime),
+                new(HouseId.Thompson,        28, sp.HouseGray),
+                new(HouseId.Sam,             46, sp.HouseYellow),
+                new(HouseId.Santos,          55, sp.HousePink),
+                new(HouseId.Petrov,          64, sp.HouseBlue),
+                new(HouseId.Johnson,         73, sp.HouseOrange),
+            ];
+        }
 
         // ── Scene load ───────────────────────────────────────────────────────
 
@@ -76,44 +82,39 @@ namespace ChildhoodAdventure.Scenes
             GameState.ActiveScene = GameState.SceneType.Neighborhood;
             var gd  = Engine.GraphicsDevice;
             var sys = RetroSystemRegistry.Current;
+            var houses = BuildHouseList();
 
-            // House facade colours pulled from the active system's ScenePalette,
-            // ordered by GID (T_BEIGE=4 .. T_ORANGE=15). Slots 13/14 are
-            // unused placeholders; any palette entry will do.
-            var sp = sys.ScenePalette;
-            var houseColors = new Color[]
-            {
-                sp.HouseBeige,    //  4 player home
-                sp.HouseYellow,   //  5 Sam
-                sp.HousePink,     //  6 Santos
-                sp.HouseTeal,     //  7 Chen
-                sp.HouseGray,     //  8 Thompson
-                sp.HouseBlue,     //  9 Petrov
-                sp.HouseLime,     // 10 Jake & Emma
-                sp.HousePurple,   // 11 Devon
-                sp.Door,          // 12 door
-                sp.HouseBeige,    // 13 alignment placeholder
-                sp.Door,          // 14 alignment placeholder
-                sp.HouseOrange,   // 15 Johnson
-            };
-
-            var tilesetBase = sys.BuildTileset(gd, "hood_base", new[]
-            {
-                TileType.Grass,    // 1
-                TileType.Road,     // 2
-                TileType.Sidewalk, // 3
-            }, firstGid: 1);
-
-            var houseTexture  = BuildHouseTextureSlab(gd, sys, houseColors);
-            var tilesetHouses = new Tileset("hood_houses", houseTexture, sys.NativeTilePixels, sys.NativeTilePixels, firstGid: 4);
+            // Base tileset: ground + bush.
+            var tilesetBase = sys.BuildTileset(gd, "hood_base",
+                [
+                    TileType.Grass,    // 1
+                    TileType.Road,     // 2
+                    TileType.Sidewalk, // 3
+                    TileType.Bush,     // 4
+                ], firstGid: 1);
 
             var tilemap = new Tilemap("hood", MapW, MapH)
             {
                 BackgroundColor = Color.Black
             };
             tilemap.AddTileset(tilesetBase);
-            tilemap.AddTileset(tilesetHouses);
-            BuildNeighborhoodMap(tilemap);
+
+            // One small tileset per house, tinted with that house's siding colour.
+            // Each tileset contributes 4 GIDs (roof / siding / window / door).
+            for (int i = 0; i < houses.Length; i++)
+            {
+                int firstGid = FirstHouseGid + i * TilesPerHouse;
+                var houseTileset = sys.BuildTileset(gd, $"house_{i}",
+                    [
+                        TileType.HouseRoof,      // +0
+                        TileType.HouseExterior,  // +1
+                        TileType.Window,         // +2
+                        TileType.Door,           // +3
+                    ], accentColor: houses[i].SidingColor, firstGid: firstGid);
+                tilemap.AddTileset(houseTileset);
+            }
+
+            BuildNeighborhoodMap(tilemap, houses);
 
             Engine.CollisionSystem.SetTilemap(tilemap);
             Engine.RenderSystem.TilemapRenderer.SetTilemap(tilemap);
@@ -122,69 +123,94 @@ namespace ChildhoodAdventure.Scenes
             Engine.RenderSystem.Camera.TilesTall    = sys.DefaultTilesTall;
             Engine.RenderSystem.LightingSystem.Enabled = false;
 
+            // Cache the houses for transition checking.
+            _houses = houses;
+
             SpawnPlayer(gd, GameState.NeighborhoodReturnPosition);
             SpawnOutdoorNpcs(gd);
         }
 
-        // ── Texture helpers ───────────────────────────────────────────────────
-
-        private static Texture2D BuildHouseTextureSlab(
-            GraphicsDevice gd, RetroSystem sys, Color[] houseColors)
-        {
-            int tileSize = sys.NativeTilePixels;
-            int count   = houseColors.Length;
-            var texture = new Texture2D(gd, tileSize * count, tileSize);
-            var data    = new Color[tileSize * count * tileSize];
-
-            for (int i = 0; i < count; i++)
-            {
-                var slab = sys.BuildTileset(gd, $"h{i}", new[] { TileType.Accent },
-                    accentColor: houseColors[i]);
-
-                var slabData = new Color[tileSize * tileSize];
-                slab.Texture.GetData(slabData);
-                for (int ty = 0; ty < tileSize; ty++)
-                    for (int tx = 0; tx < tileSize; tx++)
-                        data[ty * (tileSize * count) + i * tileSize + tx] = slabData[ty * tileSize + tx];
-
-                slab.Texture.Dispose();
-            }
-
-            texture.SetData(data);
-            return texture;
-        }
-
         // ── Map builder ──────────────────────────────────────────────────────
 
-        private static void BuildNeighborhoodMap(Tilemap map)
+        private static void BuildNeighborhoodMap(Tilemap map, HouseEntry[] houses)
         {
             var bg  = map.AddLayer("bg",  LayerType.Background);
             var mid = map.AddLayer("mid", LayerType.Midground);
             var col = map.AddLayer("col", LayerType.Collision);
 
-            FillRect(bg, 0, 0, MapW, MapH, T_GRASS);
-            FillRect(bg, 0, 19, MapW, 1, T_SIDEWALK);
-            FillRect(bg, 0, 20, MapW, 2, T_ROAD);
-            FillRect(bg, 0, 22, MapW, 1, T_SIDEWALK);
+            // Ground bands
+            FillRect(bg, 0, 0,            MapW, MapH,   T_GRASS);
+            FillRect(bg, 0, SidewalkN_Y,  MapW, 1,      T_SIDEWALK);
+            FillRect(bg, 0, SidewalkN_Y+1,MapW, 2,      T_ROAD);
+            FillRect(bg, 0, SidewalkN_Y+3,MapW, 1,      T_SIDEWALK);
 
-            PlaceHouse(mid, col, 37, HouseStartY, 7, HouseH, T_BEIGE, 40);
-            foreach (var h in _neighborHouses)
-                PlaceHouse(mid, col, h.X, HouseStartY, 7, HouseH, h.WallGid, h.DoorX);
+            // Houses
+            for (int i = 0; i < houses.Length; i++)
+                PlaceHouse(mid, col, houses[i].X, HouseStartY, FirstHouseGid + i * TilesPerHouse);
+
+            // Decorative bushes — one between each adjacent pair of houses on
+            // the top grass strip, plus a sparse scatter on the south grass.
+            for (int i = 0; i < houses.Length - 1; i++)
+            {
+                int gapMid = (houses[i].X + HouseW + houses[i + 1].X) / 2;
+                mid.SetTile(gapMid, 4, T_BUSH);
+                col.SetTile(gapMid, 4, 1);
+            }
+            // South grass scatter
+            int[] southBushXs = [ 6, 16, 26, 35, 45, 55, 65, 75 ];
+            int[] southBushYs = [16, 18, 17, 19, 16, 18, 17, 19];
+            for (int i = 0; i < southBushXs.Length; i++)
+            {
+                mid.SetTile(southBushXs[i], southBushYs[i], T_BUSH);
+                col.SetTile(southBushXs[i], southBushYs[i], 1);
+            }
         }
 
         private static void PlaceHouse(TileLayer mid, TileLayer col,
-            int hx, int hy, int w, int h, int wallGid, int doorX)
+            int hx, int hy, int firstGid)
         {
-            for (int y = hy; y < hy + h; y++)
-                for (int x = hx; x < hx + w; x++)
-                {
-                    mid.SetTile(x, y, wallGid);
-                    col.SetTile(x, y, 1);
-                }
+            int roofGid   = firstGid + 0;
+            int sidingGid = firstGid + 1;
+            int windowGid = firstGid + 2;
+            int doorGid   = firstGid + 3;
 
-            int doorY = hy + h - 1;
-            mid.SetTile(doorX, doorY, T_DOOR);
-            col.SetTile(doorX, doorY, 0);
+            int yRoof   = hy + 0;
+            int yTop    = hy + 1;
+            int yWindow = hy + 2;
+            int yDoor   = hy + 3;
+
+            // Row 0: roof across full width
+            for (int dx = 0; dx < HouseW; dx++) PlaceBlocking(mid, col, hx + dx, yRoof, roofGid);
+
+            // Row 1: solid top wall
+            for (int dx = 0; dx < HouseW; dx++) PlaceBlocking(mid, col, hx + dx, yTop, sidingGid);
+
+            // Row 2: walls with windows at cols 1 and 5
+            for (int dx = 0; dx < HouseW; dx++)
+            {
+                int gid = (dx == 1 || dx == 5) ? windowGid : sidingGid;
+                PlaceBlocking(mid, col, hx + dx, yWindow, gid);
+            }
+
+            // Row 3: walls with door at centre (col 3, walkable)
+            for (int dx = 0; dx < HouseW; dx++)
+            {
+                if (dx == 3)
+                {
+                    mid.SetTile(hx + dx, yDoor, doorGid);
+                    // door is walkable — leave collision empty
+                }
+                else
+                {
+                    PlaceBlocking(mid, col, hx + dx, yDoor, sidingGid);
+                }
+            }
+        }
+
+        private static void PlaceBlocking(TileLayer mid, TileLayer col, int x, int y, int gid)
+        {
+            mid.SetTile(x, y, gid);
+            col.SetTile(x, y, 1);
         }
 
         private static void FillRect(TileLayer layer, int x, int y, int w, int h, int gid)
@@ -198,41 +224,49 @@ namespace ChildhoodAdventure.Scenes
 
         private void SpawnOutdoorNpcs(GraphicsDevice gd)
         {
-            SpawnNpc(gd, "Sam",   new Vector2(49.5f, 21.5f), NpcAppearances.Sam,
+            // Place NPCs on the south grass just past the sidewalk.
+            SpawnNpc(gd, "Sam",   new Vector2(49.5f, 14.5f), NpcAppearances.Sam,
                 () => Engine.DialogueSystem.StartYarnNode("Sam"),   scale: 0.5f);
-            SpawnNpc(gd, "Lucia", new Vector2(58.5f, 21.5f), NpcAppearances.Lucia,
+            SpawnNpc(gd, "Lucia", new Vector2(58.5f, 14.5f), NpcAppearances.Lucia,
                 () => Engine.DialogueSystem.StartYarnNode("Lucia"), scale: 0.5f);
-            SpawnNpc(gd, "Nadia", new Vector2(67.5f, 21.5f), NpcAppearances.Nadia,
+            SpawnNpc(gd, "Nadia", new Vector2(67.5f, 14.5f), NpcAppearances.Nadia,
                 () => Engine.DialogueSystem.StartYarnNode("Nadia"), scale: 0.5f);
         }
 
         // ── Scene transitions ────────────────────────────────────────────────
 
+        private HouseEntry[]? _houses;
+
         protected override void CheckSceneTransitions()
         {
-            var pos = PlayerPosition;       // already in tile-space
+            if (_houses == null) return;
+
+            var pos = PlayerPosition;
             float pTileX = pos.X;
             float pTileY = pos.Y;
 
             if (pTileY < HouseDoorY - 0.5f || pTileY > HouseDoorY + 0.5f) return;
 
-            if (MathF.Abs(pTileX - 40f) < 0.6f)
+            // Each house's door is at hx + 3.
+            foreach (var h in _houses)
             {
-                Transitioning = true;
-                GameState.PlayerSpawnPosition = new Vector2(12.5f, 15.5f);
-                Engine.LoadScene(new HomeInteriorScene());
-                return;
-            }
-
-            foreach (var h in _neighborHouses)
-            {
-                if (MathF.Abs(pTileX - h.DoorX) < 0.6f)
+                int doorX = h.X + 3;
+                if (MathF.Abs(pTileX - doorX) < 0.6f)
                 {
                     Transitioning = true;
-                    GameState.TargetInterior  = h.Id;
-                    GameState.PlayerSpawnPosition        = new Vector2(11.5f, 13.5f);
-                    GameState.NeighborhoodReturnPosition = new Vector2(h.DoorX + 0.5f, 19.5f);
-                    Engine.LoadScene(new NeighborInteriorScene());
+                    if (h.Id == null)
+                    {
+                        // Player home
+                        GameState.PlayerSpawnPosition = new Vector2(12.5f, 15.5f);
+                        Engine.LoadScene(new HomeInteriorScene());
+                    }
+                    else
+                    {
+                        GameState.TargetInterior            = h.Id;
+                        GameState.PlayerSpawnPosition       = new Vector2(11.5f, 13.5f);
+                        GameState.NeighborhoodReturnPosition = new Vector2(doorX + 0.5f, SidewalkN_Y + 0.5f);
+                        Engine.LoadScene(new NeighborInteriorScene());
+                    }
                     return;
                 }
             }

@@ -71,7 +71,9 @@ public sealed class C64System : RetroSystem
         TileType.Grass        => C64Tiles.Grass,
         TileType.Road         => C64Tiles.Road,
         TileType.Sidewalk     => C64Tiles.Sidewalk,
-        TileType.HouseExterior => C64Tiles.Wall,
+        TileType.HouseExterior => C64Tiles.HouseExterior,
+        TileType.HouseRoof    => C64Tiles.HouseRoof,
+        TileType.Bush         => C64Tiles.Bush,
         TileType.Accent       => C64Tiles.Accent,
         _ => C64Tiles.Wall
     };

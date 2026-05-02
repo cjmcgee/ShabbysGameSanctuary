@@ -60,7 +60,9 @@ public sealed class CGASystem : RetroSystem
         TileType.Grass         => CGATiles.Grass,
         TileType.Road          => CGATiles.Road,
         TileType.Sidewalk      => CGATiles.Sidewalk,
-        TileType.HouseExterior => CGATiles.Wall,
+        TileType.HouseExterior => CGATiles.HouseExterior,
+        TileType.HouseRoof     => CGATiles.HouseRoof,
+        TileType.Bush          => CGATiles.Bush,
         TileType.Accent        => CGATiles.Accent,
         _ => CGATiles.Wall
     };

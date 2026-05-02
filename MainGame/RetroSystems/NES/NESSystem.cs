@@ -56,7 +56,9 @@ public sealed class NESSystem : RetroSystem
         TileType.Grass        => NESTiles.Grass,
         TileType.Road         => NESTiles.Road,
         TileType.Sidewalk     => NESTiles.Sidewalk,
-        TileType.HouseExterior => NESTiles.HouseWall,
+        TileType.HouseExterior => NESTiles.HouseExterior,
+        TileType.HouseRoof    => NESTiles.HouseRoof,
+        TileType.Bush         => NESTiles.Bush,
         TileType.Accent       => NESTiles.Accent,
         _ => NESTiles.Wall
     };

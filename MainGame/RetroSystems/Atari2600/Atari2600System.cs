@@ -68,7 +68,9 @@ public sealed class Atari2600System : RetroSystem
         TileType.Grass         => Atari2600Tiles.Grass,
         TileType.Road          => Atari2600Tiles.Road,
         TileType.Sidewalk      => Atari2600Tiles.Sidewalk,
-        TileType.HouseExterior => Atari2600Tiles.Wall,
+        TileType.HouseExterior => Atari2600Tiles.HouseExterior,
+        TileType.HouseRoof     => Atari2600Tiles.HouseRoof,
+        TileType.Bush          => Atari2600Tiles.Bush,
         TileType.Accent        => Atari2600Tiles.Accent,
         _ => Atari2600Tiles.Wall
     };
