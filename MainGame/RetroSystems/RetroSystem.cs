@@ -104,7 +104,7 @@ public abstract class RetroSystem
 
     // ── Tile art ─────────────────────────────────────────────────────────────
 
-    protected abstract Color[]  TilePalette { get; }
+    protected abstract Palette  TilePalette { get; }
     protected abstract byte[][] GetTilePixels(TileType tileType, Color accentColor);
 
     // ── Sprite dimensions ────────────────────────────────────────────────────
@@ -168,9 +168,9 @@ public abstract class RetroSystem
         Color          accentColor = default,
         int            firstGid    = 1)
     {
-        var effectivePalette = new Color[TilePalette.Length + 1];
-        TilePalette.CopyTo(effectivePalette, 0);
-        effectivePalette[TilePalette.Length] =
+        var effectivePalette = new Color[TilePalette.Count + 1];
+        TilePalette.Colors.CopyTo(effectivePalette, 0);
+        effectivePalette[TilePalette.Count] =
             accentColor == default ? new Color(180, 180, 180) : accentColor;
 
         int target = NativeTilePixels;

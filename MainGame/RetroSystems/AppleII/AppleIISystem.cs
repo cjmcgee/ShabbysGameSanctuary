@@ -39,16 +39,7 @@ public sealed class AppleIISystem : RetroSystem
     public override float MaxTilesTall     => 24f;     // ~2× zoom out
 
     // TODO: need to simulate color fringing for any text!
-    // ── Apple II hi-res 6-color palette ──────────────────────────────────────
-    protected override Color[] TilePalette { get; } =
-    [
-        new Color(  0,   0,   0),   //  0 black
-        new Color( 20, 245,  60),   //  1 green
-        new Color(193,  28, 255),   //  2 violet
-        new Color(255, 255, 255),   //  3 white
-        new Color(255, 106,  60),   //  4 orange
-        new Color( 20,  88, 255),   //  5 blue
-    ];
+    protected override Palette TilePalette { get; } = new AppleIIPalette();
 
     // ── Tile pixel art (14×14, Apple II hi-res rules) ────────────────────────
     //   col 0 / col 13 always 0           (predictable black at tile borders)

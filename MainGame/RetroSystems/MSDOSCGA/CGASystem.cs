@@ -22,14 +22,7 @@ public sealed class CGASystem : RetroSystem
     public override float DefaultTilesTall => 12.5f;   // native 320×200 → 12.5 tiles vertically
     public override float MaxTilesTall     => 25f;     // ~2× zoom out
 
-    // ── CGA mode-4 palette 1 (high intensity) ────────────────────────────────
-    protected override Color[] TilePalette { get; } =
-    [
-        new Color(  0,   0,   0),   //  0 black
-        new Color( 85, 255, 255),   //  1 bright cyan
-        new Color(255,  85, 255),   //  2 bright magenta
-        new Color(255, 255, 255),   //  3 white
-    ];
+    protected override Palette TilePalette { get; } = new CGAPalette();
 
     // ── Tile pixel art (16×16, indices 0–3 only) ─────────────────────────────
 

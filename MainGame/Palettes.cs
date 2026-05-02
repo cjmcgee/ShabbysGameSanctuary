@@ -1,8 +1,9 @@
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
+//using System.Runtime.CompilerServices;
+//using Microsoft.Xna.Framework;
 
 namespace ChildhoodAdventure;
 
+/*
 public static class ColorHelper
 {
 	/// <summary>
@@ -218,3 +219,4 @@ public enum Atari2600Palette : uint
 	LightCream = 0xFFfce08c,
 	White = 0xFFffffff
 }
+*/

@@ -23,6 +23,7 @@ public sealed class Atari2600System : RetroSystem
     public override int   NativeTilePixels  => 16;
     public override float DefaultTilesTall  => 12f;   // native 160×192 → 12 tiles vertically
     public override float MaxTilesTall      => 24f;   // ~2× zoom out
+
     protected override bool DoubleWidePixels          => true;
     protected override bool OneBitTiles               => true;
     protected override bool SpriteOneColorPerScanline => true;
@@ -30,24 +31,7 @@ public sealed class Atari2600System : RetroSystem
     // ── Tile palette ─────────────────────────────────────────────────────────
     // Index 0 = background fill (black).
     // Each tile uses exactly index 0 (black) plus ONE non-zero index below.
-    protected override Color[] TilePalette { get; } =
-    [
-        new Color(  0,   0,   0),   // 0  black          — background
-        new Color(188, 140,  56),   // 1  warm amber      — WoodFloor
-        new Color(124,  72,   8),   // 2  dark brown      — (sprite palette; unused by tiles)
-        new Color(200,  20,  20),   // 3  vivid red       — Carpet, Bookshelf
-        new Color(132,   4,   4),   // 4  dark red        — (sprite palette; unused by tiles)
-        new Color(220, 220,   0),   // 5  bright yellow   — KitchenTile
-        new Color(220, 220, 200),   // 6  near-white      — Wall
-        new Color(148, 148, 132),   // 7  light gray      — (sprite palette; unused by tiles)
-        new Color( 20,  12,   4),   // 8  near-black      — Door
-        new Color( 36,  80, 200),   // 9  bold blue       — Furniture
-        new Color(144, 144, 144),   // 10 mid gray        — Counter
-        new Color(  0, 200, 220),   // 11 bright cyan     — Window
-        new Color(  0, 188,   0),   // 12 vivid green     — Grass, Plant
-        new Color( 28,  28,  40),   // 13 near-black road — Road
-        new Color(104, 104, 104),   // 14 medium gray     — Sidewalk
-    ];
+    protected override Palette TilePalette { get; } = new Atari2600Palette();
 
     // ── Tile pixel art (16×16, palette indices) ──────────────────────────────
     // Rules: (1) only index 0 and ONE non-zero foreground index per tile.
