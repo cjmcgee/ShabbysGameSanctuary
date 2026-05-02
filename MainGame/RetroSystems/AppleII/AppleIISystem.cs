@@ -336,23 +336,28 @@ public sealed class AppleIISystem : RetroSystem
         [ 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0 ],
     ];
 
-    // Alternating violet (even-col) and green (odd-col) stripes — palette 0
+    // Solid accent fill (index 6 = appended accentColor from BuildTileset).
+    // Used by the neighborhood map to render house exterior tiles in arbitrary
+    // colors and to distinguish doors (near-black accent) from walls. The
+    // Apple II hi-res palette discipline doesn't apply to index 6 because the
+    // accent color is a user-supplied RGB outside the 6-color hi-res set;
+    // tiles tile seamlessly because there are no zero-edge borders to bleed.
     private static readonly byte[][] Accent =
     [
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],   // violet stripe
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],   // green stripe
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
-        [ 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0 ],
-        [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
+        [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
     ];
 
     // ── Sprite dimensions (14×14 total) ───────────────────────────────────────
