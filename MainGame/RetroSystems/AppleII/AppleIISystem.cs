@@ -41,6 +41,20 @@ public sealed class AppleIISystem : RetroSystem
     // TODO: need to simulate color fringing for any text!
     protected override Palette TilePalette { get; } = new AppleIIPalette();
 
+    // Apple II hi-res has only 6 colours; warm/yellow/orange roles all share
+    // Orange, blue/teal share Blue, etc.
+    public override ScenePalette ScenePalette { get; } = new(
+        HouseBeige:  AppleIIPalette.White,
+        HouseYellow: AppleIIPalette.Orange,
+        HousePink:   AppleIIPalette.Violet,
+        HouseTeal:   AppleIIPalette.Blue,
+        HouseGray:   AppleIIPalette.White,
+        HouseBlue:   AppleIIPalette.Blue,
+        HouseLime:   AppleIIPalette.Green,
+        HousePurple: AppleIIPalette.Violet,
+        HouseOrange: AppleIIPalette.Orange,
+        Door:        AppleIIPalette.Black);
+
     // ── Tile pixel art (14×14, Apple II hi-res rules) ────────────────────────
     //   col 0 / col 13 always 0           (predictable black at tile borders)
     //   palette 0 (green/violet) OR palette 1 (orange/blue) per 7-pixel segment

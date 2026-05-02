@@ -7,7 +7,7 @@ public static partial class NESTiles
 
     static NESTiles()
     {
-        var row = Enumerable.Repeat((byte)28, 16).ToArray();
+        var row = Enumerable.Repeat((byte)255, 16).ToArray();
         Accent = Enumerable.Repeat(row, 16).ToArray();
     }
 

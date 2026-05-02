@@ -39,18 +39,23 @@ namespace ChildhoodAdventure.Scenes
         private const int MapW = 22, MapH = 16;
 
         protected override Color DialogueBorderColor =>
-            (GameState.TargetInterior ?? HouseId.Chen) switch
-            {
-                HouseId.Chen        => new Color( 72, 172, 172),
-                HouseId.Devon       => new Color(132,  72, 192),
-                HouseId.JakeAndEmma => new Color( 92, 172,  72),
-                HouseId.Thompson    => new Color(142, 142, 142),
-                HouseId.Santos      => new Color(192,  92, 152),
-                HouseId.Petrov      => new Color( 72, 112, 192),
-                HouseId.Sam         => new Color(212, 192,  72),
-                HouseId.Johnson     => new Color(202, 142,  62),
-                _                   => Color.White,
-            };
+            HouseToneFor(GameState.TargetInterior ?? HouseId.Chen,
+                         RetroSystemRegistry.Current.ScenePalette);
+
+        // Map each neighbour's house to its semantic ScenePalette tone. The
+        // active retro system decides what colour each tone resolves to.
+        private static Color HouseToneFor(HouseId id, ScenePalette sp) => id switch
+        {
+            HouseId.Chen        => sp.HouseTeal,
+            HouseId.Devon       => sp.HousePurple,
+            HouseId.JakeAndEmma => sp.HouseLime,
+            HouseId.Thompson    => sp.HouseGray,
+            HouseId.Santos      => sp.HousePink,
+            HouseId.Petrov      => sp.HouseBlue,
+            HouseId.Sam         => sp.HouseYellow,
+            HouseId.Johnson     => sp.HouseOrange,
+            _                   => sp.HouseBeige,
+        };
 
         // ── Scene load ───────────────────────────────────────────────────────
 
@@ -62,18 +67,7 @@ namespace ChildhoodAdventure.Scenes
             var id  = GameState.TargetInterior ?? HouseId.Chen;
             var sys = RetroSystemRegistry.Current;
 
-            Color accentColor = id switch
-            {
-                HouseId.Chen        => new Color(  0, 220, 220),
-                HouseId.Devon       => new Color(140,   0, 220),
-                HouseId.JakeAndEmma => new Color( 80, 220,   0),
-                HouseId.Thompson    => new Color(160, 160, 160),
-                HouseId.Santos      => new Color(220,   0, 140),
-                HouseId.Petrov      => new Color(  0,  80, 220),
-                HouseId.Sam         => new Color(220, 220,   0),
-                HouseId.Johnson     => new Color(220, 100,   0),
-                _                   => new Color(220, 220, 220),
-            };
+            Color accentColor = HouseToneFor(id, sys.ScenePalette);
 
             var tileset = sys.BuildTileset(gd, "interior", new[]
             {

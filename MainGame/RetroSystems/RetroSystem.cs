@@ -107,6 +107,13 @@ public abstract class RetroSystem
     protected abstract Palette  TilePalette { get; }
     protected abstract byte[][] GetTilePixels(TileType tileType, Color accentColor);
 
+    /// <summary>
+    /// Semantic scene-level colours (per-house tones, door, etc.) drawn from
+    /// this system's palette. Scenes reference these instead of raw RGB so
+    /// the rendered look stays true to the active retro system.
+    /// </summary>
+    public abstract ScenePalette ScenePalette { get; }
+
     // ── Sprite dimensions ────────────────────────────────────────────────────
     // CharWidth/HeadRows/BodyRows/LegsRows are TEXTURE-PIXEL sizes used during
     // BuildCharacterSprite to slice and assemble the sprite sheet.
@@ -161,6 +168,14 @@ public abstract class RetroSystem
 
     // ── Public builders ───────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Reserved palette index for the per-tileset accent colour. Tile art that
+    /// wants the runtime accent colour stores this value; <see cref="BuildTileset"/>
+    /// puts <c>accentColor</c> into <c>effectivePalette[AccentIndex]</c>. Pinning
+    /// it to a fixed high slot keeps tile art stable when the palette grows.
+    /// </summary>
+    public const byte AccentIndex = 255;
+
     public Tileset BuildTileset(
         GraphicsDevice gd,
         string         name,
@@ -168,9 +183,9 @@ public abstract class RetroSystem
         Color          accentColor = default,
         int            firstGid    = 1)
     {
-        var effectivePalette = new Color[TilePalette.Count + 1];
+        var effectivePalette = new Color[256];
         TilePalette.Colors.CopyTo(effectivePalette, 0);
-        effectivePalette[TilePalette.Count] =
+        effectivePalette[AccentIndex] =
             accentColor == default ? new Color(180, 180, 180) : accentColor;
 
         int target = NativeTilePixels;

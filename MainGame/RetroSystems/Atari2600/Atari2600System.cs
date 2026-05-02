@@ -33,6 +33,18 @@ public sealed class Atari2600System : RetroSystem
     // Each tile uses exactly index 0 (black) plus ONE non-zero index below.
     protected override Palette TilePalette { get; } = new Atari2600Palette();
 
+    public override ScenePalette ScenePalette { get; } = new(
+        HouseBeige:  Atari2600Palette.NearWhite,
+        HouseYellow: Atari2600Palette.BrightYellow,
+        HousePink:   Atari2600Palette.VividRed,     // no pink → warm red
+        HouseTeal:   Atari2600Palette.BrightCyan,
+        HouseGray:   Atari2600Palette.MediumGray,
+        HouseBlue:   Atari2600Palette.BoldBlue,
+        HouseLime:   Atari2600Palette.VividGreen,
+        HousePurple: Atari2600Palette.DarkRed,      // no violet → distinct dark warm
+        HouseOrange: Atari2600Palette.WarmAmber,
+        Door:        Atari2600Palette.NearBlack);
+
     // ── Tile pixel art (16×16, palette indices) ──────────────────────────────
     // Rules: (1) only index 0 and ONE non-zero foreground index per tile.
     //        (2) double-wide: col[2k+1] == col[2k] for all k (8 logical cols).

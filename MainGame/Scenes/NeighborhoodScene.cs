@@ -74,20 +74,24 @@ namespace ChildhoodAdventure.Scenes
             var gd  = Engine.GraphicsDevice;
             var sys = RetroSystemRegistry.Current;
 
+            // House facade colours pulled from the active system's ScenePalette,
+            // ordered by GID (T_BEIGE=4 .. T_ORANGE=15). Slots 13/14 are
+            // unused placeholders; any palette entry will do.
+            var sp = sys.ScenePalette;
             var houseColors = new Color[]
             {
-                new Color(220, 220, 220),   //  4 white        (player home)
-                new Color(220, 220,   0),   //  5 yellow       (Sam)
-                new Color(220,   0, 140),   //  6 magenta      (Santos)
-                new Color(  0, 220, 220),   //  7 cyan         (Chen)
-                new Color(160, 160, 160),   //  8 light gray   (Thompson)
-                new Color(  0,  80, 220),   //  9 blue         (Petrov)
-                new Color( 80, 220,   0),   // 10 lime         (Jake&Emma)
-                new Color(140,   0, 220),   // 11 violet       (Devon)
-                new Color( 30,  12,   0),   // 12 near-black   (door)
-                new Color(220, 220, 220),   // 13 (alignment)
-                new Color(  0,  80,   0),   // 14 (unused)
-                new Color(220, 100,   0),   // 15 orange       (Johnson)
+                sp.HouseBeige,    //  4 player home
+                sp.HouseYellow,   //  5 Sam
+                sp.HousePink,     //  6 Santos
+                sp.HouseTeal,     //  7 Chen
+                sp.HouseGray,     //  8 Thompson
+                sp.HouseBlue,     //  9 Petrov
+                sp.HouseLime,     // 10 Jake & Emma
+                sp.HousePurple,   // 11 Devon
+                sp.Door,          // 12 door
+                sp.HouseBeige,    // 13 alignment placeholder
+                sp.Door,          // 14 alignment placeholder
+                sp.HouseOrange,   // 15 Johnson
             };
 
             var tilesetBase = sys.BuildTileset(gd, "hood_base", new[]
