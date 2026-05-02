@@ -191,6 +191,31 @@ This place is popular with kids, to the point where the shopkeep seems to be jus
 A serene place for contemplation. The convent is supposed to be full of nun, but you never seem to see any out here.  But the grass and landscaping are well maintained and the pond is clean. Could the nuns are nocturnal? Somehow though, you know if you got even 1% of out of line here a nun would materialize behind you. Maybe they are just ninjas; both wear black and can materialize their weapon out of thin air. 
 
 #### Convent
+You can only enter the gathering hall, and only when an event is going on. The nuns host some family events and only publicize these in the nearby church and the private school many of them work at, but despite that people from the large community seem to join in on these as well. Thankfully all are welcome despite the harsh image kids from the private school seem to have about these nuns. There is an air of formality and reverence here, but there is also a very homey vibe as this place feels very lived in.
+
+#### Creek
+Crawdads, sand, clay, smooth little stones and all manner of bugs inhabit this babbling little nexus of life. The water itself seems to have carved out a channel a few feet deep suggesting that its tiny size may not be representative of the torrent that must fill this channel at some point. You are thankful for the exposed root along the bank. Without them you might be stuck down here forever. The water is flowing toward to the river to the east and the channel continue seemingly forever to the west.
+
+#### Dentist
+Your experiences here have not been your favorite. The staff tries to the overly friendly and the place it decorate in bright welcoming colors. But you know that is all to hide the scary procedures that occur here. These may be necessary, but all the same this place can't help but make you uneasy. Most of your time here however is spent in the lobby. Doctors of all types seem to relish in making their customers wait significantly longer then they want to and to making them re-fill out pointless paperwork. They offer magazines here for your entertainment, but they cycle for updating these seem to be measured in multiple digits of years. You half expect to see your parent's name next to one of the already filled out puzzles in these "highlights for kids" that seem to have been handled by endless generations of said.
+
+#### Department store
+This new concept of "big box" seems to have been fully embraced here. The interior is one cavernous room with goods of similar types all gathered in sections so vaguely defined that you can't find the specific logic or delineation of these. Most of these sections you only visit when dragged their by a parent, but some sections draw you in like a moth. The toy section is a perennial favorite, but the bikes and sporting gear is almost as good. The camping and outdoor gear is worth a look. But the electronics section draw in kids of all ages with it siren song of glowing CRTs and softly humming magical currents. They have a display of a couple game systems setup, but which ones are available to try changes every few times you visit. Their selections of games and systems is somewhat limited and a bit out of date, but still always worth a look. If you have spare money the frozen soda counter always seems to have a line. 
+
+#### Diner
+A family oriented place with plush booths and a large counter for single diners. Made up in a retro 50s style look with uniforms to match. Simple and satisfying Americana offerings and a reasonable price. This place seems to always be busy and very popular with the older crowd. The nearby retirement center might contribute to this. The morning shift waitresses seem to always be extra nice to kids the couple times you have had breakfast here. You loved the smiley face they made on the waffles using whipped cream and fruit.
+
+#### Discount clothes store
+You get dragged here sometimes. Especially if you need some formal-ish wear for some event. They seem to have about 30% more clothes to display then the really have space for, making the space between the displays a bit too small. This makes it easy to hide inside the circular displays and lose sight of you charge in the twisting channels between the displays. In the cavernous big box stores this would be too scary, but this place is small and cozy enough that getting lost does not trigger such dread. 
+
+#### Doctor's office
+A serious with serious people coming and going. This place seems obsessed with seeming professional and stark looking. Somehow the need to appear super sanitary has obliterated any need to appear welcoming and homey. Any nods to the latter feel encapsulated like they were a foreign intruder into this body. Posters laminated, put in a frame, and placed somewhere that no one could interact with it. A few toys in the corner that smell of disinfectant. But somehow with the same magazines that seem to have been here since the late Plasticine era.
+
+#### Donut shop
+Why do donut shops always have the biggest and most windows of any shop? This place is welcoming with display cases overflowing with every treat you could imagine, but somehow the place smells more of coffee than than sugar glaze. Comfortable booths that somehow see their peak usage at about 6 AM. The combination of these factors make this the glowing beacon of the morning waking well before the sun. 
+
+#### Downtown
+The town is roughly split into the suburban area on the west side of the river and the denser and older downtown area on the east side of the river.  
 
 #### Fairground Bathrooms
 
@@ -203,16 +228,6 @@ A serene place for contemplation. The convent is supposed to be full of nun, but
 
 
 
-
-
-Creek
-Dentist
-Department store
-Diner
-Discount clothes store
-Doctor's office
-Donut shop
-Downtown
 Electronics repair
 Electronics store
 Event center
