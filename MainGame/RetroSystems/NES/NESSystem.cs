@@ -53,57 +53,38 @@ public sealed class NESSystem : RetroSystem
 
     // ── Head variants (1 frame × 6 rows × 16 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
-
-
     public override byte[][][][] HeadParts { get; } = [ NESSprites.Head0, NESSprites.Head1, NESSprites.Head2 ];
 
     // ── Body variants (1 frame × 9 rows × 16 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
-
-
     public override byte[][][][] BodyParts { get; } = [ NESSprites.Body0, NESSprites.Body1, NESSprites.Body2 ];
 
     // ── Legs variants (4 frames × 9 rows × 16 cols) ──────────────────────────
     // Semantic: 1=Skin(bare)  2=Pants  3=PantsHighlight  4=Belt
     //           5=BeltHighlight  6=Shoes  7=ShoeHighlight
-
-
     public override byte[][][][] LegsParts { get; } = [ NESSprites.Legs0, NESSprites.Legs1, NESSprites.Legs2 ];
 
     // ── Back-facing heads ─────────────────────────────────────────────────────
-
-
     public override byte[][][][] HeadPartsBack { get; } = [ NESSprites.Head0Back, NESSprites.Head1Back, NESSprites.Head2Back ];
 
     // ── Side-facing heads (profile right) ────────────────────────────────────
-
-
     public override byte[][][][] HeadPartsSide { get; } = [ NESSprites.Head0Side, NESSprites.Head1Side, NESSprites.Head2Side ];
 
     // ── Back-facing bodies ────────────────────────────────────────────────────
-
-
     public override byte[][][][] BodyPartsBack { get; } = [ NESSprites.Body0Back, NESSprites.Body1Back, NESSprites.Body2Back ];
 
     // ── Side-facing bodies (profile right) ───────────────────────────────────
-
-
     public override byte[][][][] BodyPartsSide { get; } = [ NESSprites.Body0Side, NESSprites.Body1Side, NESSprites.Body2Side ];
 
     // ── Side-facing legs (profile walk, 4 frames) ────────────────────────────
-
-
     public override byte[][][][] LegsPartsSide { get; } = [ NESSprites.Legs0Side, NESSprites.Legs1Side, NESSprites.Legs2Side ];
 
     // ── Head palettes (NES PPU warm skin/hair tones) ──────────────────────────
-
     public override HeadPalette[] HeadPalettes => NESSprites.HeadPalettes;
 
     // ── Body palettes ─────────────────────────────────────────────────────────
-
     public override BodyPalette[] BodyPalettes => NESSprites.BodyPalettes;
 
     // ── Legs palettes ─────────────────────────────────────────────────────────
-
     public override LegsPalette[] LegsPalettes => NESSprites.LegPalettes;
 }

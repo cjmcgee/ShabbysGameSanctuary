@@ -36,7 +36,6 @@ public sealed class Atari2600System : RetroSystem
     // ── Tile pixel art (16×16, palette indices) ──────────────────────────────
     // Rules: (1) only index 0 and ONE non-zero foreground index per tile.
     //        (2) double-wide: col[2k+1] == col[2k] for all k (8 logical cols).
-
     protected override byte[][] GetTilePixels(TileType type, Color accentColor) => type switch
     {
         TileType.WoodFloor     => Atari2600Tiles.WoodFloor,

@@ -242,9 +242,9 @@ public abstract class RetroSystem
 
     public AnimatedSprite BuildCharacterSprite(GraphicsDevice gd, CharacterAppearance a)
     {
-        var hp = HeadPalettes[a.HeadPaletteIndex];
-        var bp = BodyPalettes[a.BodyPaletteIndex];
-        var lp = LegsPalettes[a.LegsPaletteIndex];
+        var hp = HeadPalettes[(int)a.HeadPaletteIndex];
+        var bp = BodyPalettes[(int)a.BodyPaletteIndex];
+        var lp = LegsPalettes[(int)a.LegsPaletteIndex];
 
         const int frames = 4;
         // 3 facing rows stacked vertically: row0=down/front, row1=up/back, row2=right/side
@@ -285,9 +285,9 @@ public abstract class RetroSystem
         LegsPalette          lp)
     {
         int baseRow     = facingRow * CharHeight;
-        var headVariant = headParts[a.HeadIndex];
-        var bodyVariant = bodyParts[a.BodyIndex];
-        var legsVariant = legsParts[a.LegsIndex];
+        var headVariant = headParts[(int)a.HeadIndex];
+        var bodyVariant = bodyParts[(int)a.BodyIndex];
+        var legsVariant = legsParts[(int)a.LegsIndex];
         for (int f = 0; f < totalFrames; f++)
         {
             PastePart(data, totalFrames, headVariant[Math.Min(f, headVariant.Length - 1)], f, baseRow,                          hp.Resolve);
