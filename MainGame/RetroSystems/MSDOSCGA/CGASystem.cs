@@ -6,19 +6,18 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 /// MS-DOS CGA visual style — mode 4, palette 1 (high intensity).
 ///
 /// Authentic characteristics:
-///   • 8×8 tiles at 320×200 native resolution
+///   • 16-px tile art (NativeTilePixels=16); the IBM CGA hardware text-mode tile is 8×8,
+///     redrawn here at 16×16 to give space for the 4-color palette
 ///   • 4-color fixed palette: black, bright cyan, bright magenta, white
 ///     (IBM CGA mode 4 palette 1 — the most iconic CGA look)
-///   • Character sprites: 8×16 (CGA text-mode character proportions)
-///   • Native height 200px → DefaultTilesTall = 12.5
+///   • Character sprites: 16×16 texture (CharWidth=16, HeadRows=4, BodyRows=6, LegsRows=6)
+///   • Native screen 320×200 → DefaultTilesTall = 12.5
 ///   • MaxTilesTall = 25 (~2× zoom out)
-///
-/// Sprite split: HeadRows=4, BodyRows=6, LegsRows=6 (total 16)
 /// </summary>
 public sealed class CGASystem : RetroSystem
 {
     public override string Name        => "MS-DOS CGA";
-    public override string Description => "16-px tiles · 12.5 tiles tall · Mode 4 palette 1 (black/cyan/magenta/white)";
+    public override string Description => "16-px tiles · 16×16 sprites · 12.5 tiles tall · Mode 4 palette 1 (black/cyan/magenta/white)";
     public override int   NativeTilePixels => 16;
     public override float DefaultTilesTall => 12.5f;   // native 320×200 → 12.5 tiles vertically
     public override float MaxTilesTall     => 25f;     // ~2× zoom out

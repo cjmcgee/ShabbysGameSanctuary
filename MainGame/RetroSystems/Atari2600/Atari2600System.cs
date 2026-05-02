@@ -6,21 +6,20 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 /// Atari 2600 visual style.
 ///
 /// Authentic characteristics:
-///   • 8×8 native tile resolution (upscaled to 16×16 for the engine)
+///   • 16-px tile art (NativeTilePixels=16); hardware Atari 2600 tiles are 8×8 in spirit
 ///   • 1-bit tile color: each tile uses only black (bg) and one foreground color
 ///   • Sprites limited to one color per horizontal scanline (TIA player register style)
 ///   • 128-color NTSC palette; sprites are hard-edged silhouettes
-///   • Character sprites: 8×16 (Adventure-duck proportions)
+///   • Character sprites: 16×16 texture (CharWidth=16, HeadRows+BodyRows+LegsRows=16)
 ///   • Native screen: 160×192 (double-wide pixels → 80 unique columns × 192 rows)
-///   • Native height 192px → DefaultTilesTall = 12
-///   • MaxTilesTall = 24 (~2× zoom out)
+///   • DefaultTilesTall = 12, MaxTilesTall = 24 (~2× zoom out)
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
 public sealed class Atari2600System : RetroSystem
 {
     public override string Name        => "Atari 2600";
-    public override string Description => "16-px tiles dbl-wide · 12 tiles tall · 1-bit · 1-color/scanline sprites";
+    public override string Description => "16-px tiles dbl-wide · 16×16 sprites · 12 tiles tall · 1-bit · 1-color/scanline sprites";
     public override int   NativeTilePixels  => 16;
     public override float DefaultTilesTall  => 12f;   // native 160×192 → 12 tiles vertically
     public override float MaxTilesTall      => 24f;   // ~2× zoom out

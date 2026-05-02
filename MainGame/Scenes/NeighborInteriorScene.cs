@@ -9,7 +9,7 @@ namespace ChildhoodAdventure.Scenes
     /// Generic neighbour home interior, parameterised by GameState.TargetInterior.
     /// Each house has a unique colour scheme, furniture layout, and set of NPCs.
     ///
-    /// Shared map dimensions: 22×16 tiles (352×256 px).
+    /// Shared map dimensions: 22×16 tiles.
     /// All interiors share the same tile GIDs; only colours differ per house.
     ///
     /// Families:

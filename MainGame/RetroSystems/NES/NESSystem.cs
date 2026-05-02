@@ -6,19 +6,18 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 /// Nintendo Entertainment System visual style.
 ///
 /// Authentic characteristics:
-///   • 8×8 pixel tiles (stored as 16×16 patterns = 2×2 hardware tiles per logical tile)
+///   • 16-px tile art (NativeTilePixels=16); each engine tile maps to 2×2 NES hardware
+///     8×8 tiles in spirit, so the art is hand-drawn at the 16×16 super-tile size
 ///   • NES PPU palette: 54 available colors; each background palette has 3 colors + shared bg
 ///   • Rich multi-color pixel art — the most detailed system in this set
 ///   • Character sprites: 16×24 (HeadRows=6, BodyRows=9, LegsRows=9)
-///   • Native screen: 256×224. DefaultTilesTall = 14 (224 / 16 native tile)
+///   • Native screen: 256×224 → DefaultTilesTall = 14
 ///   • MaxTilesTall = 28 (~2× zoom out)
-///
-/// The tile pixel data is 16×16 (native to this system — no upscaling needed).
 /// </summary>
 public sealed class NESSystem : RetroSystem
 {
     public override string Name        => "NES";
-    public override string Description => "16-px tiles · 14 tiles tall · NES PPU palette";
+    public override string Description => "16-px tiles · 16×24 sprites · 14 tiles tall · NES PPU palette";
     public override int   NativeTilePixels  => 16;
     public override float DefaultTilesTall  => 14f;   // native NES: 256×224 → 14 tiles vertically
     public override float MaxTilesTall      => 28f;   // ~2× zoom out

@@ -6,21 +6,21 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 /// Commodore 64 visual style.
 ///
 /// Authentic characteristics:
-///   • 8×8 character-cell tiles — the C64's text/PETSCII tile unit
+///   • 24-px tile art (NativeTilePixels=24); the C64's hardware text/PETSCII unit is 8×8,
+///     redrawn here at 24×24 to allow multicolor detail
 ///   • VIC-II 16-color palette with distinctive color relationships
 ///   • Multicolor mode: 1 global color + up to 3 local colors per tile (index 7 = grey shared register)
 ///   • Multicolor sprites: up to 4 semantic colors per part frame (transparent + 2 globals + 1 unique)
-///   • Character sprites: 12×21 (HeadRows=6, BodyRows=8, LegsRows=7)
+///   • Character sprites: 12×21 texture (HeadRows=6, BodyRows=8, LegsRows=7)
 ///   • Native screen: 160×200 (double-wide pixels → 80 unique columns × 200 rows)
-///   • Native height 200px → DefaultTilesTall = 12.5
-///   • MaxTilesTall = 25 (~2× zoom out)
+///   • DefaultTilesTall = 12.5, MaxTilesTall = 25 (~2× zoom out)
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
 public sealed class C64System : RetroSystem
 {
     public override string Name        => "Commodore 64";
-    public override string Description => "24-px tiles · 12.5 tiles tall · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";
+    public override string Description => "24-px tiles dbl-wide · 12×21 sprites · 12.5 tiles tall · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";
     public override int   NativeTilePixels  => 24;
     public override float DefaultTilesTall  => 12.5f;   // native 160×200 → 12.5 tiles vertically
     public override float MaxTilesTall      => 25f;     // ~2× zoom out

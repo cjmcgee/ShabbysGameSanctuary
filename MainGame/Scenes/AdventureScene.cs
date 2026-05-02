@@ -28,9 +28,9 @@ namespace ChildhoodAdventure.Scenes
         // ── Customization points ─────────────────────────────────────────────
 
         // All in tile-space units: speed in tiles/sec, radius in tiles.
-        protected virtual float PlayerMaxSpeed    => 5.6f;   // ~5.6 tiles/sec
+        protected virtual float PlayerMaxSpeed    => 5.6f;
         protected virtual float CameraFollowSpeed => 8f;
-        protected virtual float InteractionRadius => 1.875f; // ~30 px at old 16-px scale
+        protected virtual float InteractionRadius => 1.875f;
 
         protected abstract Color DialogueBorderColor { get; }
         protected virtual  Color DialogueSpeakerColor => Color.Yellow;
@@ -62,7 +62,6 @@ namespace ChildhoodAdventure.Scenes
             var e = Engine.EntityWorld.CreateEntity("Player");
             Engine.EntityWorld.RegisterTag("player", e);
             e.AddComponent(new TransformComponent(pos) { MaxSpeed = PlayerMaxSpeed });
-            // Hitbox: 0.625 × 0.375 tiles centred on the entity position (was 10×6 px).
             e.AddComponent(new CollisionComponent(0.625f, 0.375f, new Vector2(-0.3125f, -0.1875f)));
             var sprite = SpriteFactory.BuildCharacter(gd, NpcAppearances.Player);
             sprite.FrameTileSize *= 0.5f;     // child-sized
@@ -79,7 +78,6 @@ namespace ChildhoodAdventure.Scenes
         {
             var e = Engine.EntityWorld.CreateEntity(name);
             e.AddComponent(new TransformComponent(pos));
-            // Hitbox: 0.625 × 0.5 tiles centred on the entity position (was 10×8 px).
             e.AddComponent(new CollisionComponent(0.625f, 0.5f, new Vector2(-0.3125f, -0.25f)) { IsSolid = true });
             var sprite = SpriteFactory.BuildCharacter(gd, appearance);
             if (scale != 1f) sprite.FrameTileSize *= scale;

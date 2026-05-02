@@ -10,7 +10,7 @@ namespace ChildhoodAdventure.Scenes
     /// The player can walk between houses, chat with neighbours outside,
     /// and step on any front door to enter that home.
     ///
-    /// Street layout (tiles, 16 px each):
+    /// Street layout (tile rows):
     ///   y  0- 3  : north grass
     ///   y  4-18  : house facades (roof overhead y=4-6, walls y=7-17, door y=18)
     ///   y 19     : north sidewalk

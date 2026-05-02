@@ -25,16 +25,15 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 /// Other characteristics:
 ///   • 6-color hi-res palette: black, green, violet, white, orange, blue
 ///     (NTSC artifact colors from the 1-MHz pixel clock — the defining Apple II look)
-///   • Character sprites: 8×16 (HeadRows=4, BodyRows=7, LegsRows=5). Sprite
-///     art is hand-authored with horizontally-doubled pixels for a chunky,
-///     period-appropriate look; no runtime double-wide enforcement is needed.
-///   • Native screen: 280×192 → DefaultTilesTall = 12 (192 / 16 native tile)
+///   • Character sprites: 14×14 (HeadRows=4, BodyRows=6, LegsRows=4). Sprite
+///     art is hand-authored to obey the same hi-res palette rules as the tiles.
+///   • Native screen: 280×192 → DefaultTilesTall = 12
 ///   • MaxTilesTall = 24 (~2× zoom out)
 /// </summary>
 public sealed class AppleIISystem : RetroSystem
 {
     public override string Name        => "Apple II";
-    public override string Description => "14-px tiles · 8×16 sprites · 12 tiles tall · Hi-res 6-color w/ NTSC palette rules";
+    public override string Description => "14-px tiles · 14×14 sprites · 12 tiles tall · Hi-res 6-color w/ NTSC palette rules";
     public override int   NativeTilePixels => 14;
     public override float DefaultTilesTall => 12f;     // native 280×192 → 12 tiles vertically
     public override float MaxTilesTall     => 24f;     // ~2× zoom out
