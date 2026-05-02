@@ -87,319 +87,37 @@ public sealed class AppleIISystem : RetroSystem
     // ── Head variants (1 frame × 4 rows × 14 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Hair  3=SkinHighlight  4=Eyes  5=HatAccessory
 
-    private static readonly byte[][][] _head0 =   // basic round head
-    [
-        [
-            [ 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0 ],   // hair crown
-            [ 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0 ],   // hair sides + face
-            [ 0, 0, 1, 1, 4, 4, 1, 1, 4, 4, 1, 1, 0, 0 ],   // face + two eyes
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
-        ],
-    ];
 
-    private static readonly byte[][][] _head1 =   // cap / hat
-    [
-        [
-            [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // hat top
-            [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // hat brim
-            [ 0, 0, 1, 1, 4, 4, 1, 1, 4, 4, 1, 1, 0, 0 ],   // face + eyes
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
-        ],
-    ];
-
-    private static readonly byte[][][] _head2 =   // long / full hair
-    [
-        [
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // full hair top
-            [ 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0 ],   // hair sides + face
-            [ 0, 2, 2, 1, 4, 4, 1, 1, 4, 4, 1, 2, 2, 0 ],   // hair sides + eyes + face
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // chin
-        ],
-    ];
-
-    public override byte[][][][] HeadParts { get; } = [ _head0, _head1, _head2 ];
+    public override byte[][][][] HeadParts { get; } = [ AppleIISprites.Head0, AppleIISprites.Head1, AppleIISprites.Head2 ];
 
     // ── Body variants (1 frame × 6 rows × 14 cols) ───────────────────────────
     // Semantic: 1=Skin  2=Shirt  3=ShirtHighlight  4=Buttons  5=Accessory
 
-    private static readonly byte[][][] _body0 =   // casual shirt
-    [
-        [
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // shoulders
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // chest
-            [ 0, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 0 ],   // highlight band
-            [ 0, 2, 2, 2, 4, 4, 2, 2, 4, 4, 2, 2, 2, 0 ],   // two buttons
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // lower
-        ],
-    ];
 
-    private static readonly byte[][][] _body1 =   // collared / formal
-    [
-        [
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-            [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // lapels around tie
-            [ 0, 5, 5, 5, 5, 4, 4, 4, 4, 5, 5, 5, 5, 0 ],   // lapels + tie buttons
-            [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // lapels lower
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // torso
-            [ 0, 2, 2, 2, 2, 4, 4, 4, 4, 2, 2, 2, 2, 0 ],   // lower buttons
-        ],
-    ];
-
-    private static readonly byte[][][] _body2 =   // jacket / hoodie
-    [
-        [
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-            [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // jacket full
-            [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // open jacket + shirt
-            [ 0, 5, 5, 5, 5, 3, 3, 4, 4, 3, 3, 5, 5, 0 ],   // highlight + button
-            [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // shirt
-            [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // jacket hem
-        ],
-    ];
-
-    public override byte[][][][] BodyParts { get; } = [ _body0, _body1, _body2 ];
+    public override byte[][][][] BodyParts { get; } = [ AppleIISprites.Body0, AppleIISprites.Body1, AppleIISprites.Body2 ];
 
     // ── Legs variants (4 frames × 4 rows × 14 cols) ──────────────────────────
     // Semantic: 1=Skin(bare)  2=Pants  3=PantsHighlight  4=Belt
     //           5=BeltHighlight  6=Shoes  7=ShoeHighlight
 
-    private static readonly byte[][][] _legs0 =   // pants + belt
-    [
-        [   // idle
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],   // belt
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],   // pants + buckle
-            [ 0, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0 ],   // legs split
-            [ 0, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6, 0 ],   // shoes
-        ],
-        [   // left foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0 ],   // left ahead
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 6, 6, 0 ],
-        ],
-        [   // crossing / passing
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // legs together
-            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],
-        ],
-        [   // right foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0 ],   // right ahead
-            [ 0, 6, 6, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0 ],
-        ],
-    ];
 
-    private static readonly byte[][][] _legs1 =   // formal trousers (crease)
-    [
-        [   // idle
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],   // belt
-            [ 0, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 0 ],   // crease band
-            [ 0, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0 ],   // legs split
-            [ 0, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6, 0 ],   // shoes
-        ],
-        [   // left foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0 ],
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 6, 6, 0 ],
-        ],
-        [   // crossing
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 0 ],
-            [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],
-        ],
-        [   // right foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 0 ],
-            [ 0, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0 ],
-            [ 0, 6, 6, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0 ],
-        ],
-    ];
-
-    private static readonly byte[][][] _legs2 =   // shorts + bare skin
-    [
-        [   // idle
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],   // belt
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],   // shorts + buckle
-            [ 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0 ],   // bare legs
-            [ 0, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 6, 6, 0 ],   // shoes
-        ],
-        [   // left foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0 ],
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 6, 6, 0 ],
-        ],
-        [   // crossing
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0 ],
-        ],
-        [   // right foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 0 ],
-            [ 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0 ],
-            [ 0, 6, 6, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0 ],
-        ],
-    ];
-
-    public override byte[][][][] LegsParts { get; } = [ _legs0, _legs1, _legs2 ];
+    public override byte[][][][] LegsParts { get; } = [ AppleIISprites.Legs0, AppleIISprites.Legs1, AppleIISprites.Legs2 ];
 
     // ── Back-facing heads (no eye row) ────────────────────────────────────────
 
-    private static readonly byte[][][] _head0Back =
-    [[
-        [ 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0 ],   // hair crown
-        [ 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // hair back (no eyes)
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // upper neck
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-    ]];
 
-    private static readonly byte[][][] _head1Back =
-    [[
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // hat top (full brim from behind)
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // hat brim
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // upper neck
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-    ]];
-
-    private static readonly byte[][][] _head2Back =
-    [[
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // full hair
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // full hair back
-        [ 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0 ],   // hair sides + neck
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-    ]];
-
-    public override byte[][][][] HeadPartsBack { get; } = [ _head0Back, _head1Back, _head2Back ];
+    public override byte[][][][] HeadPartsBack { get; } = [ AppleIISprites.Head0Back, AppleIISprites.Head1Back, AppleIISprites.Head2Back ];
 
     // ── Back-facing bodies (no buttons) ──────────────────────────────────────
 
-    private static readonly byte[][][] _body0Back =
-    [[
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // back shoulders
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // back
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // back (no buttons)
-        [ 0, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 0 ],   // highlight band
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // lower
-    ]];
 
-    private static readonly byte[][][] _body1Back =
-    [[
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-        [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // collar back
-        [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // collar
-        [ 0, 5, 5, 5, 5, 2, 2, 2, 2, 5, 5, 5, 5, 0 ],   // lapels back
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // torso
-        [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0 ],   // lower
-    ]];
-
-    private static readonly byte[][][] _body2Back =
-    [[
-        [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ],   // neck
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],   // jacket back
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],
-        [ 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 ],
-    ]];
-
-    public override byte[][][][] BodyPartsBack { get; } = [ _body0Back, _body1Back, _body2Back ];
+    public override byte[][][][] BodyPartsBack { get; } = [ AppleIISprites.Body0Back, AppleIISprites.Body1Back, AppleIISprites.Body2Back ];
 
     // ── Side-facing legs (4 frames × 4 rows × 14 cols) ───────────────────────
     // Profile facing right; front foot swings forward (right), back foot trails.
 
-    private static readonly byte[][][] _legs0Side =
-    [
-        [   // idle — both legs centered, toe extends right
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],   // belt
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],   // pants
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],   // shoe extends right (toe)
-        ],
-        [   // walk A — front foot forward
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],   // legs split fwd/back
-            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6 ],   // back heel + front toe
-        ],
-        [   // mid — legs together, lifted
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],   // feet lifted
-        ],
-        [   // walk B — back foot forward (heel kick)
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 0, 0 ],   // both feet planted
-        ],
-    ];
 
-    private static readonly byte[][][] _legs1Side =
-    [
-        [   // idle
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
-        ],
-        [   // walk A
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
-            [ 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2 ],
-            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6 ],
-        ],
-        [   // mid
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        ],
-        [   // walk B
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 0, 0 ],
-        ],
-    ];
-
-    private static readonly byte[][][] _legs2Side =
-    [
-        [   // idle (shorts + bare legs)
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 ],
-        ],
-        [   // walk A
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
-            [ 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 ],
-            [ 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6 ],
-        ],
-        [   // mid
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        ],
-        [   // walk B
-            [ 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0 ],
-            [ 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0 ],
-            [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-            [ 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 0, 0 ],
-        ],
-    ];
-
-    public override byte[][][][] LegsPartsSide { get; } = [ _legs0Side, _legs1Side, _legs2Side ];
+    public override byte[][][][] LegsPartsSide { get; } = [ AppleIISprites.Legs0Side, AppleIISprites.Legs1Side, AppleIISprites.Legs2Side ];
 
     // ── Head palettes — all resolved colors are from the 6-color hi-res set ──
     // Black=(0,0,0)  Green=(20,245,60)  Violet=(193,28,255)
