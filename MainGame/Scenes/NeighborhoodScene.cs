@@ -30,10 +30,11 @@ namespace ChildhoodAdventure.Scenes
         private const int T_ROAD     = 2;
         private const int T_SIDEWALK = 3;
         private const int T_BUSH     = 4;
+        private const int T_GRASS2   = 5;
 
         // Per-house tilesets follow base. Each house allocates 4 GIDs:
         // roof, siding, window, door (in that order).
-        private const int FirstHouseGid = 5;
+        private const int FirstHouseGid = 6;
         private const int TilesPerHouse = 4;
 
         private const int MapW = 82, MapH = 22;
@@ -91,6 +92,7 @@ namespace ChildhoodAdventure.Scenes
                     TileType.Road,     // 2
                     TileType.Sidewalk, // 3
                     TileType.Bush,     // 4
+                    TileType.Grass2,   // 5
                 ], firstGid: 1);
 
             var tilemap = new Tilemap("hood", MapW, MapH)
@@ -138,8 +140,13 @@ namespace ChildhoodAdventure.Scenes
             var mid = map.AddLayer("mid", LayerType.Midground);
             var col = map.AddLayer("col", LayerType.Collision);
 
+            // Use a constant seed to keep the map always the same
+            const int mapSeed = 12181827;
+            var rnd = new Random( mapSeed );
+
             // Ground bands
-            FillRect(bg, 0, 0,            MapW, MapH,   T_GRASS);
+            int[] grassTiles = [T_GRASS, T_GRASS2];
+            FillRect(bg, 0, 0,            MapW, MapH,   grassTiles, rnd );
             FillRect(bg, 0, SidewalkN_Y,  MapW, 1,      T_SIDEWALK);
             FillRect(bg, 0, SidewalkN_Y+1,MapW, 2,      T_ROAD);
             FillRect(bg, 0, SidewalkN_Y+3,MapW, 1,      T_SIDEWALK);
@@ -153,13 +160,16 @@ namespace ChildhoodAdventure.Scenes
             for (int i = 0; i < houses.Length; i++)
                 PlaceHouse(mid, col, houses[i].X, HouseStartY, FirstHouseGid + i * TilesPerHouse);
 
+            
             // Decorative bushes — one between each adjacent pair of houses on
             // the top grass strip, plus a sparse scatter on the south grass.
             for (int i = 0; i < houses.Length - 1; i++)
             {
                 int gapMid = (houses[i].X + HouseW + houses[i + 1].X) / 2;
                 mid.SetTile(gapMid, 4, T_BUSH);
-                col.SetTile(gapMid, 4, 1);
+
+                int grassIndex = grassTiles[ rnd.Next() % grassTiles.Length ];
+                col.SetTile(gapMid, 4, grassIndex);
             }
             // South grass scatter
             int[] southBushXs = [ 6, 16, 26, 35, 45, 55, 65, 75 ];
@@ -167,7 +177,9 @@ namespace ChildhoodAdventure.Scenes
             for (int i = 0; i < southBushXs.Length; i++)
             {
                 mid.SetTile(southBushXs[i], southBushYs[i], T_BUSH);
-                col.SetTile(southBushXs[i], southBushYs[i], 1);
+
+                int grassIndex = grassTiles[ rnd.Next() % grassTiles.Length ];
+                col.SetTile(southBushXs[i], southBushYs[i], grassIndex);
             }
         }
 
@@ -218,11 +230,29 @@ namespace ChildhoodAdventure.Scenes
             col.SetTile(x, y, 1);
         }
 
-        private static void FillRect(TileLayer layer, int x, int y, int w, int h, int gid)
+        private static void FillRect(TileLayer layer, int x, int y, int w, int h, 
+            int tileIndex )
         {
-            for (int dy = 0; dy < h; dy++)
-                for (int dx = 0; dx < w; dx++)
-                    layer.SetTile(x + dx, y + dy, gid);
+            for( int dy = 0; dy < h; dy++ )
+            {
+                for( int dx = 0; dx < w; dx++ )
+                {
+                    layer.SetTile( x + dx, y + dy, tileIndex );
+                }
+            }
+        }
+
+        private static void FillRect(TileLayer layer, int x, int y, int w, int h, 
+            int[] tileIndexes, Random rnd )
+        {
+            for( int dy = 0; dy < h; dy++ )
+            {
+                for( int dx = 0; dx < w; dx++ )
+                {
+                    int tileIndex = tileIndexes[ rnd.Next() % tileIndexes.Length ];
+                    layer.SetTile( x + dx, y + dy, tileIndex );
+                }
+            }
         }
 
         // ── NPC spawners ──────────────────────────────────────────────────────

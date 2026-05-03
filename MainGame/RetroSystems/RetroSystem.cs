@@ -176,6 +176,16 @@ public abstract class RetroSystem
     /// </summary>
     public const byte AccentIndex = 255;
 
+    /// <summary>
+    /// Reserved palette index for explicit transparency in tile art. Pixels
+    /// marked with this value render as <see cref="Color.Transparent"/> so the
+    /// layer beneath the tile shows through. Use for decoration tiles (bushes,
+    /// plants, props) that don't fill their full footprint. Index <c>0</c> is
+    /// NOT transparent — it's the system's first palette colour, intentionally
+    /// used as a dark fill in tiles like KitchenTile grout and Bookshelf gaps.
+    /// </summary>
+    public const byte TransparentIndex = 254;
+
     public Tileset BuildTileset(
         GraphicsDevice gd,
         string         name,
@@ -188,10 +198,10 @@ public abstract class RetroSystem
         effectivePalette[AccentIndex] =
             accentColor == default ? new Color(180, 180, 180) : accentColor;
 
-        int target = NativeTilePixels;
-        int   count   = tileTypes.Length;
-        var   texture = new Texture2D(gd, target * count, target);
-        var   data    = new Color[target * count * target];
+        int target  = NativeTilePixels;
+        int count   = tileTypes.Length;
+        var texture = new Texture2D(gd, target * count, target);
+        var data    = new Color[target * count * target];
 
         for (int i = 0; i < count; i++)
         {
@@ -237,7 +247,9 @@ public abstract class RetroSystem
                     if (DoubleWidePixels) srcCol = Math.Min(srcCol & ~1, nativeW - 1);
                     byte idx = pixels[srcRow][srcCol];
                     Color c;
-                    if (oneBitFg.HasValue)
+                    if (idx == TransparentIndex)
+                        c = Color.Transparent;
+                    else if (oneBitFg.HasValue)
                         c = idx == 0 ? effectivePalette[0] : oneBitFg.Value;
                     else if (allowedLocalTile != null)
                         c = idx == 0 ? effectivePalette[0]

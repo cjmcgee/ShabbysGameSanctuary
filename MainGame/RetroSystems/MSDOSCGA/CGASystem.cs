@@ -58,6 +58,7 @@ public sealed class CGASystem : RetroSystem
         TileType.Bookshelf     => CGATiles.Bookshelf,
         TileType.Plant         => CGATiles.Plant,
         TileType.Grass         => CGATiles.Grass,
+        TileType.Grass2        => CGATiles.Grass,
         TileType.Road          => CGATiles.Road,
         TileType.Sidewalk      => CGATiles.Sidewalk,
         TileType.HouseExterior => CGATiles.HouseExterior,

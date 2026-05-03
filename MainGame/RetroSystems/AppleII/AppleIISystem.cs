@@ -81,6 +81,7 @@ public sealed class AppleIISystem : RetroSystem
         TileType.Bookshelf    => AppleIITiles.Bookshelf,
         TileType.Plant        => AppleIITiles.Plant,
         TileType.Grass        => AppleIITiles.Grass,
+        TileType.Grass2       => AppleIITiles.Grass,
         TileType.Road         => AppleIITiles.Road,
         TileType.Sidewalk     => AppleIITiles.Sidewalk,
         TileType.HouseExterior => AppleIITiles.HouseExterior,

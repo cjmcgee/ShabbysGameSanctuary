@@ -69,6 +69,7 @@ public sealed class C64System : RetroSystem
         TileType.Bookshelf    => C64Tiles.Bookshelf,
         TileType.Plant        => C64Tiles.Plant,
         TileType.Grass        => C64Tiles.Grass,
+        TileType.Grass2       => C64Tiles.Grass,
         TileType.Road         => C64Tiles.Road,
         TileType.Sidewalk     => C64Tiles.Sidewalk,
         TileType.HouseExterior => C64Tiles.HouseExterior,

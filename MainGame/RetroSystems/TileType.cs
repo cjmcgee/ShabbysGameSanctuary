@@ -25,6 +25,7 @@ public enum TileType
 
     // Outdoor
     Grass,
+    Grass2,
     Road,
     Sidewalk,
     HouseExterior,   // exterior siding (uses per-house accent colour)
