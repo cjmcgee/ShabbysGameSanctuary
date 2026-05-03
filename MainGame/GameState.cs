@@ -23,7 +23,7 @@ namespace ChildhoodAdventure
         // Where the player re-appears in the neighborhood after exiting any interior.
         // Default: sidewalk in front of the player's own house (door at tile x=40, sidewalk y=19).
         public static Vector2 NeighborhoodReturnPosition { get; set; }
-            = new Vector2(40.5f, 19.5f);
+            = new Vector2(40.5f, 10.5f);
 
         // Story/conversation flags.
         private static readonly HashSet<string> _flags = new();

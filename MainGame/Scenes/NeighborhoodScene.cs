@@ -144,6 +144,11 @@ namespace ChildhoodAdventure.Scenes
             FillRect(bg, 0, SidewalkN_Y+1,MapW, 2,      T_ROAD);
             FillRect(bg, 0, SidewalkN_Y+3,MapW, 1,      T_SIDEWALK);
 
+            // Invisible perimeter collision so the player can't walk off the
+            // edges of the map. The collision-layer tiles never render.
+            for (int x = 0; x < MapW; x++) { col.SetTile(x, 0, 1); col.SetTile(x, MapH - 1, 1); }
+            for (int y = 0; y < MapH; y++) { col.SetTile(0, y, 1); col.SetTile(MapW - 1, y, 1); }
+
             // Houses
             for (int i = 0; i < houses.Length; i++)
                 PlaceHouse(mid, col, houses[i].X, HouseStartY, FirstHouseGid + i * TilesPerHouse);

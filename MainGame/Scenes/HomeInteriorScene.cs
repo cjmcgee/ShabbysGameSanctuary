@@ -158,7 +158,8 @@ namespace ChildhoodAdventure.Scenes
             if (pos.Y >= (MapH - 2) - 0.125f && pos.X > 10f && pos.X < 14f)
             {
                 Transitioning = true;
-                GameState.NeighborhoodReturnPosition = new Vector2(40.5f, 19.5f);
+                // Land on the sidewalk (row 10) just south of the player's house door.
+                GameState.NeighborhoodReturnPosition = new Vector2(40.5f, 10.5f);
                 Engine.LoadScene(new NeighborhoodScene());
             }
         }
