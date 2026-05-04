@@ -7,31 +7,31 @@ namespace ChildhoodAdventure.RetroSystems;
 /// </summary>
 public enum TileType
 {
-    // Interior floors
-    WoodFloor,
-    Carpet,
-    KitchenTile,
+	// Interior floors
+	WoodFloor,
+	Carpet,
+	KitchenTile,
 
-    // Structural
-    Wall,
-    Door,
-    Window,
+	// Structural
+	Wall,
+	Door,
+	Window,
 
-    // Furniture / objects
-    Furniture,
-    Counter,
-    Bookshelf,
-    Plant,
+	// Furniture / objects
+	Furniture,
+	Counter,
+	Bookshelf,
+	Plant,
 
-    // Outdoor
-    Grass,
-    Grass2,
-    Road,
-    Sidewalk,
-    HouseExterior,   // exterior siding (uses per-house accent colour)
-    HouseRoof,       // dark shingled roof
-    Bush,            // green decorative shrub on grass
+	// Outdoor
+	Grass,
+	Grass2,
+	Road,
+	Sidewalk,
+	HouseExterior,		// exterior siding (uses per-house accent colour)
+	HouseRoof,			// dark shingled roof
+	Bush,				// green decorative shrub on grass
 
-    // Per-house tint (accent color supplied at build time by scene)
-    Accent,
+	// Per-house tint (accent color supplied at build time by scene)
+	Accent,
 }

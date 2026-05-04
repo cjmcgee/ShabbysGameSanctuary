@@ -12,23 +12,23 @@ namespace ChildhoodAdventure.RetroSystems;
 /// same colour — that's the authentic constraint of the hardware.
 /// </summary>
 public sealed record ScenePalette(
-    // ── House facade tones ──────────────────────────────────────────────────
-    Color HouseBeige,    // player home — light/cream
-    Color HouseYellow,   // Sam
-    Color HousePink,     // Santos — magenta-pink
-    Color HouseTeal,     // Chen — cyan / teal
-    Color HouseGray,     // Thompson
-    Color HouseBlue,     // Petrov
-    Color HouseLime,     // Jake & Emma — light green
-    Color HousePurple,   // Devon — violet
-    Color HouseOrange,   // Johnson
-    Color Door,          // near-black door / frame
+	// ── House facade tones ──────────────────────────────────────────────────
+	Color HouseBeige,		// player home — light/cream
+	Color HouseYellow,		// Sam
+	Color HousePink,		// Santos — magenta-pink
+	Color HouseTeal,		// Chen — cyan / teal
+	Color HouseGray,		// Thompson
+	Color HouseBlue,		// Petrov
+	Color HouseLime,		// Jake & Emma — light green
+	Color HousePurple,		// Devon — violet
+	Color HouseOrange,		// Johnson
+	Color Door,				// near-black door / frame
 
-    // ── Dialog UI ────────────────────────────────────────────────────────────
-    // Scenes apply alpha (e.g. * 0.85f) for translucent backgrounds; the
-    // colours stored here are fully opaque palette entries.
-    Color UiBackground,  // dialog box background fill
-    Color UiText,        // body / main text
-    Color UiAccent,      // speaker name + selected choice
-    Color UiChoice,      // unselected choice
-    Color UiDim);        // disabled choice + advance prompt
+	// ── Dialog UI ────────────────────────────────────────────────────────────
+	// Scenes apply alpha (e.g. * 0.85f) for translucent backgrounds; the
+	// colours stored here are fully opaque palette entries.
+	Color UiBackground,		// dialog box background fill
+	Color UiText,			// body / main text
+	Color UiAccent,			// speaker name + selected choice
+	Color UiChoice,			// unselected choice
+	Color UiDim );			// disabled choice + advance prompt

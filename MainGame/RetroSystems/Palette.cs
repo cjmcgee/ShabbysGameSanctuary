@@ -8,7 +8,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// </summary>
 public class Palette(Color[] colors)
 {
-    public Color[] Colors => colors;
-    public int Count => colors.Length;
-    public Color this[int index] => colors[index];
+	public Color[] Colors => colors;
+	public int Count =>	colors.Length;
+	public Color this[int index] => colors[index];
 }
