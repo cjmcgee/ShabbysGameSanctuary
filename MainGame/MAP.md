@@ -23,6 +23,8 @@ Adjacent areas with the same name are one area not separate areas with the same 
 - Woods has a creek running through it, into the river
 - Woods has some dirt trails sometimes used by dirt bikes, three/four wheelers, and mountain bikes
 - Some of the nuns teaching at the private school live in the neighborhood instead of in the convent
+- A rail line runs past the fair grounds on the downtown side and then past the middle/high school. There is a station next to the fairground and close to the middle/high school. 
+- Need to figure out where the rail line should go...
 
 ### All areas
 Areas with unordered list of linked areas or contained sub areas. Areas not in this ordered list are only linked back to their parent area. 
@@ -33,12 +35,12 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Park
 - Pool
 - River bank 
-- Gas station / convenience store / vending machines
+- Gas station / convenience store
 - Auto parts / repair garage
 - Diner
 - Doctor's office
 - Dentist
-- Public school yard
+- Public primary school yard
 - Private school yard
 - Church yard
 - Convent grounds
@@ -120,6 +122,8 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Event center
 - Fairground Bathrooms
 - Farm Museum
+- Dirt track
+- Train station
 - Middle/high school yard
 - Farm land
 - Lake
@@ -224,69 +228,152 @@ A tiny shop cluttered with parts and work orders. There are a few repaired items
 A little shop serving the most common consumer electronic needs. Packed with items of all kinds, but every corner something fascinating. Hi-fi component system to boom boxes, synthesizers and drum machines, VCRs and TVs, phones and answering machines, even a few gaming systems and games. Everything stacked high to the ceiling with the promise of more in the back. Some "super sale" seems to always be going on and the salesman is always a bit overaggressive, trying to seem knowledgeable to close the sale. At least to the adults; unaccompanied kids are viewed with a high degree of suspicion.
 
 #### Fairgrounds
-
+Once a year it serves its named purpose, but the rest of the year it hosts other events and purposes. The most common is a weekly flea market and craft fair. Maybe this 50 time a year event is where it really gets its name. During the week it is usually empty, but occasionally a circus shows up in the middle of the week or a dirt race occurs on a Thursday for some reason. 
 
 #### Event center
+A big open building that smells bit like livestock all year round despite only hosting them once a year. The rest of the year hosts gun shows, RV show, boat shows, etc. But occasionally something more exciting shows up like an arcade tournament, comic book swap meet, or some flavor of tech swap meet. Usually these are free, but the good ones seem to charge a cover. 
+
+#### Dirt track
+Horse or other sedate livestock events happen here, but so do demolition derbies and dirt trace races. The stands are cheap bleachers and the flimsy fence would probably not really hold anything back. But when monster trucks or a dare devil show comes trough this place is packed. 
+
+#### Farm Museum
+A small building compared to the other two, but filled with rural charm. Antique farm equipment and random detritus of daily life in centuries past can be viewed here. The building still feels a bit empty in its natural state, but it will be packed to the gills with home crafts during the yearly county fair. 
 
 #### Fairground Bathrooms
+A bigger building that you would think for a bathroom, but it has to serve a large crowd during events and it also houses the first aid station and information booth. Atop the building are large bullhorn looking speakers in all directions used to inform parents of lost children during the fair proper. 
 
+#### Fancy clothes store
+You have only been here right before big formal events some family member needed some fitted formal wear. This weird world of formal fashion seems to be a bubble unto itself. You never even hear the word cumber-bun or cuff-link outside of this place. Why do you need to wear such weird stuff, stuff you never see when you have some big life event? Somehow the stiff formal atmosphere here make you uncomfortable just being in here. You need to behave, but everything is so weird and alien here who knows what the rules here might be. 
 
+#### Fancy gym
+None of the charm of the downtown gym, but a lot more room and modern equipment. While that gym seem to be filled with sweat and burly men, this one is filled with leotards and cute sweat bands. The aerobics craze seems to still be in force. These middle aged moms in spandex are trying to wear the same thing as the models on TV but somehow retired Mrs. Crumb does not get the same reactions.
 
+#### Fancy restaurant
+As with the other formal places, this one makes you a bit uncomfortable as soon as you enter. This weird formal place seems to have rules and behavior you see nowhere else. Who needs this many forks. How were you supposed to know that was for washing your fingers? Why do you want to pay more for less food? This must all be scam. Somehow they have hypnotized the adults into losing their senses to make everyone put on uncomfortable cloths to eat tiny foods for too much money in a stiff and restricted setting.
 
+#### Farm land
+Its farms; wide open lands sometimes with crops but sometimes fallow or otherwise bare. It is surprising how sharply it transitions from town to farm, as if some invisible barrier contains the town and keeps it from seeping into the surrounding farm land. Some of the kids which go to school in town live out here. They are bussed in, while many of the kids living in town will walk, ride a bike, or get ride to school. 
 
+#### Fast food restaurant
+Bright and shiny always trying to promote some new scheme to get people to come in more than they should. But the prices are good and the ice cream is cheep. Unfortunately somehow the ice cream machine seems to always be broken. If you ever love one of there promotion food items then you are guaranteed to never see it again. They seem to only keep the ones no one likes. These schemes sometimes have video game tie-ins as that is the new hotness. Who wouldn't want to play a popular game but starring a fast food mascot?
 
+#### Gas station / convenience store 
+Alcohol, cigs and scratchers seem to be all the business they actually do. This means they mark the other "convenience" item up to double the price of the grocery store as a penalty for needing something at 2 AM. Why do you need a bag of sugar at 2 AM? Who knows, but you won't get any questions about it here. Maybe part of that mark up is to pay for their silence. If a car blew up here the cashier would react with same measured indifference. You know she must have seen some things to get to this state, but you don't dare ask about it. The slushies are good and there is a singular arcade machine up front. 
 
+#### Green house
+Between the high school and middle school stands a green house full of exotic plants. These plants look well taken care of, they each must be someone's baby. It is locked outside of school hours, so you can only look in from the outside, and the glass is kind of milky and hard to see through. 
 
+#### High School building
+A bit impressive building for big impressive kids. It is locked after school hours, so who knows what it actually in here. You have heard they have an impressive computer lab and their library also has some new computers. Finagling your way in here seem like an impossible task. 
 
+#### High school gym
+A separate building housing locker rooms and a basketball court. They host games during the season, but much of the year it seems to be silent at nights. Graduation and some school events are held here too. The football players have to play their games outside even in the harshest weather. You would think the seasons would more align with the weather, but some more obscure logic seems to be at play here.
 
+#### Lake
+A vast lake you can't see the far side of. Still the water seems pretty calm and undaunting. People like to boat here and some swim here despite the water being rather murky.
 
+#### Laundry
+"Dry" cleaning seems to be some magic that only stores know how to do. At home you can only "wet" clean your clothes, and apparently some clothes take umbrage with being cleaned in such a low-rent way. Hoity-toity clothes demand hoity-toity cleaning. Despite this seeming like an elite service for an elite clientele, this place seems to be busy with customers that look surprisingly normally dressed. Maybe such elite snobs would send their normal looking help to do their laundry.
 
+#### Library
+This place is free? That's crazy. They do seem happy enough to embrace capitalism as soon as you are a day late with bringing something back. For fiction this place is a God-send for being able to read things on a budget. But they have no comic book and their computer books selection is super light. Somehow the compute books they do have seem to be decades old despite computers not even being around for decades yet.
 
+#### Maintenance shed
+This locked shed only allows peaks inside when the janitor is actively using it or hanging out just outside of it. But he is quite the character so if you can get him on a story you can peek inside enough to wonder what the difference between flammable and inflammable is.
 
-Fancy clothes store
-Fancy gym
-Fancy restaurant
-Farm land
-Farm Museum
-Fast food restaurant
-Gas station / convenience store / vending machines
-Green house
-High School building
-High school gym
-Lake
-Laundry
-Library
-Maintenance shed
-Meditation center
-Middle school building
-Middle school gym
-Middle/high school yard
-Movie theater
-Neighbor's homes (multiple)
-Neighborhood
-Park
-Parking lot
-Pawn shop
-Pet shop
-Pool
-Primary school gym
-Private school building (not enterable)
-Private school gym
-Private school yard
-Pub
-Public primary school interior
-Public primary school yard
-Public school yard
-River bank
-Rocky butte
-Second hand store
-Shabby bar / pool hall
-Strip mall
-Suburban neighborhood
-Tailors
-Town hall
-Town museum
-Toy store
-Woods
-Your home
+#### Meditation center
+A stone and wood structure built into the side of the butte. A quiet and peaceful place for retreat and meditation. But around Christmas the place changes from sleepy and quiet to emblazoned with light and nativity scenes. The latter provided by various groups from around the town.
+
+#### Middle school building
+Somehow not as imposing as the high school building. It feels a bit more cozy and bit more safe. But just as packed with activity during the school day. They have a computer lab, though not as impressive as the High School is rumored to have.
+
+#### Middle school gym
+Space for lockers and a volleyball courts. You can play basketball in here, but it is not regulation size or height. The basketball team has to use the High schools court when they are not using it. Events are held here too, just with higher pitched voices. There is a ping pong table and some gymnastics equipment here too. 
+
+#### Middle/high school yard
+This site houses both the high school and the middle school. Each at separate ends of the property. The gyms, football/track field, soccer field and tennis courts are in the middle. There is also a Greenhouse an maintenance shed near the middle.
+
+#### Movie theater
+Several screens are available here and they get first run movies. The prices are not bad, but don't match the discount theaters in the big city. They have several arcade machines inside with overly overprices snacks available. It is rumored there are ways to sneak your more indigent friends in, and some ways to sneak into showings not meant for your tender eyes. Most people just sneak in their own snacks and find that getting away with enough.
+
+#### Neighbor's homes (multiple)
+We will need various interiors for the different neighbors' houses we want to visit. The styles range from county, to ultra-modern, to wood panel explosion. The nun's home have excessive iconography, while at the other end of the spectrum you have single fathers with a swinging bachelor pad.
+
+#### Neighborhood
+Blocks of suburban looking homes with shops only on the main drags. Other residential type things seem to be allowed as well. Churches, schools, retirement homes, and healthcare seem to be considered close enough to a home to be allowed here. Kids still play outside for a few more years, but they have no idea they have what will soon be lost. 
+
+#### Park
+Lots of play area structures and a couple tennis courts. Right along the river, but it only occasionally floods when the ice dams get too big. 
+
+#### Parking lot
+Next to the park and next to the river for want to go to either or to cross the bridge and walk around down town. 
+
+#### Pawn shop
+Some of the things people trade for money seem too trivial to go to all this bother. But one way or the other there are lots of quirky items here. Along with a lot of stereo equipment and VCRs. 
+
+#### Pet shop
+Cute animals along with some creepy one. Pet food and supplies as well.
+
+#### Pool
+Some people think the river and lake are too murky or too cold some time of the year. There is a lifeguard here, but how much do you really trust the teen who seems to be chatting with someone more often than scanning the water. The strong smell of chlorine let you know your clothes will likely come home a couple shades lighter than were this morning.
+
+#### Primary school gym
+Gym, lunch room, theater for unintelligible pageants, and home of all other activities the teachers can think of to keep these kids active during extreme winter or bad weather.
+
+#### Private school building (not enterable)
+The more privileged kids disappear into this building each day. They claim it is tougher than the public school and nuns are stricter than "normal" teacher, but how would they really know? They all have uniforms making them oddly uniform when school is letting out. At least you don't have to deal with an itchy wool uniform.
+
+#### Private school gym
+They sometimes have games here you may be invited to or other events. They do fund raisers in here a couple time a year when you have chance to see inside. It look surprisingly similar to the your school's gym. 
+
+#### Private school yard
+Somehow neater and more ordered than the public school yards. A bit more religious iconography, and noticeably more landscaping. It has a high stone wall around the whole thing, but you are told this it to block distractions from outside when you are sitting in class.
+
+#### Pub
+Wooden, old fashioned looking building with deeply tinted out windows. I guess the patrons are not fans of the sun. It seems to be packed during "happy hour", but its pretty sleepy the rest of the time.
+
+#### Public primary school interior
+Rows of classrooms with bright posters and notices on the walls. On the first floor you also have administrative rooms, a music room, and art room and a computer lab. The basement is a huge windowless room that is made up of jet black steel walls and floor. Apparently this room used to hold massive piles of coal, but now it is retained as a tornado shelter. This knowledge does not make this room feel any less scary. 
+
+#### Public primary school yard
+Play yards on both side, a dank sandbox behind the building and a small but well kept front entrance. One play yard is just an empty field of dust and gravel meant for team sports the other one is full of play equipment but has the same dust and gravel base. Any injury will be assisted by driving all manner of sharp rocks into the wound. On one corner of the building is a complex set of pipes coming from the steam heat system below. During the coldest days of winter these offer the only respite to the biting temps.
+
+#### River bank
+Wild rice and grapes grow here when the weather is nice. But there is not much room between the retaining walls and the actual water, so these plants have to find any cracks or patches of dirt they can to grow. The are often a couple fishermen here trying their luck hoping to catch the legendary fish that is only spotted seemingly once a decade or so. 
+
+#### Rocky butte
+You can see your house from here. This outcropping lets you look down over the whole town. It has some picnic tables and grills, but it is often so windy up here that it does not seem to get too many visitors that want to hang out here overly long.
+
+#### Second hand store
+People drop off their old junk and this place has to sort though it continually complains that they have to throw out most of it as unsalvagable. But they manage to find a few gems that they offer out front. Most of this seems to be clothes, furniture and home furnishings, but sometimes it is cool stuff like electronics or toys. 
+
+#### Shabby bar / pool hall
+Blocked out windows with a dim interior. You have only peeked in here to see this dark smokey shabby place with people to match. There is the oldest smokes vending machine in the entrance way that you have ever seen. The cars parked out front seem to be equally shabby, and even the parking lot looks well loved. 
+
+#### Strip mall
+A parking lot with strip of shops all on one side. You hear that these seem to be spreading like a virus. But this one looks less infectious than some of the shabby little individual places around town. Lots of individual shops, but there always seems to be one that is dying off and or is now empty or a new one is popping up. 
+
+#### Suburban neighborhood
+Part of this small town, but it seems newer than the old Victorian buildings downtown. Victorian, Tudor, Federal, Craftsman, Gothic revival, cottages, etc. are all here. Mostly blocks with small streets, sidewalks and alleys; but a few bigger roads or boulevards go through here. 
+
+#### Tailors
+Much like the cleaners this seem like an indulgent service, but somehow this is surprisingly busy. I guess lots of people are irregular sizes. You have only been here when an older family member needed something altered for a big formal event.
+
+#### Town hall
+A big building that has important people coming and going. Some are relaxed, but some seem to be very stressed. Some kind of important business is going on in there.
+
+#### Town museum
+A small museum dedicated to showing the town's history. Artifacts of times now gone are behind glass in small cases and displays. Most seem pretty pedestrian but with odd old fashioned styles. The curator seems energized to talk about these or about the town in general. You might be able find about legends, ghost stories or even cryptids linked with this town. 
+
+#### Toy store
+Small downtown toy store. Up font is interactive displays to draw the kids in. The walls have displays up to the ceiling, but despite this a lot of item are still "in the back". There is a small display of gaming systems and games. The staff is always friendly and dresses in bright colors.
+
+#### Train station
+A small station who's primary goal is allowing fair and circus trains access to the fairgrounds. But some freight also goes in and out of here, and a passenger train goes into the big city twice a day to allow some workers to commute into the city without having to drive. 
+
+#### Woods
+To the south of town is a big stand of woods around a rocky butte that overlooks the town. It is filled with large deciduous trees that block out enough light to keep the undergrowth very light. There is campground in the flat area next to the creek that runs though these woods. There are some trails that seem to have been carved through here by the use of something heavier than just shoes. The meditation center is part way up the butte carved into its side.
+
+#### Your home
+Home sweet home. It is where you keep all your stuff. You don't know what else it should be as it is the only home you have known. It is a cozy and warm place filled with people who are the same. Homey Americana decorations and styles.
 
