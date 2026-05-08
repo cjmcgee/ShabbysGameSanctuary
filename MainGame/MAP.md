@@ -6,7 +6,7 @@
 | Farm land | Farm land | Farm land | River | Farm land | Farm land | Lake |
 | Strip mall | Suburban neighborhood | Suburban neighborhood | River | Downtown | Fair grounds | Lake | 
 | Arcade exterior | Convent grounds | Church yard | River | Downtown | Middle/high school | Lake | 
-| Woods | Woods | Woods | River | Woods | Woods | Woods | Lake |
+| Woods | Woods | Woods | River | Woods | Woods | Lake |
 
 Adjacent areas with the same name are one area not separate areas with the same name. Woods and Farm Land are each separated into two areas by the River area.  
 
@@ -24,7 +24,7 @@ Adjacent areas with the same name are one area not separate areas with the same 
 - Woods has some dirt trails sometimes used by dirt bikes, three/four wheelers, and mountain bikes
 - Some of the nuns teaching at the private school live in the neighborhood instead of in the convent
 - A rail line runs past the fair grounds on the downtown side and then past the middle/high school. There is a station next to the fairground and close to the middle/high school. 
-- Need to figure out where the rail line should go...
+
 
 ### All areas
 Areas with unordered list of linked areas or contained sub areas. Areas not in this ordered list are only linked back to their parent area. 
@@ -46,9 +46,11 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Convent grounds
 - Donut shop
 - Pub
+- Retirement home
 - Downtown
 - Parking lot
 - Strip mall
+- Halfway house
 - Woods
 - Farm land
 2. Downtown
@@ -114,6 +116,8 @@ Areas with unordered list of linked areas or contained sub areas. Areas not in t
 - Church interior
 9. Convent grounds
 - Convent
+- Cloister
+- Orphanage
 - Church yard
 - Arcade exterior
 - Woods
@@ -377,3 +381,16 @@ To the south of town is a big stand of woods around a rocky butte that overlooks
 #### Your home
 Home sweet home. It is where you keep all your stuff. You don't know what else it should be as it is the only home you have known. It is a cozy and warm place filled with people who are the same. Homey Americana decorations and styles.
 
+#### Halfway house
+The kids here have a home, but they messed up enough to get sent to juvie. This place is to "reintegrate them into society." Really it is often the case that they home live was a big contributor to what led them to the behavior that landed them in juvie, so this place lets the adminstrators oberve these kids in their day-to-day lives to see what can be done to get them on a better path. 
+
+For your part, the kids hanging out in front of this place tend to have the best stories. Just don't let them talk you into joining in on anything. 
+
+#### Cloister
+Home of the hometown monks. Intentionally spartan and simple. Even the colors are muted here.
+
+#### Orphanage
+Kids who either never got adopted or became wards of the state later in their childhood than the cute babies that young couples are looking to adopt. They try to make this place warm and homey, but it still feels institional and sterile. There is a bit of sadness here and bit of desperation. The kid are funny and active but are more likely than average to get into some serious trouble. 
+
+#### Retirement home
+Home for those who need a bit more help than they can get living on their own. Has a nice outdoor area to enjoy periods of nice weather.  
