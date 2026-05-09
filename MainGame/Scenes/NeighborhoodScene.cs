@@ -276,11 +276,11 @@ namespace ChildhoodAdventure.Scenes
 		{
 			// Place NPCs on the south grass just past the sidewalk.
 			SpawnNpc( gd, "Sam",   new Vector2( 49.5f, 14.5f ), NpcAppearances.Sam,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Sam" ),	scale:	0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Sam" ) );
 			SpawnNpc( gd, "Lucia", new Vector2( 58.5f, 14.5f ), NpcAppearances.Lucia,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Lucia" ),	scale:	0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Lucia" ) );
 			SpawnNpc( gd, "Nadia", new Vector2( 67.5f, 14.5f ), NpcAppearances.Nadia,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Nadia" ),	scale:	0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Nadia" ) );
 		}
 
 		// ── Scene transitions ────────────────────────────────────────────────

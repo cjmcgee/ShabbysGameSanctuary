@@ -1,3 +1,4 @@
+using ChildhoodAdventure.Demographics;
 using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -82,8 +83,10 @@ namespace ChildhoodAdventure.Scenes
 				npc.WorldPosition =	pos;	// scene-driven (GameState supplies the right pos)
 			}
 
+			// Sprite scale derived from age + gender + adult height (see Demographics/).
+			var profile = NpcProfiles.GetOrDefault( "Player", Gender.Male, fallbackAge: 9f );
 			var sprite = SpriteFactory.BuildCharacter( gd, NpcAppearances.Player );
-			sprite.FrameTileSize *=	0.5f;		// child-sized
+			sprite.FrameTileSize *=	profile.SpriteScale;
 
 			var e =	NpcBuilder.Default( Engine.EntityWorld, npc )
 				.WithSprite( sprite )
@@ -101,7 +104,7 @@ namespace ChildhoodAdventure.Scenes
 		}
 
 		protected Entity SpawnNpc( GraphicsDevice gd, string name, Vector2 pos,
-			CharacterAppearance appearance,	Action talkFn, float scale = 1f )
+			CharacterAppearance appearance,	Action talkFn )
 		{
 			// Persistent identity: register-or-update an Npc by name. Existing
 			// world position from the registry takes precedence on re-entry,
@@ -122,8 +125,12 @@ namespace ChildhoodAdventure.Scenes
 				if( npc.WorldPosition == Vector2.Zero ) npc.WorldPosition =	pos;
 			}
 
+			// Sprite scale comes from the NPC's demographic profile (gender +
+			// age + adult height). Adults render close to scale 1.0; children
+			// scale via the NPCSIZE.md growth curve.
+			var profile = NpcProfiles.GetOrDefault( name );
 			var sprite = SpriteFactory.BuildCharacter( gd, appearance );
-			if( scale != 1f )	sprite.FrameTileSize *=	scale;
+			sprite.FrameTileSize *=	profile.SpriteScale;
 
 			var e =	NpcBuilder.Default( Engine.EntityWorld, npc )
 				.WithSprite( sprite )

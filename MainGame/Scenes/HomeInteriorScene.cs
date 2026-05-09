@@ -171,7 +171,7 @@ namespace ChildhoodAdventure.Scenes
 
 		private void SpawnJamie( GraphicsDevice gd )	=>
 			SpawnNpc( gd, "Jamie", new Vector2( 3.5f, 11.5f ), NpcAppearances.Jamie,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Jamie" ), scale: 0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Jamie" ) );
 
 		// ── Scene transitions ────────────────────────────────────────────────
 

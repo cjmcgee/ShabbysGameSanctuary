@@ -363,9 +363,9 @@ namespace ChildhoodAdventure.Scenes
 			SpawnNpc( gd, "DeShonda", new Vector2( 4.5f, 6.5f ), NpcAppearances.DeShonda,
 				()	=>	Engine.DialogueSystem.StartYarnNode( "DeShonda" ));
 			SpawnNpc( gd, "Destiny",  new Vector2( 8.5f, 4.5f ), NpcAppearances.Destiny,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Destiny" ),	scale:	0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Destiny" ) );
 			SpawnNpc( gd, "Tyler",    new Vector2( 18.5f, 4.5f ), NpcAppearances.Tyler,
-				()	=>	Engine.DialogueSystem.StartYarnNode( "Tyler" ),		scale:	0.5f );
+				()	=>	Engine.DialogueSystem.StartYarnNode( "Tyler" ) );
 		}
 
 		// ── Scene transitions ────────────────────────────────────────────────
