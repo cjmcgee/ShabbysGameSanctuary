@@ -6,6 +6,7 @@ using TileEngine.Collision;
 using TileEngine.Components;
 using TileEngine.Core;
 using TileEngine.ECS;
+using TileEngine.Npc;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -19,7 +20,6 @@ namespace ChildhoodAdventure.Scenes
 	public abstract class AdventureScene : Scene
 	{
 		private Entity? _player;
-		private readonly List<(Entity Npc, Action TalkFn)> _npcTalks = new();
 		private KeyboardState _prevKeys;
 		private Texture2D? _pixel;
 
@@ -63,14 +63,35 @@ namespace ChildhoodAdventure.Scenes
 
 		protected Entity SpawnPlayer( GraphicsDevice gd, Vector2 pos )
 		{
-			var e =	Engine.EntityWorld.CreateEntity( "Player" );
-			Engine.EntityWorld.RegisterTag( "player", e );
-			e.AddComponent( new TransformComponent( pos ) { MaxSpeed = PlayerMaxSpeed } );
-			e.AddComponent( new CollisionComponent( 0.625f, 0.375f, new Vector2( -0.3125f, -0.1875f ) ) );
+			// Player is structurally an NPC: registered once in the registry,
+			// re-spawned per scene with the same Npc data so position can be
+			// snapshotted into Npc.WorldPosition on unload (saves use it).
+			var npc =	Engine.NpcRegistry.Get( "Player" );
+			if( npc == null )
+			{
+				npc =	new TileEngine.Npc.Npc( "Player", "Player" )
+				{
+					WorldPosition =	pos,
+					CurrentScene =	Name,
+				};
+				Engine.NpcRegistry.Register( npc );
+			}
+			else
+			{
+				npc.CurrentScene =	Name;
+				npc.WorldPosition =	pos;	// scene-driven (GameState supplies the right pos)
+			}
 
 			var sprite = SpriteFactory.BuildCharacter( gd, NpcAppearances.Player );
 			sprite.FrameTileSize *=	0.5f;		// child-sized
-			e.AddComponent( new SpriteComponent { Sprite = sprite } );
+
+			var e =	NpcBuilder.Default( Engine.EntityWorld, npc )
+				.WithSprite( sprite )
+				.WithCollider( 0.625f, 0.375f, new Vector2( -0.3125f, -0.1875f ), solid: true )
+				.With( new PlayerControlComponent() )
+				.WithTag( "player" )
+				.Configure( ent => ent.GetComponent<TransformComponent>()!.MaxSpeed = PlayerMaxSpeed )
+				.Build();
 
 			Engine.RenderSystem.Camera.FollowTarget = pos;
 			Engine.RenderSystem.Camera.FollowSpeed = CameraFollowSpeed;
@@ -82,17 +103,34 @@ namespace ChildhoodAdventure.Scenes
 		protected Entity SpawnNpc( GraphicsDevice gd, string name, Vector2 pos,
 			CharacterAppearance appearance,	Action talkFn, float scale = 1f )
 		{
-			var e =	Engine.EntityWorld.CreateEntity( name );
-			e.AddComponent( new TransformComponent( pos ) );
-			e.AddComponent( new CollisionComponent( 0.625f, 0.5f, new Vector2(-0.3125f, -0.25f ) ) { IsSolid = true } );
-			var sprite = SpriteFactory.BuildCharacter( gd, appearance );
-			if( scale != 1f )
+			// Persistent identity: register-or-update an Npc by name. Existing
+			// world position from the registry takes precedence on re-entry,
+			// so an NPC who walked somewhere remembers it across scene reloads.
+			var npc =	Engine.NpcRegistry.Get( name );
+			if( npc == null )
 			{
-				sprite.FrameTileSize *=	scale;
+				npc =	new TileEngine.Npc.Npc( name, name )
+				{
+					WorldPosition =	pos,
+					CurrentScene =	Name,
+				};
+				Engine.NpcRegistry.Register( npc );
+			}
+			else
+			{
+				npc.CurrentScene =	Name;
+				if( npc.WorldPosition == Vector2.Zero ) npc.WorldPosition =	pos;
 			}
 
-			e.AddComponent( new SpriteComponent { Sprite = sprite } );
-			_npcTalks.Add( (e, talkFn) );
+			var sprite = SpriteFactory.BuildCharacter( gd, appearance );
+			if( scale != 1f )	sprite.FrameTileSize *=	scale;
+
+			var e =	NpcBuilder.Default( Engine.EntityWorld, npc )
+				.WithSprite( sprite )
+				.WithCollider( 0.625f, 0.5f, new Vector2( -0.3125f, -0.25f ), solid: true )
+				.With( new InteractableComponent( _ => talkFn(), range: InteractionRadius, prompt: "Talk" ) )
+				.Build();
+
 			return e;
 		}
 
@@ -185,12 +223,14 @@ namespace ChildhoodAdventure.Scenes
 
 			var pt = _player.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
 
-			foreach( var (npc, talkFn) in _npcTalks )
+			foreach( var e in Engine.EntityWorld.GetWithComponent<InteractableComponent>() )
 			{
-				var nt = npc.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
-				if( Vector2.Distance( pt, nt ) < InteractionRadius )
+				var ic = e.GetComponent<InteractableComponent>()!;
+				var nt = e.GetComponent<TransformComponent>()?.Position ?? Vector2.Zero;
+				float radius = ic.Range > 0 ? ic.Range : InteractionRadius;
+				if( Vector2.Distance( pt, nt ) < radius )
 				{
-					talkFn();
+					ic.Trigger( _player );
 					return;
 				}
 			}
