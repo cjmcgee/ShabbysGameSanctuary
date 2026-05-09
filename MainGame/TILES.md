@@ -9,7 +9,7 @@ Naming follows the current semantic-enum convention (one logical concept; per-sy
 | Tile | Notes / where used |
 |------|---------------------|
 | `Grass` **(existing)** | Default lawn / yard fill |
-| `Grass2` **(existing)** | Variant for break-up / wild patches |
+| `GrassAlt` **(existing)** | Variant for break-up / wild patches |
 | `TallGrass` | River bank wild rice, fallow farm edges |
 | `Dirt` | Woods trails, dirt bike track, primary school yard |
 | `Gravel` | School yards ("dust and gravel base"), dirt track |
