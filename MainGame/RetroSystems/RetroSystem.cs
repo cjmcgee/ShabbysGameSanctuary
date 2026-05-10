@@ -167,6 +167,34 @@ public abstract class RetroSystem
 	public abstract BodyPalette[] BodyPalettes { get; }
 	public abstract LegsPalette[] LegsPalettes { get; }
 
+	// ── In-world Atari 2600 console icon ──────────────────────────────────────
+	// The console is a static prop that appears in scenes (e.g. the home).
+	// Each retro system supplies its own palette so the icon participates in
+	// the active visual style. The shape (16×10 pixels) is shared across
+	// systems via <see cref="AtariConsoleArt.Layout"/>.
+
+	/// <summary>
+	/// Override to supply this system's colours for the in-world Atari console
+	/// icon. Default is a generic warm-wood + black-plastic scheme suitable
+	/// for systems that don't customise.
+	/// </summary>
+	protected virtual ConsolePalette GetConsolePalette() =>	new(
+		Wood:			new Color(120,	78,	38),
+		WoodLight:		new Color(160,	110,	60),
+		WoodShadow:		new Color( 80,	60,	30),
+		Body:			new Color( 18,	18,	22),
+		BodyShadow:		new Color( 32,	32,	36),
+		Switch:			new Color(200,	200,	210));
+
+	/// <summary>
+	/// Build the in-world Atari 2600 console sprite styled in this retro
+	/// system's palette and pixel constraints. Games that need a different
+	/// shape can override this directly; most systems just override
+	/// <see cref="GetConsolePalette"/>.
+	/// </summary>
+	public virtual AnimatedSprite BuildAtariConsoleSprite(GraphicsDevice gd)	=>
+		AtariConsoleArt.Build(gd, GetConsolePalette(), DoubleWidePixels);
+
 	// ── Public builders ───────────────────────────────────────────────────────
 
 	/// <summary>

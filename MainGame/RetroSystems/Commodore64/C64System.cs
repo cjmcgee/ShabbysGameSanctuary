@@ -35,6 +35,16 @@ public sealed class C64System :	RetroSystem
 
 	protected override Palette TilePalette { get; } = new C64Palette();
 
+	// C64: Brown wood, light-grey switches, near-black body. DoubleWidePixels
+	// (true on C64) gives the icon the system's chunky multicolor look.
+	protected override ConsolePalette GetConsolePalette()	=>	new(
+		Wood:			C64Palette.Brown,
+		WoodLight:		C64Palette.MidBrown,
+		WoodShadow:		C64Palette.DarkBrown,
+		Body:			C64Palette.NearBlack,
+		BodyShadow:		C64Palette.Black,
+		Switch:			C64Palette.LightGrey);
+
 	public override ScenePalette ScenePalette { get; } = new(
 		HouseBeige:		C64Palette.White,
 		HouseYellow:	C64Palette.Yellow,

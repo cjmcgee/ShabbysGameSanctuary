@@ -24,6 +24,17 @@ public sealed class CGASystem :	RetroSystem
 
 	protected override Palette TilePalette { get; } = new CGAPalette();
 
+	// CGA mode-4 palette 1 has only 4 colours (black/cyan/magenta/white).
+	// The console becomes magenta wood, white highlights, cyan switches —
+	// the unmistakable DOS-era look.
+	protected override ConsolePalette GetConsolePalette()	=>	new(
+		Wood:			CGAPalette.BrightMagenta,
+		WoodLight:		CGAPalette.White,
+		WoodShadow:		CGAPalette.Black,
+		Body:			CGAPalette.Black,
+		BodyShadow:		CGAPalette.Black,
+		Switch:			CGAPalette.BrightCyan);
+
 	// CGA mode-4 palette 1 has only 4 colours; many house tones collapse onto
 	// the same palette entry, mirroring authentic CGA limitations.
 	public override ScenePalette ScenePalette { get; } = new(

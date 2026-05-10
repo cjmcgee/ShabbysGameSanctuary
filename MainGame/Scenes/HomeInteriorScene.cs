@@ -185,7 +185,9 @@ namespace ChildhoodAdventure.Scenes
 		{
 			// Sits on the carpet near the sofa — a kid's natural play spot.
 			var pos = new Vector2( 5.5f, 9.5f );
-			var sprite = AtariConsoleSprite.Build( gd );
+			// Per-system styled icon: each retro system supplies its own palette
+			// so the console fits Atari/C64/Apple II/CGA/NES aesthetics.
+			var sprite = RetroSystemRegistry.Current.BuildAtariConsoleSprite( gd );
 
 			var e =	Engine.EntityWorld.CreateEntity( "AtariConsole" );
 			e.AddComponent( new TransformComponent( pos ) );

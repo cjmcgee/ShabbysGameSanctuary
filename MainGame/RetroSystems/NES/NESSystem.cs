@@ -24,6 +24,16 @@ public sealed class NESSystem :	RetroSystem
 
 	protected override Palette TilePalette { get; } = new NESPalette();
 
+	// NES has the richest palette here — the console gets a full wood-grain
+	// gradient (light/mid/shadow) plus near-black plastic and pale switches.
+	protected override ConsolePalette GetConsolePalette()	=>	new(
+		Wood:			NESPalette.WarmAmber,
+		WoodLight:		NESPalette.ShelfTan,
+		WoodShadow:		NESPalette.DarkBrown,
+		Body:			NESPalette.DoorBlack,
+		BodyShadow:		NESPalette.RoadBlack,
+		Switch:			NESPalette.NearWhite);
+
 	public override ScenePalette ScenePalette { get; } = new(
 		HouseBeige:		NESPalette.NearWhite,
 		HouseYellow:	NESPalette.PaleYellow,

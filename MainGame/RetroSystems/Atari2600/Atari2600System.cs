@@ -30,6 +30,17 @@ public sealed class Atari2600System :	RetroSystem
 
 	protected override Palette TilePalette { get; } =	new Atari2600Palette();
 
+	// Wood-grain top, near-black plastic body, off-white switches.
+	// DoubleWidePixels (true on Atari) is honoured by the base build, giving
+	// the icon the system's signature 2-pixel-wide chunkiness.
+	protected override ConsolePalette GetConsolePalette()	=>	new(
+		Wood:			Atari2600Palette.WarmAmber,
+		WoodLight:		Atari2600Palette.BrightYellow,
+		WoodShadow:		Atari2600Palette.DarkBrown,
+		Body:			Atari2600Palette.NearBlack,
+		BodyShadow:		Atari2600Palette.NearBlack,
+		Switch:			Atari2600Palette.NearWhite);
+
 	public override ScenePalette ScenePalette { get; } =	new(
 		HouseBeige:		Atari2600Palette.NearWhite,
 		HouseYellow:	Atari2600Palette.BrightYellow,

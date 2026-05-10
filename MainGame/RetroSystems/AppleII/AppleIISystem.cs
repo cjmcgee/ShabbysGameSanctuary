@@ -41,6 +41,16 @@ public sealed class AppleIISystem :	RetroSystem
 	// TODO: need to simulate color fringing for any text!
 	protected override Palette TilePalette { get; } = new AppleIIPalette();
 
+	// Apple II hi-res has only 6 colours. The console becomes orange-wood with
+	// a black plastic body and white switches — a stylised, very-Apple-II look.
+	protected override ConsolePalette GetConsolePalette()	=>	new(
+		Wood:			AppleIIPalette.Orange,
+		WoodLight:		AppleIIPalette.White,
+		WoodShadow:		AppleIIPalette.Black,
+		Body:			AppleIIPalette.Black,
+		BodyShadow:		AppleIIPalette.Black,
+		Switch:			AppleIIPalette.White);
+
 	// Apple II hi-res has only 6 colours; warm/yellow/orange roles all share
 	// Orange, blue/teal share Blue, etc.
 	public override ScenePalette ScenePalette { get; } = new(
