@@ -1,6 +1,11 @@
+using Battleshoot;
 using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TileEngine.Components;
+using TileEngine.ECS;
+using TileEngine.MiniGames;
+using TileEngine.Npc;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes
@@ -69,6 +74,7 @@ namespace ChildhoodAdventure.Scenes
 			SpawnDad( gd );
 			SpawnMom( gd );
 			SpawnJamie( gd );
+			SpawnAtariConsole( gd );
 		}
 
 		// ── Map builder ──────────────────────────────────────────────────────
@@ -172,6 +178,43 @@ namespace ChildhoodAdventure.Scenes
 		private void SpawnJamie( GraphicsDevice gd )	=>
 			SpawnNpc( gd, "Jamie", new Vector2( 3.5f, 11.5f ), NpcAppearances.Jamie,
 				()	=>	Engine.DialogueSystem.StartYarnNode( "Jamie" ) );
+
+		// ── Atari 2600 console ────────────────────────────────────────────────
+
+		private Entity SpawnAtariConsole( GraphicsDevice gd )
+		{
+			// Sits on the carpet near the sofa — a kid's natural play spot.
+			var pos = new Vector2( 5.5f, 9.5f );
+			var sprite = AtariConsoleSprite.Build( gd );
+
+			var e =	Engine.EntityWorld.CreateEntity( "AtariConsole" );
+			e.AddComponent( new TransformComponent( pos ) );
+			e.AddComponent( new SpriteComponent { Sprite = sprite } );
+			// Small, solid hitbox so the player can't walk over the console.
+			e.AddComponent( new CollisionComponent( 0.9f, 0.4f, new Vector2( -0.45f, -0.2f ) ) { IsSolid = true } );
+			e.AddComponent( new InteractableComponent(
+				onInteract:	_ =>	LaunchAtariGame(),
+				range:		1.4f,
+				prompt:		"Play Atari" ) );
+
+			Engine.EntityWorld.RegisterTag( "atari_console", e );
+			return e;
+		}
+
+		/// <summary>
+		/// Launch the Atari game library. The home Atari only owns one game
+		/// (Battleshoot) so we go straight to it; once a second cartridge is
+		/// added this would pop a "select game" menu first.
+		/// </summary>
+		private void LaunchAtariGame()
+		{
+			// Snapshot the player's current spot so they return next to the
+			// console rather than at the front-door spawn.
+			GameState.PlayerSpawnPosition =	PlayerPosition;
+
+			var miniGame = new BattleshootGame();
+			Engine.LoadScene( new MiniGameScene( miniGame, returnTo: () => new HomeInteriorScene() ) );
+		}
 
 		// ── Scene transitions ────────────────────────────────────────────────
 

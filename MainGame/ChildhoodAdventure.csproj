@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\Battleshoot\Battleshoot.csproj" />
   </ItemGroup>
 
   <!-- ── Yarn dialogue bundling ──────────────────────────────────────────────
