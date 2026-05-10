@@ -27,6 +27,15 @@ public sealed class EmulatorConfig
 	/// </summary>
 	public string SystemRoot { get; set; } =	"";
 
+	/// <summary>
+	/// CoreRoot effective value used by <see cref="ResolveCore"/>. If the
+	/// user left CoreRoot empty in the JSON we fall back to the executable's
+	/// own directory — that's where the build target lands the vendored
+	/// libretro cores (e.g. stella_libretro.so).
+	/// </summary>
+	public string EffectiveCoreRoot =>
+		string.IsNullOrEmpty(CoreRoot) ? AppContext.BaseDirectory :	CoreRoot;
+
 	private const string FileName =	"emulator-config.json";
 
 	public static EmulatorConfig LoadOrDefault()
@@ -65,9 +74,14 @@ public sealed class EmulatorConfig
 			? romFile
 			: Path.Combine(RomRoot, romFile);
 
-	/// <summary>Resolve <paramref name="coreFile"/> against <see cref="CoreRoot"/>.</summary>
+	/// <summary>
+	/// Resolve <paramref name="coreFile"/> against <see cref="CoreRoot"/>,
+	/// falling back to the exe directory when CoreRoot is unset (so the
+	/// libretro core built by MSBuild and copied next to the exe is found
+	/// automatically).
+	/// </summary>
 	public string ResolveCore(string coreFile)	=>
-		Path.IsPathRooted(coreFile) || string.IsNullOrEmpty(CoreRoot)
+		Path.IsPathRooted(coreFile)
 			? coreFile
-			: Path.Combine(CoreRoot, coreFile);
+			: Path.Combine(EffectiveCoreRoot, coreFile);
 }

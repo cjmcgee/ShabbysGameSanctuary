@@ -64,17 +64,21 @@ public sealed class GameLibrary
 		// it's obvious which dump we expect.
 		const string CombatRom =
 			"Combat - Tank-Plus (Tank) (1977) (Atari, Joe Decuir, Larry Kaplan, Steve Mayer, Larry Wagner - Sears) (CX2601 - 99801, 6-99801, 49-75101, 49-75124) ~.bin";
-		const string StellaCore =	"stella_libretro.so";	// Linux name; Windows = stella_libretro.dll
+		// Per-OS library name. The MSBuild target builds the matching one
+		// from stella/src/os/libretro and copies it next to the exe.
+		string stellaCore =
+			OperatingSystem.IsWindows() ?	"stella_libretro.dll" :
+			OperatingSystem.IsMacOS()   ?	"stella_libretro.dylib" :
+											"stella_libretro.so";
 
-		string corePath =	config.ResolveCore(StellaCore);
+		string corePath =	config.ResolveCore(stellaCore);
 		string romPath =	config.ResolveRom(CombatRom);
 
+		// CoreRoot may legitimately be empty — EmulatorConfig falls back to
+		// the exe directory in that case, which is where the build dropped
+		// the vendored core. So we only need to check the resolved file.
 		string?	unavailable =	null;
-		if( string.IsNullOrEmpty( config.CoreRoot ) )
-		{
-			unavailable =	"emulator-config.json: CoreRoot not set";
-		}
-		else if( !File.Exists( corePath ) )
+		if( !File.Exists( corePath ) )
 		{
 			unavailable =	$"core not found: {corePath}";
 		}

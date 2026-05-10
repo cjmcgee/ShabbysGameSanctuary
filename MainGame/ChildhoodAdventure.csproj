@@ -25,6 +25,51 @@
     </None>
   </ItemGroup>
 
+  <!-- ── libretro core build (stella, vendored as a git submodule) ─────────
+       The Stella project's libretro target is a normal GNU Make build under
+       stella/src/os/libretro. We invoke it before CoreCompile and copy the
+       resulting shared library next to the exe so emulator-config.json's
+       default empty CoreRoot resolves to "right next to the executable".
+
+       Set <BuildStellaLibretro>false</BuildStellaLibretro> on the cmdline
+       (-p:BuildStellaLibretro=false) to skip the native build entirely, e.g.
+       on a CI box that doesn't ship a C++ toolchain.
+  -->
+  <PropertyGroup>
+    <BuildStellaLibretro Condition="'$(BuildStellaLibretro)' == ''">true</BuildStellaLibretro>
+    <_StellaLibretroDir>$(MSBuildProjectDirectory)/../stella/src/os/libretro</_StellaLibretroDir>
+    <_StellaLibretroExt Condition="$([MSBuild]::IsOSPlatform('Windows'))">dll</_StellaLibretroExt>
+    <_StellaLibretroExt Condition="$([MSBuild]::IsOSPlatform('OSX'))">dylib</_StellaLibretroExt>
+    <_StellaLibretroExt Condition="'$(_StellaLibretroExt)' == ''">so</_StellaLibretroExt>
+    <_StellaLibretroLib>$(_StellaLibretroDir)/stella_libretro.$(_StellaLibretroExt)</_StellaLibretroLib>
+  </PropertyGroup>
+
+  <!-- Run make in the stella libretro folder. Inputs/Outputs make this
+       incremental at the MSBuild level; make itself also tracks per-file
+       deps via .d files so a no-op rebuild is fast. -->
+  <Target Name="BuildStellaLibretroCore"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(BuildStellaLibretro)' == 'true' AND Exists('$(_StellaLibretroDir)/Makefile')"
+          Inputs="$(_StellaLibretroDir)/libretro.cxx;$(_StellaLibretroDir)/Makefile"
+          Outputs="$(_StellaLibretroLib)">
+    <Message Importance="high" Text="Building stella libretro core (one-time on first build) ..." />
+    <Exec Command="make -j$([System.Environment]::ProcessorCount) -C &quot;$(_StellaLibretroDir)&quot;"
+          ConsoleToMsBuild="true" />
+  </Target>
+
+  <!-- Copy the built core next to the exe so the frontend finds it at
+       startup. PreserveNewest skips when timestamps match. The Condition
+       lets the .NET build still succeed if the user chose to skip the
+       native build (CI, missing g++, etc) — the menu will just show
+       Combat as unavailable. -->
+  <ItemGroup Condition="Exists('$(_StellaLibretroLib)')">
+    <None Include="$(_StellaLibretroLib)">
+      <Link>stella_libretro.$(_StellaLibretroExt)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+
   <!-- ── Yarn dialogue bundling ──────────────────────────────────────────────
        The .yarn source files are GZip-compressed into a single bundle at build
        time and embedded as a managed resource.  No loose .yarn files are shipped
