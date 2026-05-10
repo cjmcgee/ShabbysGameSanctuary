@@ -1,4 +1,3 @@
-using Battleshoot;
 using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -208,9 +207,10 @@ namespace ChildhoodAdventure.Scenes
 		}
 
 		/// <summary>
-		/// Launch the Atari game library. The home Atari only owns one game
-		/// (Battleshoot) so we go straight to it; once a second cartridge is
-		/// added this would pop a "select game" menu first.
+		/// Launch the Atari game-select menu. The menu lists every entry in
+		/// the configured <see cref="GameLibrary"/> (currently Battleshoot
+		/// native + Combat emulated via libretro) and lets the player pick
+		/// one; selecting an entry hands off to <see cref="MiniGameScene"/>.
 		/// </summary>
 		private void LaunchAtariGame()
 		{
@@ -218,8 +218,9 @@ namespace ChildhoodAdventure.Scenes
 			// console rather than at the front-door spawn.
 			GameState.PlayerSpawnPosition =	PlayerPosition;
 
-			var miniGame = new BattleshootGame();
-			Engine.LoadScene( new MiniGameScene( miniGame, returnTo: () => new HomeInteriorScene() ) );
+			var config =	EmulatorConfig.LoadOrDefault();
+			var library =	new GameLibrary( config );
+			Engine.LoadScene( new GameSelectMenuScene( library, returnTo: () => new HomeInteriorScene() ) );
 		}
 
 		// ── Scene transitions ────────────────────────────────────────────────

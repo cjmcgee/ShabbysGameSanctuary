@@ -18,6 +18,13 @@
     <ProjectReference Include="..\Battleshoot\Battleshoot.csproj" />
   </ItemGroup>
 
+  <!-- Copy the emulator config to the output dir so the exe finds it next to itself. -->
+  <ItemGroup>
+    <None Update="emulator-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <!-- ── Yarn dialogue bundling ──────────────────────────────────────────────
        The .yarn source files are GZip-compressed into a single bundle at build
        time and embedded as a managed resource.  No loose .yarn files are shipped

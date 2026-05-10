@@ -1,0 +1,150 @@
+using ChildhoodAdventure.RetroSystems;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using TileEngine.Core;
+using TileEngine.MiniGames;
+using TileEngine.Rendering;
+
+namespace ChildhoodAdventure.Scenes;
+
+/// <summary>
+/// Cartridge-select menu shown when the player interacts with the in-world
+/// Atari console. Lists every <see cref="GameEntry"/> in the
+/// <see cref="GameLibrary"/>; arrow keys (or W/S) navigate, E launches,
+/// Escape returns to the home interior.
+///
+/// Unavailable entries (e.g. emulated games whose core / ROM the
+/// configuration can't find on disk) render dimmed with their reason printed
+/// inline, so misconfiguration is visible without launching anything.
+/// </summary>
+public sealed class GameSelectMenuScene :	Scene
+{
+	private readonly GameLibrary _library;
+	private readonly Func<Scene>	_returnTo;
+	private int _selection;
+	private KeyboardState _prevKeys;
+	private Texture2D?	_pixel;
+
+	public GameSelectMenuScene(GameLibrary library, Func<Scene> returnTo)
+	{
+		_library =	library;
+		_returnTo =	returnTo;
+		Name =	"GameSelectMenu";
+	}
+
+	protected override void OnLoad()
+	{
+		_pixel =	new Texture2D(Engine.GraphicsDevice, 1, 1);
+		_pixel.SetData(new[] { Color.White });
+		_selection =	Math.Max(0, FirstAvailable());
+	}
+
+	protected override void OnUnload()
+	{
+		_pixel?.Dispose();
+		_pixel =	null;
+	}
+
+	public override void Update(GameTime gameTime)
+	{
+		var keys =	Keyboard.GetState();
+		bool down =	IsPressed(keys, Keys.Down) || IsPressed(keys, Keys.S);
+		bool up =	IsPressed(keys, Keys.Up)   || IsPressed(keys, Keys.W);
+		bool select =	IsPressed(keys, Keys.E)    || IsPressed(keys, Keys.Enter);
+		bool cancel =	IsPressed(keys, Keys.Escape);
+
+		if (down)	Move(+1);
+		if (up)		Move(-1);
+
+		if (cancel)
+		{
+			Engine.LoadScene(_returnTo());
+			return;
+		}
+
+		if (select)
+		{
+			var entry =	_library.Games[_selection];
+			if (entry.IsAvailable)
+				Engine.LoadScene(new MiniGameScene(entry.Create(), _returnTo));
+			// If unavailable, the on-screen reason already explains why; do
+			// nothing — the user can press Escape or pick another title.
+		}
+
+		_prevKeys =	keys;
+	}
+
+	private bool IsPressed(KeyboardState keys, Keys k)	=>
+		keys.IsKeyDown(k) && !_prevKeys.IsKeyDown(k);
+
+	private void Move(int delta)
+	{
+		int n =	_library.Games.Count;
+		_selection =	((_selection + delta)	% n + n)	% n;
+	}
+
+	private int FirstAvailable()
+	{
+		for (int i = 0; i < _library.Games.Count; i++)
+			if (_library.Games[i].IsAvailable)	return i;
+		return 0;
+	}
+
+	public override void Draw(SpriteBatch sb, GameTime gameTime)
+	{
+		var sp =	RetroSystemRegistry.Current.ScenePalette;
+		Engine.GraphicsDevice.Clear(sp.UiBackground);
+
+		Engine.RenderSystem.BeginUI();
+		var spriteBatch =	Engine.RenderSystem.SpriteBatch;
+		var font =	Engine.RenderSystem.Font;
+		var vp =	Engine.GraphicsDevice.Viewport;
+
+		const float scale =	2.5f;
+		float lineH =	PixelFont.CharH * scale + 8;
+
+		// Title.
+		string title =	"ATARI 2600 — SELECT GAME";
+		float titleW =	font.MeasureWidth(title)	* scale;
+		font.DrawText(spriteBatch, title,
+			new Vector2((vp.Width - titleW)	/ 2f, 60),
+			sp.UiAccent, scale);
+
+		// Menu items.
+		float menuTop =	120;
+		float menuLeft =	(vp.Width / 2f) - 200;
+		for (int i = 0; i < _library.Games.Count; i++)
+		{
+			var entry =	_library.Games[i];
+			bool selected =	(i == _selection);
+			bool avail =	entry.IsAvailable;
+
+			Color c =	!avail ? sp.UiDim
+				:	selected ? sp.UiAccent :	sp.UiText;
+
+			string prefix =	selected ? "▶  " : "    ";
+			string suffix =	entry.IsEmulated ? "  (emulated)" :	"  (native)";
+			string text =	$"{prefix}{entry.Name}{suffix}";
+			font.DrawText(spriteBatch, text,
+				new Vector2(menuLeft, menuTop + i * lineH),
+				c, scale);
+
+			if (!avail && entry.UnavailableReason != null)
+			{
+				font.DrawText(spriteBatch, "    " + entry.UnavailableReason,
+					new Vector2(menuLeft + 24, menuTop + i * lineH + lineH * 0.45f),
+					sp.UiDim, scale * 0.55f);
+			}
+		}
+
+		// Footer hint.
+		string hint =	"↑/↓: select   E/Enter: load   Esc: back";
+		float hintW =	font.MeasureWidth(hint)	* scale * 0.8f;
+		font.DrawText(spriteBatch, hint,
+			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 60),
+			sp.UiDim, scale * 0.8f);
+
+		Engine.RenderSystem.EndUI();
+	}
+}

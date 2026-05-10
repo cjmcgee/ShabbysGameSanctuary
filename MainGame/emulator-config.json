@@ -1,0 +1,6 @@
+{
+  "_comment": "Set RomRoot to wherever your ROMs live (mount an SMB share to a local path first).",
+  "RomRoot": "",
+  "CoreRoot": "",
+  "SystemRoot": ""
+}

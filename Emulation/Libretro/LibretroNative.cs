@@ -1,0 +1,187 @@
+using System.Runtime.InteropServices;
+
+namespace TileEngine.MiniGames.Libretro
+{
+	/// <summary>
+	/// Constants, enums, structs, and delegate types mirroring the relevant
+	/// subset of the libretro API
+	/// (https://github.com/libretro/libretro-common — <c>libretro.h</c>).
+	///
+	/// We define here only what the frontend actually uses; libretro's full
+	/// header is much larger and most of it is core-only.
+	/// </summary>
+	internal static class LibretroNative
+	{
+		// ── Pixel formats ────────────────────────────────────────────────────
+		public const int RETRO_PIXEL_FORMAT_0RGB1555	=	0;	// 16-bit, default
+		public const int RETRO_PIXEL_FORMAT_XRGB8888	=	1;	// 32-bit, easiest
+		public const int RETRO_PIXEL_FORMAT_RGB565		=	2;	// 16-bit
+
+		// ── Environment commands (frontend ↔ core hooks) ─────────────────────
+		// We respond to the small set the Stella / Atari 2600 cores actually
+		// use; everything else returns false (= "not supported").
+		public const uint RETRO_ENVIRONMENT_GET_OVERSCAN			=	2;
+		public const uint RETRO_ENVIRONMENT_GET_CAN_DUPE			=	3;
+		public const uint RETRO_ENVIRONMENT_SET_MESSAGE				=	6;
+		public const uint RETRO_ENVIRONMENT_SHUTDOWN				=	7;
+		public const uint RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL	=	8;
+		public const uint RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY	=	9;
+		public const uint RETRO_ENVIRONMENT_SET_PIXEL_FORMAT		=	10;
+		public const uint RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS	=	11;
+		public const uint RETRO_ENVIRONMENT_SET_KEYBOARD_CALLBACK	=	12;
+		public const uint RETRO_ENVIRONMENT_SET_DISK_CONTROL_INTERFACE	=	13;
+		public const uint RETRO_ENVIRONMENT_SET_HW_RENDER			=	14;
+		public const uint RETRO_ENVIRONMENT_GET_VARIABLE			=	15;
+		public const uint RETRO_ENVIRONMENT_SET_VARIABLES			=	16;
+		public const uint RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE		=	17;
+		public const uint RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME		=	18;
+		public const uint RETRO_ENVIRONMENT_GET_LIBRETRO_PATH		=	19;
+		public const uint RETRO_ENVIRONMENT_GET_LOG_INTERFACE		=	27;
+		public const uint RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY		=	31;
+		public const uint RETRO_ENVIRONMENT_GET_LANGUAGE			=	39;
+
+		// Bit flag returned in cmd to signify "experimental / extension".
+		public const uint RETRO_ENVIRONMENT_EXPERIMENTAL =	0x10000u;
+		public const uint RETRO_ENVIRONMENT_PRIVATE      =	0x20000u;
+
+		// ── Input devices / IDs ──────────────────────────────────────────────
+		public const uint RETRO_DEVICE_NONE     =	0;
+		public const uint RETRO_DEVICE_JOYPAD   =	1;
+		public const uint RETRO_DEVICE_MOUSE    =	2;
+		public const uint RETRO_DEVICE_KEYBOARD =	3;
+
+		public const uint RETRO_DEVICE_ID_JOYPAD_B      =	0;
+		public const uint RETRO_DEVICE_ID_JOYPAD_Y      =	1;
+		public const uint RETRO_DEVICE_ID_JOYPAD_SELECT =	2;
+		public const uint RETRO_DEVICE_ID_JOYPAD_START  =	3;
+		public const uint RETRO_DEVICE_ID_JOYPAD_UP     =	4;
+		public const uint RETRO_DEVICE_ID_JOYPAD_DOWN   =	5;
+		public const uint RETRO_DEVICE_ID_JOYPAD_LEFT   =	6;
+		public const uint RETRO_DEVICE_ID_JOYPAD_RIGHT  =	7;
+		public const uint RETRO_DEVICE_ID_JOYPAD_A      =	8;
+		public const uint RETRO_DEVICE_ID_JOYPAD_X      =	9;
+		public const uint RETRO_DEVICE_ID_JOYPAD_L      =	10;
+		public const uint RETRO_DEVICE_ID_JOYPAD_R      =	11;
+
+		// ── Structs (libretro.h packing matches the platform default) ───────
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_system_info
+		{
+			public IntPtr	library_name;		// const char*
+			public IntPtr	library_version;	// const char*
+			public IntPtr	valid_extensions;	// const char*
+			[MarshalAs(UnmanagedType.U1)]	public bool	need_fullpath;
+			[MarshalAs(UnmanagedType.U1)]	public bool	block_extract;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_game_info
+		{
+			public IntPtr	path;		// const char* (UTF-8)
+			public IntPtr	data;		// const void*
+			public UIntPtr	size;		// size_t
+			public IntPtr	meta;		// const char*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_game_geometry
+		{
+			public uint		base_width;
+			public uint		base_height;
+			public uint		max_width;
+			public uint		max_height;
+			public float	aspect_ratio;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_system_timing
+		{
+			public double	fps;
+			public double	sample_rate;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_system_av_info
+		{
+			public retro_game_geometry	geometry;
+			public retro_system_timing	timing;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_variable
+		{
+			public IntPtr	key;	// const char*
+			public IntPtr	value;	// const char*
+		}
+
+		// ── Delegate signatures ─────────────────────────────────────────────
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_init_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_deinit_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate uint retro_api_version_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_get_system_info_t(out retro_system_info info);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_get_system_av_info_t(out retro_system_av_info info);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_environment_t(retro_environment_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_video_refresh_t(retro_video_refresh_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_audio_sample_t(retro_audio_sample_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_audio_sample_batch_t(retro_audio_sample_batch_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_input_poll_t(retro_input_poll_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_set_input_state_t(retro_input_state_t cb);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		[return:	MarshalAs(UnmanagedType.U1)]
+		public delegate bool retro_load_game_t(ref retro_game_info info);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_unload_game_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_run_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_reset_t();
+
+		// ── Callback signatures (frontend → core) ───────────────────────────
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		[return:	MarshalAs(UnmanagedType.U1)]
+		public delegate bool retro_environment_t(uint cmd, IntPtr data);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_video_refresh_t(IntPtr data, uint width, uint height, UIntPtr pitch);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_audio_sample_t(short left, short right);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate UIntPtr retro_audio_sample_batch_t(IntPtr data, UIntPtr frames);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_input_poll_t();
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate short retro_input_state_t(uint port, uint device, uint index, uint id);
+	}
+}
