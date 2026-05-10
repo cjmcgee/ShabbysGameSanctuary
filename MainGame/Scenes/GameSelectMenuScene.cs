@@ -38,6 +38,11 @@ public sealed class GameSelectMenuScene :	Scene
 		_pixel =	new Texture2D(Engine.GraphicsDevice, 1, 1);
 		_pixel.SetData(new[] { Color.White });
 		_selection =	Math.Max(0, FirstAvailable());
+
+		// Seed the previous-keys state with whatever's currently held so the
+		// E press that opened this menu doesn't immediately register as a
+		// fresh edge here and auto-select the first item.
+		_prevKeys =	Keyboard.GetState();
 	}
 
 	protected override void OnUnload()
@@ -102,7 +107,15 @@ public sealed class GameSelectMenuScene :	Scene
 		var vp =	Engine.GraphicsDevice.Viewport;
 
 		const float scale =	2.5f;
-		float lineH =	PixelFont.CharH * scale + 8;
+		const float reasonScale =	1.6f;
+		float mainTextH =	PixelFont.CharH * scale;
+		const float postReasonGap =	8f;
+		const float postEntryGap =	14f;
+
+		// Bright red so misconfiguration is loud, not lost under the dim
+		// "disabled choice" colour. Stays the same across all retro systems
+		// because it's a config-error message, not in-world UI flavor.
+		var errorColor =	new Color(232, 80, 80);
 
 		// Title.
 		string title =	"ATARI 2600 — SELECT GAME";
@@ -111,9 +124,10 @@ public sealed class GameSelectMenuScene :	Scene
 			new Vector2((vp.Width - titleW)	/ 2f, 60),
 			sp.UiAccent, scale);
 
-		// Menu items.
-		float menuTop =	120;
+		// Menu items — y is accumulated so unavailable entries take the
+		// extra vertical space their reason line needs.
 		float menuLeft =	(vp.Width / 2f) - 200;
+		float y =	120;
 		for (int i = 0; i < _library.Games.Count; i++)
 		{
 			var entry =	_library.Games[i];
@@ -126,16 +140,25 @@ public sealed class GameSelectMenuScene :	Scene
 			string prefix =	selected ? "▶  " : "    ";
 			string suffix =	entry.IsEmulated ? "  (emulated)" :	"  (native)";
 			string text =	$"{prefix}{entry.Name}{suffix}";
-			font.DrawText(spriteBatch, text,
-				new Vector2(menuLeft, menuTop + i * lineH),
-				c, scale);
+			font.DrawText(spriteBatch, text, new Vector2(menuLeft, y), c, scale);
+			y +=	mainTextH;
 
 			if (!avail && entry.UnavailableReason != null)
 			{
-				font.DrawText(spriteBatch, "    " + entry.UnavailableReason,
-					new Vector2(menuLeft + 24, menuTop + i * lineH + lineH * 0.45f),
-					sp.UiDim, scale * 0.55f);
+				y +=	4;	// small gap between name and reason
+				// Left-justified and wrapped to the viewport so long config
+				// paths don't run off the right edge. Indent slightly from the
+				// screen edge for readability; the menu items above are
+				// centered, this line breaks that alignment intentionally.
+				const float reasonLeft =	24f;
+				float reasonMaxWidth =	vp.Width - reasonLeft * 2;
+				float used =	font.DrawWrappedText(spriteBatch,
+					"⚠ " + entry.UnavailableReason,
+					new Vector2(reasonLeft, y), errorColor, reasonMaxWidth, reasonScale);
+				y +=	used + postReasonGap;
 			}
+
+			y +=	postEntryGap;
 		}
 
 		// Footer hint.

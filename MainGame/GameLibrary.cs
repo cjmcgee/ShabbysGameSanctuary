@@ -80,15 +80,15 @@ public sealed class GameLibrary
 		string?	unavailable =	null;
 		if( !File.Exists( corePath ) )
 		{
-			unavailable =	$"core not found: {corePath}";
+			unavailable =	$"Don't know where to look for emulator cores! Set CoreRoot in emulator-config.json. Currently: {corePath}";
 		}
 		else if( string.IsNullOrEmpty( config.RomRoot ) )
 		{
-			unavailable =	"emulator-config.json: RomRoot not set";
+			unavailable =	"ROM location is not set! Please set RomRoot in emulator-config.json";
 		}
 		else if( !File.Exists( romPath ) )
 		{
-			unavailable =	$"ROM not found: {romPath}";
+			unavailable =	$"Requested ROM not found: {romPath}";
 		}
 
 		games.Add( new GameEntry(
