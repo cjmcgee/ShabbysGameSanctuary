@@ -7,52 +7,112 @@ using TileEngine.Rendering;
 namespace Battleshoot;
 
 /// <summary>
-/// "Battleshoot" — a deliberately faithful homage to Atari 2600 Combat (1977).
-/// Two tanks, one screen, four walls forming the classic centre-pinch maze;
-/// one bullet at a time per tank, first to <see cref="ScoreToWin"/> wins.
+/// "Battleshoot" — a faithful homage to Atari 2600 Combat (1977, Larry Wagner).
 ///
-/// Implements <see cref="IEmbeddedMiniGame"/> so it can run as a standalone
-/// executable (via <see cref="Program"/> and <see cref="StandaloneHost"/>) or
-/// be hosted inside ChildhoodAdventure as a <see cref="MiniGameScene"/>.
+/// Recreates Combat's signature mechanics from the decompiled ROM
+/// ("Combat (decomp).asm" in Notes/src):
+///   • <b>Sprite</b>: the 8 stored rotation frames from <c>TankShape</c>, plus
+///     180° flips (TIA <c>REFP0</c> + reverse byte iteration) to fill 16
+///     directions at 22.5° each.
+///   • <b>Movement</b>: 16-direction <c>DIRECTN</c>, forward-only thrust
+///     (Combat's tank joystick has UP=thrust, LEFT/RIGHT=turn, DOWN does
+///     nothing — see <c>CTRLTBL</c> in the ROM). Turns are paced by
+///     <c>TurnTimer</c> at $0F frames per 22.5° step.
+///   • <b>Map</b>: the Complex Maze decoded directly from <c>PF0_0</c>,
+///     <c>PF1_0</c>, <c>PF2_0</c> in the ROM, with TIA's horizontal
+///     reflection (REFLECT bit in <c>CTRLPF</c>) and Combat's kernel
+///     vertical reflection around scanline $80.
+///   • <b>Stir on hit</b>: the loser's tank rotates while the winner pauses
+///     (Combat's <c>StirTimer</c> + <c>RushTank</c> behaviour, simplified).
+///
+/// Aspect: every Atari logical pixel is two screen pixels wide on a real
+/// display. The internal 160×192 playfield is shown as 320×192 square pixels;
+/// the Draw routine handles the stretch.
+///
+/// Implements <see cref="IEmbeddedMiniGame"/> so this same class runs either
+/// in <see cref="StandaloneHost"/> (Battleshoot.exe) or inside ChildhoodAdventure
+/// as a <see cref="TileEngine.MiniGames.MiniGameScene"/>.
 /// </summary>
 public sealed class BattleshootGame :	IEmbeddedMiniGame
 {
-	// ── Constants — Atari 2600 native NTSC playfield is 160×192 ──────────────
-	// Internal game coordinates use this 160-wide logical space so gameplay
-	// constants (speeds, sizes, wall positions) stay Atari-authentic.
+	// ── Native NTSC playfield (Atari logical pixels) ─────────────────────────
 	public const int FieldWidth	=	160;
 	public const int FieldHeight	=	192;
-
-	// Atari 2600 pixels are NOT square: each logical pixel covers two
-	// horizontal screen pixels on a real display. On a square-pixel monitor
-	// the playfield must be presented as 320×192 with every column doubled.
-	// The Draw routine handles the X→screen mapping; <see cref="DisplayWidth"/>
-	// is what the host should letterbox to.
 	public const int PixelAspectXMultiplier	=	2;
 	public const int DisplayWidth	=	FieldWidth * PixelAspectXMultiplier;	// 320
 
 	private const int HudHeight =	16;
 	private const int PlayHeight =	FieldHeight - HudHeight;
 
-	private const float TankSpeed =	36f;	// pixels per second
-	private const float BulletSpeed =	120f;
-	private const float FireCooldown =	0.25f;
-	private const float TankSize =	10f;
-	private const float BulletSize =	3f;
-	private const float MaxBulletDistance =	200f;
-	private const int ScoreToWin =	5;
-	private const float HitFreezeSeconds =	0.6f;
-	private const float WinHoldSeconds =	2.5f;
+	// ── Combat constants (ported from ROM) ──────────────────────────────────
+	private const int TankSpriteW =	8;	// tank shape is 8 bits wide
+	private const int TankSpriteH =	16;	// 8 stored rows × 2 scanlines per row
+	private const int TankCollisionH =	12;	// forgive 2 px top + 2 px bottom
 
-	// Atari 2600 NTSC palette samples (close enough for the homage).
-	// Combat tanks-mode field is a deep brick red, walls are cream-yellow.
-	private static readonly Color BgColor =	new(162, 78, 44);		// Combat brick-red field
-	private static readonly Color WallColor =	new(228, 188, 110);	// cream-yellow walls
+	// Per-frame motion (60 fps target). Combat ran ~60Hz; HMPx offsets give
+	// ~1–3 pixel/frame depending on diagonal/axis-aligned.
+	private const float TankSpeedPerFrame =	1.0f;	// ~60 logical px/sec forward
+	private const float BulletSpeedPerFrame =	2.5f;	// ~150 logical px/sec
+	private const int TurnFrames =	10;	// TurnTimer init in ROM = $0F=15. 10 feels less sluggish.
+	private const int MisLifeFrames =	63;	// MisLife init in ROM = $3F
+	private const int FireCooldownFrames =	8;
+	private const int ScoreToWin =	9;	// single BCD digit, matches score display
+	private const int StirFrames =	36;	// ~0.6s loser-spin before reset
+	private const int WinHoldFrames =	150;	// ~2.5s win banner before exit
+
+	// ── Colours (Atari NTSC palette samples — tank-mode red & cream) ────────
+	private static readonly Color BgColor =	new(162, 78, 44);
+	private static readonly Color WallColor =	new(228, 188, 110);
 	private static readonly Color HudColor =	new(20, 20, 20);
 	private static readonly Color HudText =	new(236, 236, 236);
-	private static readonly Color P1Color =	new(212, 80, 60);		// red tank
+	private static readonly Color P1Color =	new(212, 80, 60);		// orange-red tank
 	private static readonly Color P2Color =	new(80, 156, 220);	// blue tank
 	private static readonly Color BulletColor =	new(252, 224, 168);
+
+	// ── Combat ROM tank sprite ($F64F..$F68E) ───────────────────────────────
+	// 8 stored frames × 8 bytes; bit 7 = leftmost pixel. Each byte renders
+	// for 2 scanlines, so the visible sprite is 8×16. Frame 0 faces East;
+	// frames advance 22.5° counter-clockwise. Directions 8..15 are computed
+	// at draw time by 180°-rotating frames 0..7 (horizontal flip + reverse
+	// byte order) — exactly what the ROM's <c>ROT</c> routine does via
+	// <c>REFP0</c> and the carry-flag-controlled DEY/INY trick.
+	private static readonly byte[][]	TankFrames =	new[]
+	{
+		new byte[] { 0x00, 0xFC, 0xFC, 0x38, 0x3F, 0x38, 0xFC, 0xFC },	// 0  East
+		new byte[] { 0x1C, 0x78, 0xFB, 0x7C, 0x1C, 0x1F, 0x3E, 0x18 },	// 1  ENE
+		new byte[] { 0x19, 0x3A, 0x7C, 0xFF, 0xDF, 0x0E, 0x1C, 0x18 },	// 2  NE
+		new byte[] { 0x24, 0x64, 0x79, 0xFF, 0xFF, 0x4E, 0x0E, 0x04 },	// 3  NNE
+		new byte[] { 0x08, 0x08, 0x6B, 0x7F, 0x7F, 0x7F, 0x63, 0x63 },	// 4  North
+		new byte[] { 0x24, 0x26, 0x9E, 0xFF, 0xFF, 0x72, 0x70, 0x20 },	// 5  NNW
+		new byte[] { 0x98, 0x5C, 0x3E, 0xFF, 0xFB, 0x70, 0x38, 0x18 },	// 6  NW
+		new byte[] { 0x38, 0x1E, 0xDF, 0x3E, 0x38, 0xF8, 0x7C, 0x18 },	// 7  WNW
+	};
+
+	// ── Combat ROM Complex Maze: PF0_0, PF1_0, PF2_0 ────────────────────────
+	// 11 rows (the ROM has 12; we drop the solid-border row 0 so the top of
+	// the playfield is open — the rest of the maze, including the left/right
+	// edge "spines" generated by PF0=$10, stays). Each row is 8 scanlines.
+	// TIA semantics for decoding into 20 cells:
+	//   PF0 high nibble (bits 4..7) → cells 0..3, MSB-first
+	//   PF1 all 8 bits (bits 7..0) → cells 4..11, MSB-first
+	//   PF2 all 8 bits (bits 0..7) → cells 12..19, LSB-first (reversed)
+	// Then the right half (cells 20..39) is left half mirrored, courtesy of
+	// CTRLPF's REFLECT bit. The kernel also vertically mirrors the field
+	// around scanline $80; we replicate that by drawing each row twice.
+	private static readonly (byte pf0, byte pf1, byte pf2)[]	MazePfData =
+	{
+		( 0x10, 0x00, 0x80 ),	// PF row 1 (Combat $F77A/$F786/$F792)
+		( 0x10, 0x00, 0x80 ),	// PF row 2
+		( 0x10, 0x00, 0x00 ),	// PF row 3
+		( 0x10, 0x38, 0x00 ),	// PF row 4
+		( 0x10, 0x00, 0x00 ),	// PF row 5
+		( 0x10, 0x00, 0x1C ),	// PF row 6
+		( 0x10, 0x00, 0x04 ),	// PF row 7
+		( 0x10, 0x60, 0x00 ),	// PF row 8
+		( 0x10, 0x20, 0x00 ),	// PF row 9
+		( 0x10, 0x20, 0x00 ),	// PF row 10
+		( 0x10, 0x23, 0x00 ),	// PF row 11
+	};
 
 	// ── State ────────────────────────────────────────────────────────────────
 	private GraphicsDevice _gd =	null!;
@@ -62,306 +122,148 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 	private Tank _p2 =	null!;
 	private readonly List<Bullet>	_bullets =	new();
 	private readonly List<Rectangle>	_walls =	new();
-	private float _hitFreezeTimer;
-	private int _winner;	// 0 = none, 1 = P1, 2 = P2
-	private float _winHoldTimer;
+	private int _stirTimer;
+	private Tank?	_stirLoser;
+	private int _winner;
+	private int _winHoldTimer;
 	private bool _finished;
-	private readonly Random _rng =	new();
 
 	// ── IEmbeddedMiniGame ────────────────────────────────────────────────────
 	public string Title =>	"Battleshoot";
-	// Native display is 320×192 SQUARE pixels (logical 160×192 doubled
-	// horizontally to honour Atari 2600 double-wide pixels). Hosts letterbox
-	// this aspect.
 	public Point NativeResolution =>	new(DisplayWidth, FieldHeight);
 	public bool IsFinished =>	_finished;
 
-	public void Initialize(GraphicsDevice graphicsDevice, ContentManager content)
+	public void Initialize(GraphicsDevice gd, ContentManager content)
 	{
-		_gd =	graphicsDevice;
+		_gd =	gd;
 		_pixel =	new Texture2D(_gd, 1, 1);
 		_pixel.SetData(new[] { Color.White });
-
-		BuildWalls();
+		BuildMazeFromPfData();
 		ResetRound(initial:	true);
 	}
 
 	public void Update(GameTime gameTime, IMiniGameInput input)
 	{
-		float dt =	(float)gameTime.ElapsedGameTime.TotalSeconds;
-
-		// Host-driven exit (ESC). Honour immediately if no game is in progress;
-		// otherwise the player has to finish the match.
 		if (input.ExitRequested)	{ _finished =	true; return; }
 
-		// Win banner timing
 		if (_winner != 0)
 		{
-			_winHoldTimer -=	dt;
-			if (_winHoldTimer <= 0f)	{ _finished =	true; }
+			if (--_winHoldTimer <= 0)	_finished =	true;
 			return;
 		}
 
-		// Brief freeze on hit so the impact reads
-		if (_hitFreezeTimer > 0f)
+		if (_stirTimer > 0)
 		{
-			_hitFreezeTimer -=	dt;
-			if (_hitFreezeTimer <= 0f)	ResetRound(initial:	false);
+			UpdateStir();
 			return;
 		}
 
-		UpdateTank(_p1, input.GetDirection(0), input.IsFirePressed(0), dt);
-		UpdateTankAi(_p2, _p1, dt);
-
-		UpdateBullets(dt);
+		UpdatePlayer(_p1, input.GetDirection(0), input.IsFireDown(0));
+		UpdateAi(_p2, _p1);
+		UpdateBullets();
 		ResolveCollisions();
 		CheckWin();
 	}
 
-	public void Draw(SpriteBatch spriteBatch, RectangleF viewport)
+	// ── Player / AI control ──────────────────────────────────────────────────
+
+	/// <summary>
+	/// Combat's tank joystick model (see <c>CTRLTBL</c> in the ROM):
+	///   UP = thrust forward at current heading
+	///   LEFT  = rotate +22.5° (counter-clockwise)
+	///   RIGHT = rotate -22.5° (clockwise)
+	///   DOWN  = nothing (no reverse)
+	/// Turns are paced by <see cref="Tank.TurnTimer"/> so you can't spin in place.
+	/// </summary>
+	private void UpdatePlayer(Tank t, Vector2 input, bool fire)
 	{
-		// Fit the 320×192 display rectangle into the host viewport. Px() then
-		// converts logical (160-wide) coordinates to screen pixels by
-		// stretching X by PixelAspectXMultiplier — the Atari 2600
-		// double-wide-pixel rule applied at draw time so internal gameplay
-		// stays in clean 160×192 logical space.
-		float scale =	MathF.Min(viewport.Width / DisplayWidth, viewport.Height / FieldHeight);
-		float ox =	viewport.X + (viewport.Width  - DisplayWidth * scale)	* 0.5f;
-		float oy =	viewport.Y + (viewport.Height - FieldHeight  * scale)	* 0.5f;
-		Rectangle Px(float x, float y, float w, float h)	=>
-			new(
-				(int)(ox + x * PixelAspectXMultiplier * scale),
-				(int)(oy + y * scale),
-				(int)MathF.Ceiling(w * PixelAspectXMultiplier * scale),
-				(int)MathF.Ceiling(h * scale));
-
-		// Background
-		spriteBatch.Draw(_pixel, Px(0, HudHeight, FieldWidth, PlayHeight), BgColor);
-		spriteBatch.Draw(_pixel, Px(0, 0, FieldWidth, HudHeight), HudColor);
-
-		// Walls
-		foreach (var w in _walls)
-			spriteBatch.Draw(_pixel, Px(w.X, w.Y, w.Width, w.Height), WallColor);
-
-		// Tanks
-		DrawTank(spriteBatch, _p1, P1Color, Px);
-		DrawTank(spriteBatch, _p2, P2Color, Px);
-
-		// Bullets
-		foreach (var b in _bullets)
-		{
-			spriteBatch.Draw(_pixel,
-				Px(b.Position.X - BulletSize/2, b.Position.Y - BulletSize/2, BulletSize, BulletSize),
-				BulletColor);
-		}
-
-		// Score (chunky 5×7 digits drawn from rectangles — no font dependency)
-		DrawScore(spriteBatch, _p1.Score, leftAligned: true,  Px);
-		DrawScore(spriteBatch, _p2.Score, leftAligned: false, Px);
-
-		if (_winner != 0)
-		{
-			DrawWinnerBanner(spriteBatch, Px);
-		}
-	}
-
-	public void Shutdown()
-	{
-		_pixel?.Dispose();
-	}
-
-	// ── Setup ────────────────────────────────────────────────────────────────
-	private void BuildWalls()
-	{
-		_walls.Clear();
-		// No outer-border walls — playfield bounds are enforced in
-		// CollidesWithWalls. Layout matches Atari Combat "tanks": scattered
-		// cream shapes on an open red field. Spacing is hand-tuned so every
-		// horizontal-traversal channel is ≥12 px tall, leaving at least 2 px
-		// of clearance for a 10×10 tank.
-		//
-		// Vertical channel budget through the play area (y=16..192):
-		//   y=16-18   2 px sliver above top finger
-		//   y=18-30   12 px top finger
-		//   y=30-38   8 px channel  (route around finger laterally)
-		//   y=38-44   6 px top H bar
-		//   y=44-56   12 px channel ✓
-		//   y=56-66   10 px upper L (H 6 + V 10 with overlap)
-		//   y=66-78   12 px channel ✓
-		//   y=78-84   6 px bracket top arm
-		//   y=84-96   12 px channel ✓
-		//   y=96-108  12 px inside block
-		//   y=108-122 14 px channel ✓
-		//   y=122-128 6 px bracket bottom arm
-		//   y=128-140 12 px channel ✓
-		//   y=140-150 10 px lower L (V 10 + H 6 with overlap)
-		//   y=150-164 14 px channel ✓
-		//   y=164-170 6 px bottom H bar
-		//   y=170-176 6 px channel  (route around bottom finger)
-		//   y=176-188 12 px bottom finger
-
-		// Top finger (vertical bar, top centre)
-		_walls.Add(new Rectangle(76, 18, 8, 12));
-
-		// Top horizontal bars (left & right). Inset 4 px from the playfield
-		// edges so the outer-edge corridor stays a passable 12 px wide.
-		_walls.Add(new Rectangle( 12, 38, 24, 6));
-		_walls.Add(new Rectangle(124, 38, 24, 6));
-
-		// Upper L-corners (notch facing inward — horizontal arm + downward stub)
-		_walls.Add(new Rectangle(28, 56, 16, 6));	// upper-left  H
-		_walls.Add(new Rectangle(38, 56,  6, 10));	// upper-left  V (down from right edge of H)
-		_walls.Add(new Rectangle(116, 56, 16, 6));	// upper-right H
-		_walls.Add(new Rectangle(116, 56,  6, 10));	// upper-right V (down from left edge of H)
-
-		// Big bracket "[" on the left (vertical + top arm + bottom arm).
-		// Spine inset 4 px so the outer-edge corridor (x=0..12) is a passable
-		// 12 px wide rather than the impassable 8 it was before.
-		_walls.Add(new Rectangle( 12, 78,  6, 50));	// left vertical spine
-		_walls.Add(new Rectangle( 12, 78, 24,  6));	// left top arm
-		_walls.Add(new Rectangle( 12,122, 24,  6));	// left bottom arm
-
-		// Big bracket "]" on the right (mirror — spine at x=142..148, leaving
-		// the x=148..160 outer corridor 12 px wide)
-		_walls.Add(new Rectangle(142, 78,  6, 50));	// right vertical spine
-		_walls.Add(new Rectangle(124, 78, 24,  6));	// right top arm
-		_walls.Add(new Rectangle(124,122, 24,  6));	// right bottom arm
-
-		// Two solid blocks framing the central corridor (slimmer than 16 tall
-		// so the gap to the bracket bottom arm stays >12 px).
-		_walls.Add(new Rectangle(48, 96, 16, 12));
-		_walls.Add(new Rectangle(96, 96, 16, 12));
-
-		// Lower L-corners (mirror of upper, opening upward). NOT strictly
-		// vertically-symmetric to the upper Ls — pushed a few pixels further
-		// from the bracket so the y=128..140 channel stays passable.
-		_walls.Add(new Rectangle(38,140,  6, 10));	// lower-left  V (up from right edge of H)
-		_walls.Add(new Rectangle(28,144, 16,  6));	// lower-left  H
-		_walls.Add(new Rectangle(116,140, 6, 10));	// lower-right V
-		_walls.Add(new Rectangle(116,144,16,  6));	// lower-right H
-
-		// Bottom horizontal bars (mirror — same 4 px inset as the top bars)
-		_walls.Add(new Rectangle( 12,164, 24, 6));
-		_walls.Add(new Rectangle(124,164, 24, 6));
-
-		// Bottom finger (mirror of top)
-		_walls.Add(new Rectangle(76,176,  8, 12));
-	}
-
-	private void ResetRound(bool initial)
-	{
-		_bullets.Clear();
-		_hitFreezeTimer =	0f;
-
-		_p1 ??=	new Tank();
-		_p2 ??=	new Tank();
-
-		// Diagonally-opposite spawns in the open lanes between top/bottom
-		// horizontals and the upper/lower L-corners, mirroring how Combat's
-		// tank-mode opens. P1 faces east, P2 faces west.
-		_p1.Position =	new Vector2(36, 30);
-		_p1.Facing =	new Vector2(1, 0);
-		_p1.FireCooldown =	0f;
-
-		_p2.Position =	new Vector2(124, 178);
-		_p2.Facing =	new Vector2(-1, 0);
-		_p2.FireCooldown =	0f;
-
-		if (initial)
-		{
-			_p1.Score =	0;
-			_p2.Score =	0;
-			_winner =	0;
-		}
-	}
-
-	// ── Tank update ──────────────────────────────────────────────────────────
-	private void UpdateTank(Tank tank, Vector2 dir, bool firePressed, float dt)
-	{
-		if (dir.LengthSquared() > 0.001f)
-		{
-			tank.Facing =	NormaliseToCardinal(dir);
-			var attempt =	tank.Position + tank.Facing * TankSpeed * dt;
-			if (!CollidesWithWalls(attempt, TankSize))	tank.Position =	attempt;
-		}
-
-		tank.FireCooldown =	Math.Max(0f, tank.FireCooldown - dt);
-		if (firePressed && tank.FireCooldown <= 0f && _bullets.All(b => b.Owner != tank))
-		{
-			_bullets.Add(new Bullet
-			{
-				Owner =	tank,
-				Position =	tank.Position + tank.Facing * (TankSize / 2 + 2),
-				Velocity =	tank.Facing * BulletSpeed,
-			});
-			tank.FireCooldown =	FireCooldown;
-		}
-	}
-
-	private void UpdateTankAi(Tank tank, Tank target, float dt)
-	{
-		// Simple pursue-and-shoot AI: move toward the player, fire when roughly aligned.
-		var toTarget =	target.Position - tank.Position;
-		if (toTarget.LengthSquared() < 0.001f)	return;
-
-		// Choose dominant axis to keep movement on cardinals (Atari joystick feel).
-		Vector2 dir;
-		if (Math.Abs(toTarget.X) > Math.Abs(toTarget.Y))
-			dir =	new Vector2(Math.Sign(toTarget.X), 0);
+		if (t.TurnTimer > 0)	t.TurnTimer--;
 		else
-			dir =	new Vector2(0, Math.Sign(toTarget.Y));
-
-		// 8% chance per second to "rethink" and pick a random cardinal — keeps the AI from
-		// wedging itself permanently against a wall.
-		if (_rng.NextDouble() < 0.08 * dt * 60)
 		{
-			dir =	_rng.Next(4) switch
-			{
-				0 => new Vector2(1, 0),
-				1 => new Vector2(-1, 0),
-				2 => new Vector2(0, 1),
-				_ => new Vector2(0, -1),
-			};
+			if (input.X < -0.5f)		{ t.Direction =	(t.Direction + 1)	& 15; t.TurnTimer =	TurnFrames; }
+			else if (input.X > 0.5f)	{ t.Direction =	(t.Direction + 15)	& 15; t.TurnTimer =	TurnFrames; }
 		}
 
-		tank.Facing =	dir;
-		var attempt =	tank.Position + dir * (TankSpeed * 0.85f) * dt;
-		if (!CollidesWithWalls(attempt, TankSize))	tank.Position =	attempt;
+		if (input.Y < -0.5f)	TryThrust(t, TankSpeedPerFrame);
 
-		// Fire when roughly aligned with target on facing axis.
-		bool aligned =	(Math.Abs(dir.X) > 0 && Math.Abs(toTarget.Y) < TankSize)
-					|| (Math.Abs(dir.Y) > 0 && Math.Abs(toTarget.X) < TankSize);
-		if (aligned && tank.FireCooldown <= 0f && _bullets.All(b => b.Owner != tank))
-		{
-			_bullets.Add(new Bullet
-			{
-				Owner =	tank,
-				Position =	tank.Position + tank.Facing * (TankSize / 2 + 2),
-				Velocity =	tank.Facing * BulletSpeed,
-			});
-			tank.FireCooldown =	FireCooldown * 1.5f;
-		}
-		tank.FireCooldown =	Math.Max(0f, tank.FireCooldown - dt);
+		if (t.FireCooldown > 0)	t.FireCooldown--;
+		if (fire && t.FireCooldown == 0 && _bullets.All(b => b.Owner != t))
+			FireBullet(t);
 	}
 
-	private static Vector2 NormaliseToCardinal(Vector2 v)
+	/// <summary>
+	/// Simple AI: rotate toward target along the shorter arc, thrust forward
+	/// continuously, fire whenever cannon is roughly aligned.
+	/// </summary>
+	private void UpdateAi(Tank t, Tank target)
 	{
-		if (Math.Abs(v.X) > Math.Abs(v.Y))	return new Vector2(Math.Sign(v.X), 0);
-		return new Vector2(0, Math.Sign(v.Y));
+		var to =	target.Position - t.Position;
+		if (to.LengthSquared() < 1f)	return;
+
+		// Snap angle to nearest 22.5° step. Screen-space Y is down, so negate.
+		float angle =	MathF.Atan2(-to.Y, to.X);
+		int desired =	(int)Math.Round(angle / (MathF.PI / 8f));
+		desired =	((desired % 16)	+ 16)	& 15;
+
+		if (t.TurnTimer > 0)	t.TurnTimer--;
+		else if (t.Direction != desired)
+		{
+			int cwSteps =	(t.Direction - desired + 16)	& 15;
+			int ccwSteps =	(desired - t.Direction + 16)	& 15;
+			t.Direction =	ccwSteps <= cwSteps
+				? (t.Direction + 1)	& 15
+				: (t.Direction + 15)	& 15;
+			t.TurnTimer =	TurnFrames;
+		}
+
+		TryThrust(t, TankSpeedPerFrame * 0.85f);
+
+		if (t.FireCooldown > 0)	t.FireCooldown--;
+		int gap =	Math.Min((t.Direction - desired + 16) & 15, (desired - t.Direction + 16) & 15);
+		if (gap <= 1 && t.FireCooldown == 0 && _bullets.All(b => b.Owner != t))
+			FireBullet(t);
 	}
 
-	// ── Bullets ──────────────────────────────────────────────────────────────
-	private void UpdateBullets(float dt)
+	private void TryThrust(Tank t, float distance)
+	{
+		var v =	DirVector(t.Direction)	* distance;
+		var attempt =	t.Position + v;
+		if (!CollidesWithWalls(attempt, TankSpriteW, TankCollisionH))
+		{
+			t.Position =	attempt;
+			return;
+		}
+		// Slide on the cleaner axis so tanks don't fully stick on corners.
+		var ax =	new Vector2(attempt.X, t.Position.Y);
+		if (!CollidesWithWalls(ax, TankSpriteW, TankCollisionH))	{ t.Position =	ax; return; }
+		var ay =	new Vector2(t.Position.X, attempt.Y);
+		if (!CollidesWithWalls(ay, TankSpriteW, TankCollisionH))	{ t.Position =	ay; }
+	}
+
+	private void FireBullet(Tank t)
+	{
+		var v =	DirVector(t.Direction);
+		_bullets.Add(new Bullet
+		{
+			Owner =	t,
+			Position =	t.Position + v * (TankSpriteW * 0.5f + 2),
+			Velocity =	v * BulletSpeedPerFrame,
+			LifeFrames =	MisLifeFrames,
+		});
+		t.FireCooldown =	FireCooldownFrames;
+	}
+
+	// ── Bullets / collisions ────────────────────────────────────────────────
+	private void UpdateBullets()
 	{
 		for (int i = _bullets.Count - 1; i >= 0; i--)
 		{
 			var b =	_bullets[i];
-			b.Position +=	b.Velocity * dt;
-			b.Travelled +=	BulletSpeed * dt;
+			b.Position +=	b.Velocity;
+			b.LifeFrames--;
 			_bullets[i]	=	b;
-			bool kill =	b.Travelled >	MaxBulletDistance
-						|| CollidesWithWalls(b.Position, BulletSize);
-			if (kill)	_bullets.RemoveAt(i);
+			if (b.LifeFrames <= 0 || CollidesWithWalls(b.Position, 3, 3))
+				_bullets.RemoveAt(i);
 		}
 	}
 
@@ -371,74 +273,218 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 		{
 			var b =	_bullets[i];
 			Tank?	hit =	null;
-			if (b.Owner != _p1 && Hits(b, _p1))	hit =	_p1;
-			else if (b.Owner != _p2 && Hits(b, _p2))	hit =	_p2;
+			if (b.Owner != _p1 && HitsTank(b, _p1))	hit =	_p1;
+			else if (b.Owner != _p2 && HitsTank(b, _p2))	hit =	_p2;
 			if (hit != null)
 			{
 				_bullets.RemoveAt(i);
 				if (hit == _p1)	_p2.Score++;
 				else _p1.Score++;
-				_hitFreezeTimer =	HitFreezeSeconds;
+				_stirLoser =	hit;
+				_stirTimer =	StirFrames;
 				return;
 			}
 		}
 	}
 
-	private static bool Hits(Bullet b, Tank t)
+	private void UpdateStir()
 	{
-		var d =	b.Position - t.Position;
-		return Math.Abs(d.X) < TankSize / 2 && Math.Abs(d.Y) < TankSize / 2;
+		_stirTimer--;
+		if (_stirLoser != null)
+			_stirLoser.Direction =	(_stirLoser.Direction + 1)	& 15;
+		if (_stirTimer <= 0)
+		{
+			_stirLoser =	null;
+			ResetRound(initial:	false);
+		}
 	}
 
-	private bool CollidesWithWalls(Vector2 pos, float size)
+	private static bool HitsTank(Bullet b, Tank t)
+	{
+		var d =	b.Position - t.Position;
+		return Math.Abs(d.X) < TankSpriteW * 0.5f
+			&& Math.Abs(d.Y) < TankCollisionH * 0.5f;
+	}
+
+	private bool CollidesWithWalls(Vector2 pos, float w, float h)
 	{
 		var box =	new Rectangle(
-			(int)(pos.X - size / 2), (int)(pos.Y - size / 2),
-			(int)size, (int)size);
-
-		// Invisible playfield bounds — there are no drawn outer walls in the
-		// Combat-style map, but tanks and bullets still can't leave the field.
-		if (box.X < 0 || box.Y < HudHeight ||
-			box.X + box.Width  > FieldWidth ||
-			box.Y + box.Height > FieldHeight)	return true;
-
-		foreach (var w in _walls)	if (w.Intersects(box))	return true;
+			(int)(pos.X - w * 0.5f), (int)(pos.Y - h * 0.5f),
+			(int)w, (int)h);
+		if (box.X < 0 || box.Y < HudHeight
+			|| box.X + box.Width  > FieldWidth
+			|| box.Y + box.Height > FieldHeight)	return true;
+		foreach (var wall in _walls)
+			if (wall.Intersects(box))	return true;
 		return false;
+	}
+
+	// ── 16-direction unit vectors ───────────────────────────────────────────
+	private static Vector2 DirVector(int dir)
+	{
+		// dir 0 = East (+X). Each +1 = +22.5° CCW (in math). Screen Y is down.
+		float a =	dir * (MathF.PI / 8f);
+		return new Vector2(MathF.Cos(a), -MathF.Sin(a));
+	}
+
+	// ── Maze decoding (PF0/PF1/PF2 → wall rectangles) ───────────────────────
+	private void BuildMazeFromPfData()
+	{
+		_walls.Clear();
+		int rowCount =	MazePfData.Length;
+		// Top half: rows 0..rowCount-1 at y=HudHeight + r*8.
+		// Bottom half: mirrors of those rows at y=HudHeight + (2N-1-r)*8.
+		// With rowCount=11, total 22 rows × 8 = 176 px = the play area.
+		for (int r = 0; r < rowCount; r++)
+		{
+			var (pf0, pf1, pf2) =	MazePfData[r];
+			AddRowRectangles(pf0, pf1, pf2, HudHeight + r * 8);
+			AddRowRectangles(pf0, pf1, pf2, HudHeight + (2 * rowCount - 1 - r) * 8);
+		}
+	}
+
+	private void AddRowRectangles(byte pf0, byte pf1, byte pf2, int y)
+	{
+		bool[]	cells =	new bool[40];
+		// PF0 high nibble, bit 4 = leftmost
+		for (int i = 0; i < 4; i++)
+			cells[i]	=	(pf0 & (1 << (4 + i))) != 0;
+		// PF1 MSB-first
+		for (int i = 0; i < 8; i++)
+			cells[4 + i]	=	(pf1 & (1 << (7 - i))) != 0;
+		// PF2 LSB-first
+		for (int i = 0; i < 8; i++)
+			cells[12 + i]	=	(pf2 & (1 << i)) != 0;
+		// Right half mirrors left (TIA REFLECT on)
+		for (int c = 20; c < 40; c++)
+			cells[c]	=	cells[39 - c];
+		// Emit contiguous runs as merged rectangles (fewer collision checks)
+		int run =	0;
+		for (int c = 0; c <= 40; c++)
+		{
+			bool on =	c < 40 && cells[c];
+			if (on)	run++;
+			else if (run > 0)
+			{
+				int startCol =	c - run;
+				_walls.Add(new Rectangle(startCol * 4, y, run * 4, 8));
+				run =	0;
+			}
+		}
+	}
+
+	// ── Reset ───────────────────────────────────────────────────────────────
+	private void ResetRound(bool initial)
+	{
+		_bullets.Clear();
+		_stirTimer =	0;
+		_stirLoser =	null;
+
+		_p1 ??=	new Tank();
+		_p2 ??=	new Tank();
+
+		// Spawn in the open lanes that Combat's complex maze leaves at the
+		// top and bottom of the field. P1 faces East (dir 0), P2 faces West
+		// (dir 8).
+		_p1.Position =	new Vector2(14, HudHeight + 18);
+		_p1.Direction =	0;
+		_p1.TurnTimer =	0;
+		_p1.FireCooldown =	0;
+
+		_p2.Position =	new Vector2(FieldWidth - 14, FieldHeight - 18);
+		_p2.Direction =	8;
+		_p2.TurnTimer =	0;
+		_p2.FireCooldown =	0;
+
+		if (initial)
+		{
+			_p1.Score =	0;
+			_p2.Score =	0;
+			_winner =	0;
+		}
 	}
 
 	private void CheckWin()
 	{
-		if (_p1.Score >= ScoreToWin)	{ _winner =	1; _winHoldTimer =	WinHoldSeconds; }
-		else if (_p2.Score >= ScoreToWin)	{ _winner =	2; _winHoldTimer =	WinHoldSeconds; }
+		if (_p1.Score >= ScoreToWin)	{ _winner =	1; _winHoldTimer =	WinHoldFrames; }
+		else if (_p2.Score >= ScoreToWin)	{ _winner =	2; _winHoldTimer =	WinHoldFrames; }
 	}
 
-	// ── Drawing helpers ──────────────────────────────────────────────────────
-	private void DrawTank(SpriteBatch sb, Tank t, Color c, Func<float, float, float, float, Rectangle> Px)
+	// ── Drawing ─────────────────────────────────────────────────────────────
+	public void Draw(SpriteBatch sb, RectangleF viewport)
 	{
-		// Body
-		sb.Draw(_pixel, Px(t.Position.X - TankSize / 2, t.Position.Y - TankSize / 2, TankSize, TankSize), c);
-		// Cannon — short stub in facing direction
-		float cx =	t.Position.X + t.Facing.X * (TankSize / 2);
-		float cy =	t.Position.Y + t.Facing.Y * (TankSize / 2);
-		float cw =	Math.Abs(t.Facing.X) > 0 ? 4 : 2;
-		float ch =	Math.Abs(t.Facing.Y) > 0 ? 4 : 2;
-		sb.Draw(_pixel, Px(cx - cw / 2, cy - ch / 2, cw, ch), c);
+		// 320×192 native, fit-to-viewport with letterbox, X stretched 2× to
+		// honour the Atari's double-wide pixels.
+		float scale =	MathF.Min(viewport.Width / DisplayWidth, viewport.Height / FieldHeight);
+		float ox =	viewport.X + (viewport.Width  - DisplayWidth * scale)	* 0.5f;
+		float oy =	viewport.Y + (viewport.Height - FieldHeight  * scale)	* 0.5f;
+		Rectangle Px(float x, float y, float w, float h)	=>	new(
+			(int)(ox + x * PixelAspectXMultiplier * scale),
+			(int)(oy + y * scale),
+			(int)MathF.Ceiling(w * PixelAspectXMultiplier * scale),
+			(int)MathF.Ceiling(h * scale));
+
+		sb.Draw(_pixel, Px(0, HudHeight, FieldWidth, PlayHeight), BgColor);
+		sb.Draw(_pixel, Px(0, 0, FieldWidth, HudHeight), HudColor);
+
+		foreach (var w in _walls)
+			sb.Draw(_pixel, Px(w.X, w.Y, w.Width, w.Height), WallColor);
+
+		DrawTankSprite(sb, _p1, P1Color, Px);
+		DrawTankSprite(sb, _p2, P2Color, Px);
+
+		foreach (var b in _bullets)
+			sb.Draw(_pixel, Px(b.Position.X - 1.5f, b.Position.Y - 1.5f, 3, 3), BulletColor);
+
+		DrawScore(sb, _p1.Score, leftAligned:	true,  Px);
+		DrawScore(sb, _p2.Score, leftAligned:	false, Px);
+
+		if (_winner != 0)
+			DrawWinnerBanner(sb, Px);
+	}
+
+	/// <summary>
+	/// Render Combat's tank sprite for the current 16-direction heading.
+	/// Directions 0–7 use the stored frame directly; directions 8–15 are the
+	/// same frame rotated 180° (horizontal flip + reverse row order), exactly
+	/// what the ROM's <c>ROT</c> routine does at $F744 via the carry-flag
+	/// DEY/INY trick + the REFP0 reflection register.
+	/// </summary>
+	private void DrawTankSprite(SpriteBatch sb, Tank t, Color c,
+		Func<float, float, float, float, Rectangle>	Px)
+	{
+		int d =	t.Direction & 15;
+		bool flip =	d >= 8;
+		int frame =	flip ? d - 8 : d;
+		var rows =	TankFrames[frame];
+
+		float x0 =	t.Position.X - TankSpriteW * 0.5f;
+		float y0 =	t.Position.Y - TankSpriteH * 0.5f;
+		for (int row = 0; row < 8; row++)
+		{
+			int srcRow =	flip ? 7 - row : row;
+			byte bits =	rows[srcRow];
+			for (int bit = 0; bit < 8; bit++)
+			{
+				int srcBit =	flip ? bit : 7 - bit;	// bit 7 = leftmost pixel
+				if ((bits & (1 << srcBit)) == 0)	continue;
+				sb.Draw(_pixel, Px(x0 + bit, y0 + row * 2, 1, 2), c);
+			}
+		}
 	}
 
 	private void DrawScore(SpriteBatch sb, int score, bool leftAligned,
-		Func<float, float, float, float, Rectangle> Px)
+		Func<float, float, float, float, Rectangle>	Px)
 	{
-		// Single-digit score, drawn as chunky 5-segment glyph (only digits 0-9 needed).
-		int x =	leftAligned ? 8 :	FieldWidth - 8 - 5;
-		Color c =	leftAligned ? P1Color :	P2Color;
+		int x =	leftAligned ? 8 : FieldWidth - 8 - 5;
+		Color c =	leftAligned ? P1Color : P2Color;
 		DrawDigit(sb, score, x, 4, c, Px);
 	}
 
 	private void DrawDigit(SpriteBatch sb, int digit, int x, int y, Color c,
-		Func<float, float, float, float, Rectangle> Px)
+		Func<float, float, float, float, Rectangle>	Px)
 	{
-		// 3×5 pixel digits — readable at the 160×192 native resolution.
-		bool[,]	glyph =	digit switch
+		bool[,]	g =	digit switch
 		{
 			0 => new[,] { {true,true,true},{true,false,true},{true,false,true},{true,false,true},{true,true,true} },
 			1 => new[,] { {false,true,false},{true,true,false},{false,true,false},{false,true,false},{true,true,true} },
@@ -453,17 +499,13 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 			_ => new bool[5, 3],
 		};
 		for (int gy = 0; gy < 5; gy++)
-		{
-			for (int gx = 0; gx < 3; gx++)
-			{
-				if (!glyph[gy, gx])	continue;
+		for (int gx = 0; gx < 3; gx++)
+			if (g[gy, gx])
 				sb.Draw(_pixel, Px(x + gx * 2, y + gy * 2, 2, 2), c);
-			}
-		}
 	}
 
 	private void DrawWinnerBanner(SpriteBatch sb,
-		Func<float, float, float, float, Rectangle> Px)
+		Func<float, float, float, float, Rectangle>	Px)
 	{
 		int bw =	100, bh =	24;
 		int bx =	(FieldWidth - bw)	/ 2;
@@ -473,25 +515,27 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 		sb.Draw(_pixel, Px(bx, by + bh - 2, bw, 2), HudText);
 		sb.Draw(_pixel, Px(bx, by, 2, bh),  HudText);
 		sb.Draw(_pixel, Px(bx + bw - 2, by, 2, bh), HudText);
-
-		// Big winning digit + colour bar
-		var c =	_winner == 1 ? P1Color :	P2Color;
+		var c =	_winner == 1 ? P1Color : P2Color;
 		sb.Draw(_pixel, Px(bx + 8, by + 8, 8, 8), c);
 		DrawDigit(sb, _winner, bx + 24, by + 7, HudText, Px);
-
-		// "WINS" — a tiny indicator block beside the digit (no font).
 		sb.Draw(_pixel, Px(bx + 40, by + 9, 4, 6), HudText);
 		sb.Draw(_pixel, Px(bx + 50, by + 9, 4, 6), HudText);
 		sb.Draw(_pixel, Px(bx + 60, by + 9, 4, 6), HudText);
 		sb.Draw(_pixel, Px(bx + 70, by + 9, 4, 6), HudText);
 	}
 
-	// ── Internal types ───────────────────────────────────────────────────────
+	public void Shutdown()
+	{
+		_pixel?.Dispose();
+	}
+
+	// ── Internal types ──────────────────────────────────────────────────────
 	private sealed class Tank
 	{
 		public Vector2 Position;
-		public Vector2 Facing =	new(1, 0);
-		public float FireCooldown;
+		public int Direction;	// 0..15, each = 22.5°
+		public int TurnTimer;
+		public int FireCooldown;
 		public int Score;
 	}
 
@@ -500,6 +544,6 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 		public Tank Owner;
 		public Vector2 Position;
 		public Vector2 Velocity;
-		public float Travelled;
+		public int LifeFrames;
 	}
 }
