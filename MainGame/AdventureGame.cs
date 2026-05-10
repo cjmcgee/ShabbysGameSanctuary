@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TileEngine.Core;
+using TileEngine.MiniGames;
 
 namespace ChildhoodAdventure
 {
@@ -70,7 +71,19 @@ namespace ChildhoodAdventure
 				var keys   = Keyboard.GetState();
 				var mouse  = Mouse.GetState();
 
-				if( keys.IsKeyDown( Keys.Escape )) { Exit(); }
+				// Escape quits the program — but NOT while a mini-game is hosted.
+				// In that case the MiniGameScene routes Escape as an exit-request
+				// to the embedded game, which returns to the previous scene.
+				//
+				// Edge-triggered (press, not hold): a single Escape press while
+				// in the mini-game routes through MiniGameScene; the scene swap
+				// back to Home completes within a few frames, often before the
+				// user has released Escape. Without edge-triggering, the still-
+				// held Escape would re-enter this branch with CurrentScene now
+				// being Home and quit the program immediately.
+				bool escapePressed = keys.IsKeyDown( Keys.Escape ) && !_prevKeys.IsKeyDown( Keys.Escape );
+				if( escapePressed &&
+					TileEngine.Core.GameEngine.Instance.CurrentScene is not MiniGameScene ) { Exit(); }
 
 				// F1-F5: switch retro system and reload current scene
 				HandleSystemSwitch( keys );

@@ -189,7 +189,11 @@ namespace ChildhoodAdventure.Scenes
 
 			var e =	Engine.EntityWorld.CreateEntity( "AtariConsole" );
 			e.AddComponent( new TransformComponent( pos ) );
-			e.AddComponent( new SpriteComponent { Sprite = sprite } );
+			var sc = e.AddComponent( new SpriteComponent { Sprite = sprite } );
+			// SpriteComponent dispatches an "idle_<facing>" animation each
+			// frame; without Play(...) the base name is null and AnimatedSprite
+			// has no CurrentFrame to render.
+			sc.Play( "idle" );
 			// Small, solid hitbox so the player can't walk over the console.
 			e.AddComponent( new CollisionComponent( 0.9f, 0.4f, new Vector2( -0.45f, -0.2f ) ) { IsSolid = true } );
 			e.AddComponent( new InteractableComponent(
