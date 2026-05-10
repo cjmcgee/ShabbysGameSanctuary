@@ -131,8 +131,8 @@ namespace TileEngine.MiniGames.Libretro
 			// Probe library identity. Some cores set library_name in
 			// retro_init only; this is just an informational read.
 			_getSystemInfo(out var sysinfo);
-			LibraryName =	Marshal.PtrToStringUTF8(sysinfo.library_name)	?? "";
-			LibraryVersion =	Marshal.PtrToStringUTF8(sysinfo.library_version)	?? "";
+			LibraryName = Marshal.PtrToStringUTF8(sysinfo.library_name)	?? "";
+			LibraryVersion = Marshal.PtrToStringUTF8(sysinfo.library_version)	?? "";
 
 			// Build callback delegates ONCE and keep them alive via the
 			// fields. Passing them to the core retains them on the unmanaged

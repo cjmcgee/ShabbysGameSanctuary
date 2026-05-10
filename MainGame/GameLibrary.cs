@@ -13,22 +13,27 @@ namespace ChildhoodAdventure;
 /// </summary>
 public sealed class GameEntry
 {
-	public string Id { get; }
-	public string Name { get; }
-	public bool IsEmulated { get; }
+	public string	Id { get; }
+	public string	Name { get; }
+	public bool		IsEmulated { get; }
 	public string?	UnavailableReason { get; }
-	private readonly Func<IEmbeddedMiniGame>	_factory;
 
-	public bool IsAvailable =>	UnavailableReason == null;
-	public IEmbeddedMiniGame Create()	=>	_factory();
+	private readonly Func<IEmbeddedMiniGame> _factory;
 
-	public GameEntry(string id, string name, bool isEmulated,
-		Func<IEmbeddedMiniGame> factory, string?	unavailableReason = null)
+	public bool IsAvailable => UnavailableReason == null;
+	public IEmbeddedMiniGame Create() => _factory();
+
+	public GameEntry(
+		string id,
+		string name,
+		bool isEmulated,
+		Func<IEmbeddedMiniGame> factory,
+		string? unavailableReason = null )
 	{
-		Id =	id;
-		Name =	name;
-		IsEmulated =	isEmulated;
-		_factory =	factory;
+		Id			= id;
+		Name		= name;
+		IsEmulated	= isEmulated;
+		_factory	= factory;
 		UnavailableReason =	unavailableReason;
 	}
 }
@@ -43,7 +48,7 @@ public sealed class GameLibrary
 {
 	public IReadOnlyList<GameEntry>	Games { get; }
 
-	public GameLibrary(EmulatorConfig config)
+	public GameLibrary( EmulatorConfig config )
 	{
 		var games =	new List<GameEntry>();
 
@@ -65,23 +70,31 @@ public sealed class GameLibrary
 		string romPath =	config.ResolveRom(CombatRom);
 
 		string?	unavailable =	null;
-		if (string.IsNullOrEmpty(config.CoreRoot))
+		if( string.IsNullOrEmpty( config.CoreRoot ) )
+		{
 			unavailable =	"emulator-config.json: CoreRoot not set";
-		else if (!File.Exists(corePath))
+		}
+		else if( !File.Exists( corePath ) )
+		{
 			unavailable =	$"core not found: {corePath}";
-		else if (string.IsNullOrEmpty(config.RomRoot))
+		}
+		else if( string.IsNullOrEmpty( config.RomRoot ) )
+		{
 			unavailable =	"emulator-config.json: RomRoot not set";
-		else if (!File.Exists(romPath))
+		}
+		else if( !File.Exists( romPath ) )
+		{
 			unavailable =	$"ROM not found: {romPath}";
+		}
 
-		games.Add(new GameEntry(
+		games.Add( new GameEntry(
 			id:					"combat",
 			name:				"Combat",
 			isEmulated:			true,
 			factory:			()	=>	new LibretroMiniGame(corePath, romPath,
 									title:			"Combat",
 									systemDirectory:	config.SystemRoot),
-			unavailableReason:	unavailable));
+			unavailableReason:	unavailable ) );
 
 		Games =	games;
 	}
