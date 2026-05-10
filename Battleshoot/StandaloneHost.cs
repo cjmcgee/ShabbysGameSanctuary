@@ -27,7 +27,10 @@ public sealed class StandaloneHost :	Game
 		_game =	new BattleshootGame();
 		_gdm =	new GraphicsDeviceManager(this)
 		{
-			PreferredBackBufferWidth =	BattleshootGame.FieldWidth * 4,
+			// 320×192 native display × 4 = 1280×768. Atari 2600 pixels are
+			// double-wide on a real screen, so the display width is
+			// DisplayWidth (320), not FieldWidth (160).
+			PreferredBackBufferWidth =	BattleshootGame.DisplayWidth * 4,
 			PreferredBackBufferHeight =	BattleshootGame.FieldHeight * 4,
 			SynchronizeWithVerticalRetrace =	true,
 		};

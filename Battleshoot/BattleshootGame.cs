@@ -18,8 +18,18 @@ namespace Battleshoot;
 public sealed class BattleshootGame :	IEmbeddedMiniGame
 {
 	// ── Constants — Atari 2600 native NTSC playfield is 160×192 ──────────────
+	// Internal game coordinates use this 160-wide logical space so gameplay
+	// constants (speeds, sizes, wall positions) stay Atari-authentic.
 	public const int FieldWidth	=	160;
 	public const int FieldHeight	=	192;
+
+	// Atari 2600 pixels are NOT square: each logical pixel covers two
+	// horizontal screen pixels on a real display. On a square-pixel monitor
+	// the playfield must be presented as 320×192 with every column doubled.
+	// The Draw routine handles the X→screen mapping; <see cref="DisplayWidth"/>
+	// is what the host should letterbox to.
+	public const int PixelAspectXMultiplier	=	2;
+	public const int DisplayWidth	=	FieldWidth * PixelAspectXMultiplier;	// 320
 
 	private const int HudHeight =	16;
 	private const int PlayHeight =	FieldHeight - HudHeight;
@@ -35,8 +45,9 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 	private const float WinHoldSeconds =	2.5f;
 
 	// Atari 2600 NTSC palette samples (close enough for the homage).
-	private static readonly Color BgColor =	new(76, 108, 56);		// dirt/grass green
-	private static readonly Color WallColor =	new(204, 204, 96);	// barrier yellow
+	// Combat tanks-mode field is a deep brick red, walls are cream-yellow.
+	private static readonly Color BgColor =	new(162, 78, 44);		// Combat brick-red field
+	private static readonly Color WallColor =	new(228, 188, 110);	// cream-yellow walls
 	private static readonly Color HudColor =	new(20, 20, 20);
 	private static readonly Color HudText =	new(236, 236, 236);
 	private static readonly Color P1Color =	new(212, 80, 60);		// red tank
@@ -59,7 +70,10 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 
 	// ── IEmbeddedMiniGame ────────────────────────────────────────────────────
 	public string Title =>	"Battleshoot";
-	public Point NativeResolution =>	new(FieldWidth, FieldHeight);
+	// Native display is 320×192 SQUARE pixels (logical 160×192 doubled
+	// horizontally to honour Atari 2600 double-wide pixels). Hosts letterbox
+	// this aspect.
+	public Point NativeResolution =>	new(DisplayWidth, FieldHeight);
 	public bool IsFinished =>	_finished;
 
 	public void Initialize(GraphicsDevice graphicsDevice, ContentManager content)
@@ -106,12 +120,20 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 
 	public void Draw(SpriteBatch spriteBatch, RectangleF viewport)
 	{
-		// Compute the integer pixel scale that fits the host viewport.
-		float scale =	MathF.Min(viewport.Width / FieldWidth, viewport.Height / FieldHeight);
-		float ox =	viewport.X + (viewport.Width  - FieldWidth  * scale)	* 0.5f;
-		float oy =	viewport.Y + (viewport.Height - FieldHeight * scale)	* 0.5f;
+		// Fit the 320×192 display rectangle into the host viewport. Px() then
+		// converts logical (160-wide) coordinates to screen pixels by
+		// stretching X by PixelAspectXMultiplier — the Atari 2600
+		// double-wide-pixel rule applied at draw time so internal gameplay
+		// stays in clean 160×192 logical space.
+		float scale =	MathF.Min(viewport.Width / DisplayWidth, viewport.Height / FieldHeight);
+		float ox =	viewport.X + (viewport.Width  - DisplayWidth * scale)	* 0.5f;
+		float oy =	viewport.Y + (viewport.Height - FieldHeight  * scale)	* 0.5f;
 		Rectangle Px(float x, float y, float w, float h)	=>
-			new((int)(ox + x * scale), (int)(oy + y * scale), (int)MathF.Ceiling(w * scale), (int)MathF.Ceiling(h * scale));
+			new(
+				(int)(ox + x * PixelAspectXMultiplier * scale),
+				(int)(oy + y * scale),
+				(int)MathF.Ceiling(w * PixelAspectXMultiplier * scale),
+				(int)MathF.Ceiling(h * scale));
 
 		// Background
 		spriteBatch.Draw(_pixel, Px(0, HudHeight, FieldWidth, PlayHeight), BgColor);
@@ -152,20 +174,78 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 	private void BuildWalls()
 	{
 		_walls.Clear();
-		// Outer border (4 walls). HUD is the top strip — playfield starts at HudHeight.
-		const int border =	4;
-		_walls.Add(new Rectangle(0,					HudHeight,				FieldWidth,	border));	// top
-		_walls.Add(new Rectangle(0,					FieldHeight - border,	FieldWidth,	border));	// bottom
-		_walls.Add(new Rectangle(0,					HudHeight,				border,		PlayHeight));	// left
-		_walls.Add(new Rectangle(FieldWidth - border, HudHeight,				border,		PlayHeight));	// right
+		// No outer-border walls — playfield bounds are enforced in
+		// CollidesWithWalls. Layout matches Atari Combat "tanks": scattered
+		// cream shapes on an open red field. Spacing is hand-tuned so every
+		// horizontal-traversal channel is ≥12 px tall, leaving at least 2 px
+		// of clearance for a 10×10 tank.
+		//
+		// Vertical channel budget through the play area (y=16..192):
+		//   y=16-18   2 px sliver above top finger
+		//   y=18-30   12 px top finger
+		//   y=30-38   8 px channel  (route around finger laterally)
+		//   y=38-44   6 px top H bar
+		//   y=44-56   12 px channel ✓
+		//   y=56-66   10 px upper L (H 6 + V 10 with overlap)
+		//   y=66-78   12 px channel ✓
+		//   y=78-84   6 px bracket top arm
+		//   y=84-96   12 px channel ✓
+		//   y=96-108  12 px inside block
+		//   y=108-122 14 px channel ✓
+		//   y=122-128 6 px bracket bottom arm
+		//   y=128-140 12 px channel ✓
+		//   y=140-150 10 px lower L (V 10 + H 6 with overlap)
+		//   y=150-164 14 px channel ✓
+		//   y=164-170 6 px bottom H bar
+		//   y=170-176 6 px channel  (route around bottom finger)
+		//   y=176-188 12 px bottom finger
 
-		// Centre-pinch barrier (Combat's classic L-blocks).
-		_walls.Add(new Rectangle(40,	60,	8,		60));	// left vertical
-		_walls.Add(new Rectangle(112,	60,	8,		60));	// right vertical
-		_walls.Add(new Rectangle(40,	60,	36,	8));	// left horizontal
-		_walls.Add(new Rectangle(84,	60,	36,	8));	// right horizontal (top of right L flipped)
-		_walls.Add(new Rectangle(40,	112,	36,	8));	// left horizontal lower
-		_walls.Add(new Rectangle(84,	112,	36,	8));	// right horizontal lower
+		// Top finger (vertical bar, top centre)
+		_walls.Add(new Rectangle(76, 18, 8, 12));
+
+		// Top horizontal bars (left & right). Inset 4 px from the playfield
+		// edges so the outer-edge corridor stays a passable 12 px wide.
+		_walls.Add(new Rectangle( 12, 38, 24, 6));
+		_walls.Add(new Rectangle(124, 38, 24, 6));
+
+		// Upper L-corners (notch facing inward — horizontal arm + downward stub)
+		_walls.Add(new Rectangle(28, 56, 16, 6));	// upper-left  H
+		_walls.Add(new Rectangle(38, 56,  6, 10));	// upper-left  V (down from right edge of H)
+		_walls.Add(new Rectangle(116, 56, 16, 6));	// upper-right H
+		_walls.Add(new Rectangle(116, 56,  6, 10));	// upper-right V (down from left edge of H)
+
+		// Big bracket "[" on the left (vertical + top arm + bottom arm).
+		// Spine inset 4 px so the outer-edge corridor (x=0..12) is a passable
+		// 12 px wide rather than the impassable 8 it was before.
+		_walls.Add(new Rectangle( 12, 78,  6, 50));	// left vertical spine
+		_walls.Add(new Rectangle( 12, 78, 24,  6));	// left top arm
+		_walls.Add(new Rectangle( 12,122, 24,  6));	// left bottom arm
+
+		// Big bracket "]" on the right (mirror — spine at x=142..148, leaving
+		// the x=148..160 outer corridor 12 px wide)
+		_walls.Add(new Rectangle(142, 78,  6, 50));	// right vertical spine
+		_walls.Add(new Rectangle(124, 78, 24,  6));	// right top arm
+		_walls.Add(new Rectangle(124,122, 24,  6));	// right bottom arm
+
+		// Two solid blocks framing the central corridor (slimmer than 16 tall
+		// so the gap to the bracket bottom arm stays >12 px).
+		_walls.Add(new Rectangle(48, 96, 16, 12));
+		_walls.Add(new Rectangle(96, 96, 16, 12));
+
+		// Lower L-corners (mirror of upper, opening upward). NOT strictly
+		// vertically-symmetric to the upper Ls — pushed a few pixels further
+		// from the bracket so the y=128..140 channel stays passable.
+		_walls.Add(new Rectangle(38,140,  6, 10));	// lower-left  V (up from right edge of H)
+		_walls.Add(new Rectangle(28,144, 16,  6));	// lower-left  H
+		_walls.Add(new Rectangle(116,140, 6, 10));	// lower-right V
+		_walls.Add(new Rectangle(116,144,16,  6));	// lower-right H
+
+		// Bottom horizontal bars (mirror — same 4 px inset as the top bars)
+		_walls.Add(new Rectangle( 12,164, 24, 6));
+		_walls.Add(new Rectangle(124,164, 24, 6));
+
+		// Bottom finger (mirror of top)
+		_walls.Add(new Rectangle(76,176,  8, 12));
 	}
 
 	private void ResetRound(bool initial)
@@ -173,14 +253,17 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 		_bullets.Clear();
 		_hitFreezeTimer =	0f;
 
-		float playMidY =	HudHeight + PlayHeight / 2f;
 		_p1 ??=	new Tank();
 		_p2 ??=	new Tank();
-		_p1.Position =	new Vector2(16, playMidY);
+
+		// Diagonally-opposite spawns in the open lanes between top/bottom
+		// horizontals and the upper/lower L-corners, mirroring how Combat's
+		// tank-mode opens. P1 faces east, P2 faces west.
+		_p1.Position =	new Vector2(36, 30);
 		_p1.Facing =	new Vector2(1, 0);
 		_p1.FireCooldown =	0f;
 
-		_p2.Position =	new Vector2(FieldWidth - 16, playMidY);
+		_p2.Position =	new Vector2(124, 178);
 		_p2.Facing =	new Vector2(-1, 0);
 		_p2.FireCooldown =	0f;
 
@@ -312,6 +395,13 @@ public sealed class BattleshootGame :	IEmbeddedMiniGame
 		var box =	new Rectangle(
 			(int)(pos.X - size / 2), (int)(pos.Y - size / 2),
 			(int)size, (int)size);
+
+		// Invisible playfield bounds — there are no drawn outer walls in the
+		// Combat-style map, but tanks and bullets still can't leave the field.
+		if (box.X < 0 || box.Y < HudHeight ||
+			box.X + box.Width  > FieldWidth ||
+			box.Y + box.Height > FieldHeight)	return true;
+
 		foreach (var w in _walls)	if (w.Intersects(box))	return true;
 		return false;
 	}
