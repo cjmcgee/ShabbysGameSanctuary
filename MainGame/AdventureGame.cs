@@ -73,6 +73,7 @@ namespace ChildhoodAdventure
 		private bool _drawErr;
 		private KeyboardState _prevKeys;
 		private int _prevScrollWheel;
+		private bool _miniGameTitleActive;
 
 		protected override void Update( GameTime gameTime )
 		{
@@ -105,6 +106,13 @@ namespace ChildhoodAdventure
 				base.Update( gameTime );
 				_prevKeys =	keys;
 				_prevScrollWheel = mouse.ScrollWheelValue;
+
+				// Title-bar key hint follows the active scene: world controls
+				// in the overworld, console-switch controls inside a hosted
+				// libretro game. Only refresh on transition so we're not
+				// thrashing SDL_SetWindowTitle every frame.
+				bool inMiniGame = TileEngine.Core.GameEngine.Instance.CurrentScene is MiniGameScene;
+				if( inMiniGame != _miniGameTitleActive ) { UpdateWindowTitle(); }
 			}
 			catch( Exception ex )
 			{
@@ -163,9 +171,15 @@ namespace ChildhoodAdventure
 		private void UpdateWindowTitle()
 		{
 			var sys = RetroSystemRegistry.Current;
+			bool inMiniGame = TileEngine.Core.GameEngine.Instance?.CurrentScene is MiniGameScene;
+			_miniGameTitleActive = inMiniGame;
+
+			string controls = inMiniGame
+				? "WASD/Arrows: Move  |  Space: Fire  |  Tab: Game Select  |  Enter: Game Reset  |  Esc: Exit Game"
+				: "WASD: Move  |  E: Talk  |  Scroll: Zoom  |  F1-F5: Switch System  |  Esc: Quit";
+
 			Window.Title =
-				$"Childhood Adventure  [{sys.Name}  {sys.Description}]  " +
-				$"  WASD: Move  |  E: Talk  |  Scroll: Zoom  |  F1-F5: Switch System  |  Esc: Quit";
+				$"Childhood Adventure  [{sys.Name}  {sys.Description}]    {controls}";
 		}
 
 		protected override void Draw( GameTime gameTime )

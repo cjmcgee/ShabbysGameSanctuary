@@ -47,6 +47,10 @@ namespace TileEngine.MiniGames.Libretro
 		private bool _finished;
 		private bool _disposed;
 
+		// Time-since-last-Run accumulator. Decoupled from the host's render
+		// rate so a 144 Hz monitor doesn't run a 60 Hz NTSC core at 2.4× speed.
+		private double _runAccumulator;
+
 		// ── IEmbeddedMiniGame ────────────────────────────────────────────────
 		public string Title { get; }
 		public Point NativeResolution =>	_frameWidth > 0
@@ -97,7 +101,20 @@ namespace TileEngine.MiniGames.Libretro
 		{
 			if (input.ExitRequested)	{ _finished =	true; return; }
 			MapKeyboardToJoypad(input);
-			_core.Run();
+
+			// Run the core at its advertised frame rate, not the host's render
+			// rate. Cap catch-up at 3 frames per host tick — if we fall further
+			// behind we drop the surplus rather than spiral-of-death the CPU.
+			double targetFrameSeconds =	_core.Fps > 0 ? 1.0 / _core.Fps :	1.0 / 60.0;
+			_runAccumulator +=	gameTime.ElapsedGameTime.TotalSeconds;
+			int runs =	0;
+			while (_runAccumulator >= targetFrameSeconds && runs < 3)
+			{
+				_core.Run();
+				_runAccumulator -=	targetFrameSeconds;
+				runs++;
+			}
+			if (_runAccumulator > targetFrameSeconds * 4)	_runAccumulator =	0;
 		}
 
 		public void Draw(SpriteBatch spriteBatch, RectangleF viewport)
@@ -248,7 +265,9 @@ namespace TileEngine.MiniGames.Libretro
 			if (dir.X >  0.5f)	_joypad[RETRO_DEVICE_ID_JOYPAD_RIGHT] =	true;
 			if (dir.Y < -0.5f)	_joypad[RETRO_DEVICE_ID_JOYPAD_UP]    =	true;
 			if (dir.Y >  0.5f)	_joypad[RETRO_DEVICE_ID_JOYPAD_DOWN]  =	true;
-			if (input.IsFireDown(0))	_joypad[RETRO_DEVICE_ID_JOYPAD_A] =	true;
+			// Stella maps the Atari joystick's red fire button to JOYPAD_B
+			// (not A — A is "Fire5", a Genesis-pad extension).
+			if (input.IsFireDown(0))	_joypad[RETRO_DEVICE_ID_JOYPAD_B] =	true;
 			if (input.IsKeyDown(Keys.Enter))	_joypad[RETRO_DEVICE_ID_JOYPAD_START]  =	true;
 			if (input.IsKeyDown(Keys.Tab))      _joypad[RETRO_DEVICE_ID_JOYPAD_SELECT] =	true;
 		}
