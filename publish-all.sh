@@ -39,5 +39,5 @@ if [[ $want_linux -eq 1 ]];   then publish_one linux-x64; fi
 if [[ $want_windows -eq 1 ]]; then publish_one win-x64;   fi
 
 echo
-echo "Archives:"
-ls -lh "$REPO_DIR"/dist/*.tar.gz "$REPO_DIR"/dist/*.zip 2>/dev/null || true
+echo "Artifacts:"
+ls -lh "$REPO_DIR"/dist/*.tar.gz "$REPO_DIR"/dist/*.zip "$REPO_DIR"/dist/*.exe 2>/dev/null || true

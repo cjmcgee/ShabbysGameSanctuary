@@ -235,4 +235,61 @@
              Importance="high" Text="Created archive: $(_ArchiveBase).tar.gz" />
   </Target>
 
+  <!-- ── Windows installer (NSIS) ──────────────────────────────────────────
+       Runs after the win-x64 publish and builds an Add/Remove-Programs-
+       registered installer at dist/ChildhoodAdventure-Setup-win-x64.exe.
+
+       Sources the file list from PublishDir (which the ArchivePublishedOutput
+       target has already augmented with stella_libretro.dll), so the order
+       AfterTargets="ArchivePublishedOutput" matters.
+
+       Requires the `makensis` compiler. On Debian/Ubuntu: sudo apt install nsis.
+       Missing toolchain → single actionable warning + skip.
+
+       Version is taken from $(InstallerVersion) (default 1.0.0) so the
+       publish script / CI can stamp the release version, e.g.
+       `dotnet publish ... -p:InstallerVersion=1.4.2`.
+  -->
+  <PropertyGroup>
+    <InstallerVersion Condition="'$(InstallerVersion)' == ''">1.0.0</InstallerVersion>
+  </PropertyGroup>
+
+  <Target Name="BuildWindowsInstaller" AfterTargets="ArchivePublishedOutput"
+          Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+
+    <PropertyGroup>
+      <_NsiScript>$(MSBuildProjectDirectory)/../Installer/ChildhoodAdventure.nsi</_NsiScript>
+      <_InstallerExe>$(MSBuildProjectDirectory)/../dist/ChildhoodAdventure-Setup-win-x64.exe</_InstallerExe>
+    </PropertyGroup>
+
+    <Exec Command="makensis -VERSION"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          EchoOff="true"
+          ConsoleToMsBuild="true">
+      <Output TaskParameter="ExitCode" PropertyName="_MakensisExit" />
+    </Exec>
+
+    <Warning Condition="'$(_MakensisExit)' != '0'"
+             Text="makensis not installed — Windows installer .exe will not be built. Install with: sudo apt install nsis  (Debian/Ubuntu) or grab it from https://nsis.sourceforge.io/." />
+
+    <Message Condition="'$(_MakensisExit)' == '0'"
+             Importance="high" Text="Building Windows installer (NSIS) v$(InstallerVersion) ..." />
+
+    <!-- NSIS wants backslashed Windows-style paths in defines so the
+         File /r directive's wildcard expansion works on its side. -->
+    <PropertyGroup>
+      <_NsisStageDir>$([System.String]::Copy('$(PublishDir)').TrimEnd('\').TrimEnd('/').Replace('/', '\'))</_NsisStageDir>
+      <_NsisOutput>$([System.String]::Copy('$(_InstallerExe)').Replace('/', '\'))</_NsisOutput>
+    </PropertyGroup>
+
+    <Exec Condition="'$(_MakensisExit)' == '0'"
+          Command="makensis -V2 -DSTAGE_DIR=&quot;$(_NsisStageDir)&quot; -DOUTPUT=&quot;$(_NsisOutput)&quot; -DAPP_VERSION=$(InstallerVersion) &quot;$(_NsiScript)&quot;"
+          ConsoleToMsBuild="true" />
+
+    <Message Condition="'$(_MakensisExit)' == '0' AND Exists('$(_InstallerExe)')"
+             Importance="high"
+             Text="Created installer: $(_InstallerExe)" />
+  </Target>
+
 </Project>
