@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ChildhoodAdventure</RootNamespace>
     <AssemblyName>ChildhoodAdventure</AssemblyName>
+	
   </PropertyGroup>
 
   <ItemGroup>
@@ -61,8 +62,14 @@
        startup. PreserveNewest skips when timestamps match. The Condition
        lets the .NET build still succeed if the user chose to skip the
        native build (CI, missing g++, etc) — the menu will just show
-       Combat as unavailable. -->
-  <ItemGroup Condition="Exists('$(_StellaLibretroLib)')">
+       Combat as unavailable.
+
+       Gated on BuildStellaLibretro so a cross-RID publish (e.g. win-x64
+       from a Linux host) doesn't drag the build-host's .so into the
+       target's publish output. The win-x64 publish profile sets
+       BuildStellaLibretro=false; the post-publish ArchivePublishedOutput
+       target picks up a prebuilt stella_libretro.dll if one exists. -->
+  <ItemGroup Condition="Exists('$(_StellaLibretroLib)') AND '$(BuildStellaLibretro)' == 'true'">
     <None Include="$(_StellaLibretroLib)">
       <Link>stella_libretro.$(_StellaLibretroExt)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -117,6 +124,66 @@
     <Exec Command="dotnet run --project &quot;$(_YarnBundlerProject)&quot; -- &quot;$(_YarnDialogueDir)&quot; &quot;$(_YarnBundleOutput)&quot;"
           ConsoleToMsBuild="true" />
 
+  </Target>
+
+  <!-- ── Post-publish: drop in the RID-matched Stella core, then archive ────
+       Runs after `dotnet publish`. Decides per-RID which native libretro
+       file to include (.so/.dll/.dylib) and which archive format to use
+       (.tar.gz on unix, .zip on windows). If the matching native lib isn't
+       built, the archive ships without it — GameLibrary detects the missing
+       core at runtime and shows Combat as unavailable in the menu.
+  -->
+  <Target Name="ArchivePublishedOutput" AfterTargets="Publish"
+          Condition="'$(RuntimeIdentifier)' != ''">
+
+    <!-- These have to be evaluated inside the target, not at the file-scope
+         PropertyGroup, because RuntimeIdentifier isn't bound until the
+         publish profile has applied. -->
+    <PropertyGroup>
+      <_StellaRidExt Condition="$(RuntimeIdentifier.StartsWith('win'))">dll</_StellaRidExt>
+      <_StellaRidExt Condition="$(RuntimeIdentifier.StartsWith('osx'))">dylib</_StellaRidExt>
+      <_StellaRidExt Condition="$(RuntimeIdentifier.StartsWith('linux'))">so</_StellaRidExt>
+      <_StellaRidLib>$(_StellaLibretroDir)/stella_libretro.$(_StellaRidExt)</_StellaRidLib>
+
+      <_DistDir>$(MSBuildProjectDirectory)/../dist</_DistDir>
+      <_StageRoot>$(_DistDir)/_stage</_StageRoot>
+      <_StageDir>$(_StageRoot)/ChildhoodAdventure-$(RuntimeIdentifier)</_StageDir>
+      <_ArchiveBase>$(_DistDir)/ChildhoodAdventure-$(RuntimeIdentifier)</_ArchiveBase>
+    </PropertyGroup>
+
+    <!-- Stella native library: include if a build for the target RID exists. -->
+    <Warning Condition="!Exists('$(_StellaRidLib)')"
+             Text="Stella libretro core for $(RuntimeIdentifier) not found at $(_StellaRidLib). Archive will not include Combat — players will see it greyed out in the menu." />
+    <Copy Condition="Exists('$(_StellaRidLib)')"
+          SourceFiles="$(_StellaRidLib)"
+          DestinationFolder="$(PublishDir)" />
+
+    <!-- Fresh stage dir, then copy every published file into it under a
+         folder named after the RID so the archive expands to that folder. -->
+    <RemoveDir Directories="$(_StageRoot)" />
+    <MakeDir Directories="$(_DistDir);$(_StageDir)" />
+    <ItemGroup>
+      <_Published Include="$(PublishDir)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_Published)"
+          DestinationFiles="@(_Published->'$(_StageDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <!-- Build the archive. ZipDirectory is built into MSBuild and works on
+         any host; tar is invoked via Exec for the unix-style archive. -->
+    <ZipDirectory Condition="$(RuntimeIdentifier.StartsWith('win'))"
+                  SourceDirectory="$(_StageDir)"
+                  DestinationFile="$(_ArchiveBase).zip"
+                  Overwrite="true" />
+    <Exec Condition="!$(RuntimeIdentifier.StartsWith('win'))"
+          WorkingDirectory="$(_StageRoot)"
+          Command="tar -czf &quot;$(_ArchiveBase).tar.gz&quot; &quot;ChildhoodAdventure-$(RuntimeIdentifier)&quot;" />
+
+    <RemoveDir Directories="$(_StageRoot)" />
+
+    <Message Condition="$(RuntimeIdentifier.StartsWith('win'))"
+             Importance="high" Text="Created archive: $(_ArchiveBase).zip" />
+    <Message Condition="!$(RuntimeIdentifier.StartsWith('win'))"
+             Importance="high" Text="Created archive: $(_ArchiveBase).tar.gz" />
   </Target>
 
 </Project>

@@ -7,6 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Battleshoot</RootNamespace>
     <AssemblyName>Battleshoot</AssemblyName>
+    <!-- ChildhoodAdventure references this project and publishes
+         self-contained; NETSDK1150 requires referenced exe projects to
+         agree on self-contained mode. Only takes effect at publish time
+         when a RuntimeIdentifier is set, so plain `dotnet run` still
+         works as a normal framework-dependent build. -->
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
