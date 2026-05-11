@@ -44,6 +44,31 @@ namespace TileEngine.MiniGames.Libretro
 		public const uint RETRO_ENVIRONMENT_EXPERIMENTAL =	0x10000u;
 		public const uint RETRO_ENVIRONMENT_PRIVATE      =	0x20000u;
 
+		// ── Log levels (RETRO_LOG_*) ─────────────────────────────────────────
+		public const int RETRO_LOG_DEBUG	=	0;
+		public const int RETRO_LOG_INFO		=	1;
+		public const int RETRO_LOG_WARN		=	2;
+		public const int RETRO_LOG_ERROR	=	3;
+
+		// retro_log_callback is a struct with a single function pointer field.
+		[StructLayout(LayoutKind.Sequential)]
+		public struct retro_log_callback
+		{
+			public IntPtr	log;	// retro_log_printf_t function pointer
+		}
+
+		// libretro's log callback is variadic at the C level:
+		//   void log(enum retro_log_level level, const char *fmt, ...);
+		// Stella's libretro_logger calls it with a fixed shape:
+		//   log_cb(level, "%s\n", token);
+		// So we declare just the two extra args we actually care about
+		// (the format string and its single char* argument). Extra varargs
+		// pushed by the caller live in registers we never read; cdecl is
+		// caller-cleanup so ignoring them is safe across both x86 and x86-64
+		// System V ABIs.
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void retro_log_printf_t(int level, IntPtr fmt, IntPtr arg1);
+
 		// ── Input devices / IDs ──────────────────────────────────────────────
 		public const uint RETRO_DEVICE_NONE     =	0;
 		public const uint RETRO_DEVICE_JOYPAD   =	1;

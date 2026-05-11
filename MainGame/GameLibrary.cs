@@ -62,8 +62,7 @@ public sealed class GameLibrary
 		// Emulated — Combat for Atari 2600 (Stella libretro core).
 		// The user's reference ROM filename is long; keep it as a constant so
 		// it's obvious which dump we expect.
-		const string CombatRom =
-			"Combat - Tank-Plus (Tank) (1977) (Atari, Joe Decuir, Larry Kaplan, Steve Mayer, Larry Wagner - Sears) (CX2601 - 99801, 6-99801, 49-75101, 49-75124) ~.bin";
+		const string CombatRom =	"Combat - Tank-Plus.bin";
 		// Per-OS library name. The MSBuild target builds the matching one
 		// from stella/src/os/libretro and copies it next to the exe.
 		string stellaCore =
@@ -72,23 +71,34 @@ public sealed class GameLibrary
 											"stella_libretro.so";
 
 		string corePath =	config.ResolveCore(stellaCore);
-		string romPath =	config.ResolveRom(CombatRom);
+		// Atari 2600 cartridges top out at 32 KB (large bank-switched carts).
+		// Capping the recursive ROM search avoids picking up same-name files
+		// from other systems (e.g. a 512 KB homebrew "Combat" elsewhere).
+		const long Atari2600MaxRomBytes =	32 * 1024;
+		string romPath =	config.ResolveRom(CombatRom, maxBytes:	Atari2600MaxRomBytes);
 
 		// CoreRoot may legitimately be empty — EmulatorConfig falls back to
 		// the exe directory in that case, which is where the build dropped
-		// the vendored core. So we only need to check the resolved file.
+		// the vendored core. RomRoot may also be empty: in debug builds it
+		// falls back to a sibling TestROMs/ folder. In release builds an
+		// empty RomRoot really does mean "user hasn't configured it".
 		string?	unavailable =	null;
 		if( !File.Exists( corePath ) )
 		{
 			unavailable =	$"Don't know where to look for emulator cores! Set CoreRoot in emulator-config.json. Currently: {corePath}";
 		}
-		else if( string.IsNullOrEmpty( config.RomRoot ) )
+		else if( string.IsNullOrEmpty( config.EffectiveRomRoot ) )
 		{
 			unavailable =	"ROM location is not set! Please set RomRoot in emulator-config.json";
 		}
-		else if( !File.Exists( romPath ) )
+		else if( string.IsNullOrEmpty( romPath ) || !File.Exists( romPath ) )
 		{
-			unavailable =	$"Requested ROM not found: {romPath}";
+			// Either no file matched the name + size cap, or it was found
+			// but vanished between resolution and now (race / unmount).
+			unavailable =
+				$"ROM '{CombatRom}' (≤ {Atari2600MaxRomBytes / 1024} KB) not found under {config.EffectiveRomRoot}. " +
+				"Any same-name files that exceed the size cap are intentionally skipped — " +
+				"check for stray same-name copies in other system folders.";
 		}
 
 		games.Add( new GameEntry(

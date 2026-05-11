@@ -36,6 +36,27 @@ public sealed class EmulatorConfig
 	public string EffectiveCoreRoot =>
 		string.IsNullOrEmpty(CoreRoot) ? AppContext.BaseDirectory :	CoreRoot;
 
+	/// <summary>
+	/// RomRoot effective value used by <see cref="ResolveRom"/>. If the user
+	/// left RomRoot empty in the JSON, debug builds fall back to a sibling
+	/// <c>TestROMs/</c> folder (handy for local dev where ROMs live next to
+	/// the repo but aren't checked in). Release builds return empty so the
+	/// menu surfaces the "not set" error rather than searching random dirs.
+	/// </summary>
+	public string EffectiveRomRoot
+	{
+		get
+		{
+			if (!string.IsNullOrEmpty(RomRoot))	return RomRoot;
+#if DEBUG
+			return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
+				"..", "..", "..", "..", "..", "TestROMs"));
+#else
+			return "";
+#endif
+		}
+	}
+
 	private const string FileName =	"emulator-config.json";
 
 	public static EmulatorConfig LoadOrDefault()
@@ -66,13 +87,80 @@ public sealed class EmulatorConfig
 	}
 
 	/// <summary>
-	/// Resolve <paramref name="romFile"/> against <see cref="RomRoot"/>.
-	/// If the input is already absolute, it's returned as-is.
+	/// Resolve <paramref name="romFile"/> to an absolute path. Tries:
+	///   1. The exact join <c>EffectiveRomRoot/romFile</c>.
+	///   2. A recursive subdirectory search for the filename underneath
+	///      <c>EffectiveRomRoot</c>, optionally constrained by
+	///      <paramref name="maxBytes"/> so a same-name file from a
+	///      different system (e.g. a 512 KB homebrew "Combat" cart in
+	///      another folder) doesn't get picked over the real one.
+	/// If nothing matches, returns the expected (level-1) path so callers
+	/// can show it in a "not found" error.
+	///
+	/// The recursive search lets the user organise ROMs into any nested
+	/// folder layout (e.g. <c>Atari2600/Sports/Combat.bin</c>) without
+	/// updating game-side filename constants.
 	/// </summary>
-	public string ResolveRom(string romFile)	=>
-		Path.IsPathRooted(romFile) || string.IsNullOrEmpty(RomRoot)
-			? romFile
-			: Path.Combine(RomRoot, romFile);
+	/// <param name="maxBytes">
+	/// Optional sanity cap. When &gt; 0, files larger than this are skipped
+	/// during the recursive search. Useful when systems share game titles —
+	/// pass <c>32768</c> for Atari 2600 to ignore non-2600 same-name hits.
+	/// </param>
+	public string ResolveRom(string romFile, long maxBytes = 0)
+	{
+		if (Path.IsPathRooted(romFile))	return romFile;
+
+		string root =	EffectiveRomRoot;
+		if (string.IsNullOrEmpty(root))	return romFile;
+
+		bool SizeOk(string path)
+		{
+			if (maxBytes <= 0)	return true;
+			try		{ return new FileInfo(path).Length <= maxBytes; }
+			catch	{ return false; }
+		}
+
+		string requested =	Path.GetFileName(romFile);
+		string direct =	Path.Combine(root, romFile);
+
+		// Level 1: the literal join. Honour the size cap so an oversized
+		// file at this exact path doesn't satisfy the lookup.
+		if (File.Exists(direct) && SizeOk(direct))
+		{
+			Console.Error.WriteLine($"[ResolveRom] {romFile} -> {direct} (direct)");
+			return direct;
+		}
+
+		// Level 2: recursive search by filename, also size-capped.
+		if (Directory.Exists(root))
+		{
+			try
+			{
+				foreach (var hit in Directory.EnumerateFiles(
+					root, requested, SearchOption.AllDirectories))
+				{
+					// Defend against pattern-matching quirks: require an
+					// exact case-insensitive basename match.
+					if (!Path.GetFileName(hit).Equals(requested,
+							StringComparison.OrdinalIgnoreCase))	continue;
+					if (!SizeOk(hit))	continue;
+					Console.Error.WriteLine($"[ResolveRom] {romFile} -> {hit} (recursive)");
+					return hit;
+				}
+			}
+			catch (UnauthorizedAccessException)	{ /* skip unreadable dirs */ }
+			catch (IOException)	{ /* network share hiccup, etc */ }
+		}
+
+		// Nothing usable. Return empty so callers can distinguish
+		// "found and valid" from "no match within constraints" — the
+		// previous behaviour (fall back to the level-1 path) caused
+		// callers to load a same-name but wrong-size file.
+		Console.Error.WriteLine(
+			$"[ResolveRom] {romFile} not found under {root}" +
+			(maxBytes > 0 ? $" within {maxBytes:N0} bytes." :	"."));
+		return "";
+	}
 
 	/// <summary>
 	/// Resolve <paramref name="coreFile"/> against <see cref="CoreRoot"/>,

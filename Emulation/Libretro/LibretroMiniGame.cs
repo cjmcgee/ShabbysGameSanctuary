@@ -73,6 +73,13 @@ namespace TileEngine.MiniGames.Libretro
 				OnVideoRefresh =	OnVideoRefresh,
 				OnInputPoll =		OnInputPoll,
 				OnInputState =		OnInputState,
+				// Audio is silently consumed for v1 — no MonoGame audio sink
+				// is hooked up. We still ACK every batch so the core's
+				// `frames consumed` accounting is satisfied; otherwise some
+				// cores stall or log overflow chatter. The samples are
+				// dropped on the floor.
+				OnAudioSample =	(l, r) => { _ = l; _ = r; },
+				OnAudioBatch =	(_, frames) => frames,
 			};
 			_core.Open(_corePath);
 			_core.Init();
@@ -97,11 +104,7 @@ namespace TileEngine.MiniGames.Libretro
 		{
 			if (_frameDirty)	UploadFrame();
 
-			if (_frameTexture == null)
-			{
-				// Still booting — clear frame, no texture yet.
-				return;
-			}
+			if (_frameTexture == null)	return;
 
 			var fit =	LetterboxFit(new Point(_texWidth, _texHeight),
 				new Point((int)viewport.Width, (int)viewport.Height));
@@ -127,14 +130,12 @@ namespace TileEngine.MiniGames.Libretro
 		}
 
 		// ── Video ───────────────────────────────────────────────────────────
-		// Called by the core (on its thread, but cores are single-threaded
-		// w.r.t. the frontend's run() call). We copy out of the core's buffer
-		// because it may reuse that memory before our next Draw().
+		// Called by the core during retro_run. We copy out of the core's
+		// buffer because it may reuse that memory before our next Draw().
 		private void OnVideoRefresh(IntPtr data, uint width, uint height, uint pitchBytes)
 		{
 			if (data == IntPtr.Zero || width == 0 || height == 0)	return;
 
-			int bytesPerPixel =	_core.PixelFormat == RETRO_PIXEL_FORMAT_XRGB8888 ? 4 : 2;
 			int needed =	(int)(pitchBytes * height);
 			if (_frameBytes.Length < needed)	_frameBytes =	new byte[needed];
 
@@ -143,7 +144,6 @@ namespace TileEngine.MiniGames.Libretro
 			_frameHeight =	height;
 			_framePitchBytes =	pitchBytes;
 			_frameDirty =	true;
-			_ = bytesPerPixel;	// silence unused-when-unrolled
 		}
 
 		// Convert the captured raw buffer into XNA Color[] and upload to
@@ -176,6 +176,7 @@ namespace TileEngine.MiniGames.Libretro
 					ConvertRgb1555(_frameBytes, pitch, w, h, pixels);
 					break;
 			}
+
 			_frameTexture.SetData(pixels);
 		}
 

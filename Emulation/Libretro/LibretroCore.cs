@@ -292,6 +292,19 @@ namespace TileEngine.MiniGames.Libretro
 				case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 					return WriteCachedPathPtr(data, SaveDirectory, ref _saveDirHandle);
 
+				// RETRO_ENVIRONMENT_GET_LOG_INTERFACE intentionally NOT
+				// handled (returns false via the default branch). Stella's
+				// libretro.h declares the callback as variadic
+				// (`void log(level, fmt, ...)`) and the shim makes both
+				// 2-arg (no varargs) and 3-arg (one %s + char* arg) calls.
+				// A managed delegate with a fixed signature can't safely
+				// receive the 2-arg form: marshalling reads the 3rd
+				// register slot regardless, and dereferencing the garbage
+				// pointer that's in it (e.g. via PtrToStringAnsi) walks
+				// invalid memory. So we let Stella's own fallback_log run
+				// instead — verbose, but stable. The price is the
+				// AudioQueue INFO chatter showing up on stderr.
+
 				case RETRO_ENVIRONMENT_SHUTDOWN:
 					return true;
 

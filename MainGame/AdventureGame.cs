@@ -25,6 +25,16 @@ namespace ChildhoodAdventure
 			};
 			Content.RootDirectory =	"Content";
 			IsMouseVisible = true;
+
+			// Variable timestep with vsync. With the default fixed timestep,
+			// if any single Update tick exceeds the 16.67ms target (e.g.
+			// libretro core init + first emulator frame can take 100s of ms),
+			// MonoGame enters a catch-up loop and stops calling Draw while it
+			// tries to catch up — leaving the screen frozen on whatever was
+			// last rendered. Variable timestep guarantees Update→Draw→Update
+			// alternation regardless of per-frame cost.
+			IsFixedTimeStep = false;
+			_graphics.SynchronizeWithVerticalRetrace = true;
 		}
 
 		protected override void Initialize()
