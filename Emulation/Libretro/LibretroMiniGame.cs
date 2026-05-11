@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,10 +17,9 @@ namespace TileEngine.MiniGames.Libretro
 	/// into a Texture2D, and on <see cref="Draw"/> blits that texture into
 	/// the host viewport.
 	///
-	/// Audio is intentionally dropped (silent) for this v1 — most cores still
-	/// run correctly without an audio sink. Adding audio means feeding samples
-	/// through MonoGame's <c>DynamicSoundEffectInstance</c>; out of scope for
-	/// the first cut.
+	/// Audio is piped through MonoGame's <see cref="DynamicSoundEffectInstance"/>
+	/// at the core's advertised sample rate. Stella reports 31440 Hz stereo
+	/// (mono samples duplicated to L/R), which the audio device accepts directly.
 	/// </summary>
 	public sealed class LibretroMiniGame :	IEmbeddedMiniGame, IDisposable
 	{
@@ -51,6 +51,13 @@ namespace TileEngine.MiniGames.Libretro
 		// rate so a 144 Hz monitor doesn't run a 60 Hz NTSC core at 2.4× speed.
 		private double _runAccumulator;
 
+		// Audio pipeline. Created in Initialize once the core's sample rate is
+		// known. The callback marshals samples on whatever thread retro_run
+		// is running on — DynamicSoundEffectInstance.SubmitBuffer is safe to
+		// call from any thread.
+		private DynamicSoundEffectInstance?	_audio;
+		private byte[]	_audioBuf =	Array.Empty<byte>();
+
 		// ── IEmbeddedMiniGame ────────────────────────────────────────────────
 		public string Title { get; }
 		public Point NativeResolution =>	_frameWidth > 0
@@ -77,13 +84,8 @@ namespace TileEngine.MiniGames.Libretro
 				OnVideoRefresh =	OnVideoRefresh,
 				OnInputPoll =		OnInputPoll,
 				OnInputState =		OnInputState,
-				// Audio is silently consumed for v1 — no MonoGame audio sink
-				// is hooked up. We still ACK every batch so the core's
-				// `frames consumed` accounting is satisfied; otherwise some
-				// cores stall or log overflow chatter. The samples are
-				// dropped on the floor.
-				OnAudioSample =	(l, r) => { _ = l; _ = r; },
-				OnAudioBatch =	(_, frames) => frames,
+				OnAudioSample =		OnAudioSample,
+				OnAudioBatch =		OnAudioBatch,
 			};
 			_core.Open(_corePath);
 			_core.Init();
@@ -95,6 +97,24 @@ namespace TileEngine.MiniGames.Libretro
 			// the first few frames don't trigger reallocations.
 			int maxBytes =	(int)(_core.MaxWidth * _core.MaxHeight * 4);
 			if (maxBytes > 0)	_frameBytes =	new byte[maxBytes];
+
+			// Audio sink. SampleRate comes from retro_get_system_av_info, so it's
+			// known by the time we land here. DynamicSoundEffectInstance accepts
+			// non-standard rates (Stella is 31440 Hz). Play immediately — the
+			// device idles silently until SubmitBuffer is called.
+			int sr =	_core.SampleRate > 0 ? (int)_core.SampleRate :	44100;
+			try
+			{
+				_audio =	new DynamicSoundEffectInstance(sr, AudioChannels.Stereo);
+				_audio.Play();
+			}
+			catch (Exception ex)
+			{
+				// Some hosts refuse weird sample rates. Falling back to silent
+				// is better than crashing the whole mini-game.
+				Console.Error.WriteLine($"[LibretroMiniGame] audio init failed: {ex.Message} — running silent.");
+				_audio =	null;
+			}
 		}
 
 		public void Update(GameTime gameTime, IMiniGameInput input)
@@ -142,6 +162,13 @@ namespace TileEngine.MiniGames.Libretro
 		{
 			if (_disposed)	return;
 			_disposed =	true;
+			if (_audio != null)
+			{
+				try		{ _audio.Stop(); }
+				catch	{ }
+				_audio.Dispose();
+				_audio =	null;
+			}
 			_frameTexture?.Dispose();
 			_core?.Dispose();
 		}
@@ -250,6 +277,42 @@ namespace TileEngine.MiniGames.Libretro
 					dst[dstRow + x]	=	new Color(r, g, b);
 				}
 			}
+		}
+
+		// ── Audio ───────────────────────────────────────────────────────────
+		// Stella uses the batch path exclusively (one call per retro_run with
+		// the frame's worth of samples), but we wire the single-sample path
+		// too so other cores work without modification.
+
+		private void OnAudioSample(short left, short right)
+		{
+			if (_audio == null)	return;
+			Span<byte> frame =	stackalloc byte[4];
+			frame[0] = (byte)(left  & 0xFF);
+			frame[1] = (byte)((left  >> 8) & 0xFF);
+			frame[2] = (byte)(right & 0xFF);
+			frame[3] = (byte)((right >> 8) & 0xFF);
+			// SubmitBuffer needs a byte[]; stackalloc is just for clarity.
+			_audio.SubmitBuffer(frame.ToArray());
+		}
+
+		private ulong OnAudioBatch(IntPtr data, ulong frames)
+		{
+			if (_audio == null || data == IntPtr.Zero || frames == 0)	return frames;
+
+			// Stereo 16-bit interleaved → 4 bytes per stereo frame.
+			int bytes =	checked((int)(frames * 4UL));
+			if (_audioBuf.Length < bytes)	_audioBuf =	new byte[bytes];
+			Marshal.Copy(data, _audioBuf, 0, bytes);
+
+			// If we've already buffered a lot of audio (host is lagging or the
+			// core handed us a burst), drop this batch rather than pile up
+			// latency. ~6 frames at 60 Hz ≈ 100 ms — past that the lip-sync
+			// gets unpleasant.
+			if (_audio.PendingBufferCount < 6)
+				_audio.SubmitBuffer(_audioBuf, 0, bytes);
+
+			return frames;
 		}
 
 		// ── Input ───────────────────────────────────────────────────────────
