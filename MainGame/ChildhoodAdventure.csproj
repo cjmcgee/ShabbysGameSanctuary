@@ -126,6 +126,55 @@
 
   </Target>
 
+  <!-- ── Cross-build Stella for Windows via mingw-w64 ───────────────────────
+       Runs before Publish when targeting a win-* RID from a non-Windows
+       host. Stella's Makefile already has a `platform=win` mode that
+       produces stella_libretro.dll; we just need to point CXX at the
+       mingw-w64 cross-compiler.
+
+       Probes for the toolchain first — if it isn't installed, emits a
+       single actionable warning and lets the publish continue. The
+       Windows archive then ships without Combat (existing fallback).
+
+       The Linux native build and the Windows cross build share the same
+       intermediate .o paths inside Stella's source tree, and the two
+       ABIs aren't interchangeable. So we `make clean` ahead of the
+       Windows build; the next Linux publish will do a full rebuild. -->
+  <Target Name="BuildStellaWindowsCore"
+          BeforeTargets="Publish"
+          Condition="$(RuntimeIdentifier.StartsWith('win')) AND !$([MSBuild]::IsOSPlatform('Windows')) AND Exists('$(_StellaLibretroDir)/Makefile')"
+          Inputs="$(_StellaLibretroDir)/libretro.cxx;$(_StellaLibretroDir)/Makefile"
+          Outputs="$(_StellaLibretroDir)/stella_libretro.dll">
+
+    <!-- Probe for the toolchain. We can't use `which` portably from MSBuild,
+         so we just try invoking it and read the exit code. IgnoreExitCode
+         keeps the build alive when the compiler is absent. -->
+    <Exec Command="x86_64-w64-mingw32-g++ --version"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          EchoOff="true"
+          ConsoleToMsBuild="true">
+      <Output TaskParameter="ExitCode" PropertyName="_MingwProbeExit" />
+    </Exec>
+
+    <Warning Condition="'$(_MingwProbeExit)' != '0'"
+             Text="mingw-w64 not installed — Combat will be missing from the Windows archive. Install with: sudo apt install mingw-w64  (then re-run the publish)." />
+
+    <Message Condition="'$(_MingwProbeExit)' == '0'"
+             Importance="high"
+             Text="Cross-building stella libretro core for Windows (mingw-w64) ..." />
+
+    <!-- Wipe any prior platform's .o files so the cross-link doesn't
+         try to fold in Linux ELF objects. -->
+    <Exec Condition="'$(_MingwProbeExit)' == '0'"
+          Command="make platform=win -C &quot;$(_StellaLibretroDir)&quot; clean"
+          ConsoleToMsBuild="true" />
+
+    <Exec Condition="'$(_MingwProbeExit)' == '0'"
+          Command="make platform=win CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar -j$([System.Environment]::ProcessorCount) -C &quot;$(_StellaLibretroDir)&quot;"
+          ConsoleToMsBuild="true" />
+  </Target>
+
   <!-- ── Post-publish: drop in the RID-matched Stella core, then archive ────
        Runs after `dotnet publish`. Decides per-RID which native libretro
        file to include (.so/.dll/.dylib) and which archive format to use
