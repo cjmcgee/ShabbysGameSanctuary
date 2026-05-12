@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      Offline content-pipeline tool: hits the RetroAchievements API once,
+      matches it against the project's curated ROM-spec list, and writes
+      a JSON data file (score formulas per game) that ChildhoodAdventure
+      ships with as an embedded resource. Run by a developer, not by the
+      game at runtime.
+    -->
+  </PropertyGroup>
+
+</Project>
