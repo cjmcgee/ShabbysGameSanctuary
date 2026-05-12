@@ -27,6 +27,12 @@ public sealed class EmulatorConfigScene :	Scene
 	private string? _statusMessage;
 	private double _statusFadeAt;
 	private double _now;
+	// Cached tally line for the ROM Manager row. Recomputed on scene load
+	// and after any path-row change (which may have moved RomRoot under
+	// the resolver's feet). Without this cache, the previous "Get = c =>
+	// BuildRomTally(c)" line was re-resolving on every Draw frame —
+	// hashing the same files at ~60Hz.
+	private string _romTally =	"";
 
 	// Row descriptors. Ordered so RomRoot is on top — that's the one users
 	// almost always need to set. Core/System are advanced and usually fine
@@ -80,9 +86,9 @@ public sealed class EmulatorConfigScene :	Scene
 			{
 				Label =	"ROM Manager",
 				Hint =	"Verify per-ROM matches and pick files for any the auto-resolver missed.",
-				// Tag-style "value" shows live counts — built fresh on each
-				// draw so the user sees status without leaving the scene.
-				Get =	c =>	BuildRomTally(c),
+				// Return the cached tally — recomputing here would re-walk
+				// the ROM folder and re-hash candidates on every Draw frame.
+				Get =	_ =>	_romTally,
 				// No file-system value to clear on this row.
 				Set =	(_, _) =>	{},
 				OnSelect =	self =>	self.OpenRomManager(),
@@ -127,9 +133,18 @@ public sealed class EmulatorConfigScene :	Scene
 	protected override void OnLoad()
 	{
 		_selection =	0;
+		RefreshRomTally();
 		// Swallow whatever key currently holds (the C that brought us here)
 		// so the keypress doesn't immediately register as a fresh edge.
 		_prevKeys =	Keyboard.GetState();
+	}
+
+	// Single source-of-truth for the cached tally string. Called from
+	// OnLoad and after any action that could have changed the resolver's
+	// inputs (a RomRoot edit, a RomOverrides change).
+	private void RefreshRomTally()
+	{
+		_romTally =	BuildRomTally(_config);
 	}
 
 	protected override void OnUnload() {}
@@ -183,7 +198,10 @@ public sealed class EmulatorConfigScene :	Scene
 		if (picked == null)	return;	// user cancelled or picker unavailable
 
 		row.Set(_config, picked);
-		ShowStatus(_config.Save()
+		bool saved =	_config.Save();
+		// Any path change might have moved the resolver's RomRoot under it.
+		RefreshRomTally();
+		ShowStatus(saved
 			? $"Saved. {row.Label}: {picked}"
 			: $"Could not write {EmulatorConfig.UserConfigPath}");
 	}
@@ -198,7 +216,9 @@ public sealed class EmulatorConfigScene :	Scene
 		if (string.IsNullOrEmpty(row.Get(_config)))	return;	// already empty
 
 		row.Set(_config, "");
-		ShowStatus(_config.Save()
+		bool saved =	_config.Save();
+		RefreshRomTally();
+		ShowStatus(saved
 			? $"Cleared {row.Label}."
 			: $"Could not write {EmulatorConfig.UserConfigPath}");
 	}

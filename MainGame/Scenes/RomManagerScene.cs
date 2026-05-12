@@ -76,6 +76,7 @@ public sealed class RomManagerScene :	Scene
 		bool select =	IsPressed(keys, Keys.Enter) || IsPressed(keys, Keys.E);
 		bool clear =	IsPressed(keys, Keys.C) || IsPressed(keys, Keys.Delete) || IsPressed(keys, Keys.Back);
 		bool cancel =	IsPressed(keys, Keys.Escape);
+		bool refresh =	IsPressed(keys, Keys.F5) || IsPressed(keys, Keys.R);
 
 		_prevKeys =	keys;
 
@@ -98,6 +99,16 @@ public sealed class RomManagerScene :	Scene
 
 		if (select)	BrowseSelected();
 		if (clear)	ClearSelected();
+
+		// Manual rescan: needed when files change on disk while this scene
+		// is open (the resolver only runs on OnLoad and after Browse/Clear,
+		// so external file additions / deletions don't show up until the
+		// user asks for a refresh). Cheap — same code path as OnLoad.
+		if (refresh)
+		{
+			Refresh();
+			ShowStatus("Rescanned ROM folder.");
+		}
 
 		if (_statusMessage != null && _now >= _statusFadeAt)	_statusMessage =	null;
 	}
@@ -292,7 +303,7 @@ public sealed class RomManagerScene :	Scene
 				sp.UiAccent, hintScale);
 		}
 
-		string footerKeys =	"↑/↓: select   PgUp/PgDn: jump   Enter: browse   C: clear override   Esc: back";
+		string footerKeys =	"↑/↓: select   PgUp/PgDn: jump   Enter: browse   C: clear override   F5/R: rescan   Esc: back";
 		float keysW =	font.MeasureWidth(footerKeys) * hintScale;
 		font.DrawText(spriteBatch, footerKeys,
 			new Vector2((vp.Width - keysW) / 2f, vp.Height - 35),
