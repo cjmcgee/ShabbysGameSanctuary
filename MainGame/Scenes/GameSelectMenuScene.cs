@@ -1,4 +1,5 @@
 using ChildhoodAdventure.RetroSystems;
+using ChildhoodAdventure.Scoring;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -223,6 +224,11 @@ public sealed class GameSelectMenuScene :	Scene
 		float menuLeft =	(vp.Width / 2f) - 200;
 		int endIdx =	Math.Min(_library.Games.Count, _scrollOffset + visible);
 
+		// Soft gold for the high-score number. Picks the row's main colour
+		// when the row is selected (so the cursor highlight stays
+		// coherent) or when the row is unavailable (then everything is red).
+		var scoreAccent =	new Color(220, 200, 80);
+
 		for (int i = _scrollOffset; i < endIdx; i++)
 		{
 			var entry =	_library.Games[i];
@@ -246,8 +252,40 @@ public sealed class GameSelectMenuScene :	Scene
 			// than "Combat (emulated) (missing)". The type info is less
 			// useful when the entry is unplayable anyway.
 			string suffix =	avail ? typeTag :	"  (missing)";
-			string text =	$"{prefix}{entry.Name}{suffix}";
-			font.DrawText(spriteBatch, text, new Vector2(menuLeft, y), c, scale);
+
+			// Look up the persisted best for this game. Zero means
+			// "never recorded a score" — either we haven't tracked one
+			// yet (game not played, or it has no formula in the
+			// AtariScores.json catalog) or the user's first session
+			// hasn't produced a non-zero score yet.
+			long best =	Highscores.Instance.GetBest(entry.Name);
+
+			// Layered draw: name → score → suffix. Three DrawText calls
+			// so the score can render in its own colour while name and
+			// suffix follow the row's main colour. Advance x by the
+			// previous segment's measured width to keep the trio on a
+			// single visual line at the pixel font's natural pitch.
+			string namePart =	$"{prefix}{entry.Name}";
+			font.DrawText(spriteBatch, namePart, new Vector2(menuLeft, y), c, scale);
+			float x =	menuLeft + font.MeasureWidth(namePart) * scale;
+
+			if (best > 0)
+			{
+				string scoreText =	$"   [{best:N0}]";
+				// Selected rows keep the accent so the cursor reads as
+				// one continuous highlight; otherwise the score gets its
+				// own gold colour. Unavailable rows force red on
+				// everything (a recorded score on a now-missing ROM is
+				// still useful info, but the redness telegraphs why
+				// you can't currently play to beat it).
+				Color scoreCol =	!avail
+					?	errorColor
+					:	(selected ? sp.UiAccent : scoreAccent);
+				font.DrawText(spriteBatch, scoreText, new Vector2(x, y), scoreCol, scale);
+				x +=	font.MeasureWidth(scoreText) * scale;
+			}
+
+			font.DrawText(spriteBatch, suffix, new Vector2(x, y), c, scale);
 		}
 
 		// Scroll indicators — only when there's actually content above/below.
