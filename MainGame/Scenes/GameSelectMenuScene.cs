@@ -23,8 +23,20 @@ public sealed class GameSelectMenuScene :	Scene
 	private readonly GameLibrary _library;
 	private readonly Func<Scene>	_returnTo;
 	private int _selection;
+	private int _scrollOffset;
 	private KeyboardState _prevKeys;
 	private Texture2D?	_pixel;
+
+	// Per-row vertical budget. With scale=2.5 the name itself is ~20px;
+	// the extra is the gap between entries.
+	private const float RowHeight =	34f;
+
+	// Fixed strip above the key-hint footer where the selected-row's
+	// UnavailableReason is rendered. The list shrinks to make room.
+	private const float ReasonFooterHeight =	90f;
+
+	// Distance from the top of the viewport to the first list row.
+	private const float ListTop =	120f;
 
 	public GameSelectMenuScene(GameLibrary library, Func<Scene> returnTo)
 	{
@@ -56,13 +68,28 @@ public sealed class GameSelectMenuScene :	Scene
 		var keys =	Keyboard.GetState();
 		bool down =	IsPressed(keys, Keys.Down) || IsPressed(keys, Keys.S);
 		bool up =	IsPressed(keys, Keys.Up)   || IsPressed(keys, Keys.W);
+		bool pgDown =	IsPressed(keys, Keys.PageDown);
+		bool pgUp =		IsPressed(keys, Keys.PageUp);
+		bool home =		IsPressed(keys, Keys.Home);
+		bool end =		IsPressed(keys, Keys.End);
 		bool select =	IsPressed(keys, Keys.E)    || IsPressed(keys, Keys.Enter);
 		bool cancel =	IsPressed(keys, Keys.Escape);
 		bool configure =	IsPressed(keys, Keys.C);
 		bool romManager =	IsPressed(keys, Keys.R);
 
-		if (down)	Move(+1);
-		if (up)		Move(-1);
+		int n =	_library.Games.Count;
+		if (n > 0)
+		{
+			// Bounded navigation (no wraparound — wrapping past 23 entries
+			// in a scrollable list is more disorienting than useful).
+			int page =	Math.Max(1, VisibleRows() - 1);
+			if (down)	_selection =	Math.Min(n - 1, _selection + 1);
+			if (up)		_selection =	Math.Max(0, _selection - 1);
+			if (pgDown)	_selection =	Math.Min(n - 1, _selection + page);
+			if (pgUp)	_selection =	Math.Max(0, _selection - page);
+			if (home)	_selection =	0;
+			if (end)	_selection =	n - 1;
+		}
 
 		if (cancel)
 		{
@@ -132,17 +159,35 @@ public sealed class GameSelectMenuScene :	Scene
 	private bool IsPressed(KeyboardState keys, Keys k)	=>
 		keys.IsKeyDown(k) && !_prevKeys.IsKeyDown(k);
 
-	private void Move(int delta)
-	{
-		int n =	_library.Games.Count;
-		_selection =	((_selection + delta)	% n + n)	% n;
-	}
-
 	private int FirstAvailable()
 	{
 		for (int i = 0; i < _library.Games.Count; i++)
 			if (_library.Games[i].IsAvailable)	return i;
 		return 0;
+	}
+
+	// How many uniform rows fit between the title and the reason-footer.
+	// Depends on viewport height; recomputed each frame so a resized
+	// window auto-adjusts.
+	private int VisibleRows()
+	{
+		var vp =	Engine.GraphicsDevice.Viewport;
+		// 60px allowance for the key-hint line at the very bottom.
+		float available =	vp.Height - ListTop - ReasonFooterHeight - 60f;
+		return Math.Max(1, (int)(available / RowHeight));
+	}
+
+	// Slide the viewport so the selection stays visible. Called from Draw
+	// (after navigation has updated _selection) and again uses the live
+	// VisibleRows() value so a window resize doesn't strand the cursor.
+	private void ClampScroll(int visible)
+	{
+		int n =	_library.Games.Count;
+		if (_selection < _scrollOffset)
+			_scrollOffset =	_selection;
+		else if (_selection >= _scrollOffset + visible)
+			_scrollOffset =	_selection - visible + 1;
+		_scrollOffset =	Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, n - visible)));
 	}
 
 	public override void Draw(SpriteBatch sb, GameTime gameTime)
@@ -157,9 +202,7 @@ public sealed class GameSelectMenuScene :	Scene
 
 		const float scale =	2.5f;
 		const float reasonScale =	1.6f;
-		float mainTextH =	PixelFont.CharH * scale;
-		const float postReasonGap =	8f;
-		const float postEntryGap =	14f;
+		const float scrollIndScale =	1.3f;
 
 		// Bright red so misconfiguration is loud, not lost under the dim
 		// "disabled choice" colour. Stays the same across all retro systems
@@ -173,52 +216,79 @@ public sealed class GameSelectMenuScene :	Scene
 			new Vector2((vp.Width - titleW)	/ 2f, 60),
 			sp.UiAccent, scale);
 
-		// Menu items — y is accumulated so unavailable entries take the
-		// extra vertical space their reason line needs.
+		// ── List: uniform single-line rows, scrolled to keep _selection visible
+		int visible =	VisibleRows();
+		ClampScroll(visible);
+
 		float menuLeft =	(vp.Width / 2f) - 200;
-		float y =	120;
-		for (int i = 0; i < _library.Games.Count; i++)
+		int endIdx =	Math.Min(_library.Games.Count, _scrollOffset + visible);
+
+		for (int i = _scrollOffset; i < endIdx; i++)
 		{
 			var entry =	_library.Games[i];
 			bool selected =	(i == _selection);
 			bool avail =	entry.IsAvailable;
+			float y =	ListTop + (i - _scrollOffset) * RowHeight;
 
-			Color c =	!avail ? sp.UiDim
-				:	selected ? sp.UiAccent :	sp.UiText;
+			// Colour rules:
+			//   selected + available   → accent  (active, ready)
+			//   selected + missing     → bright red (active, broken)
+			//   unselected + available → normal text
+			//   unselected + missing   → red    (loud so 22 unresolved ROMs are obvious at a glance)
+			Color c =	!avail
+				?	errorColor
+				:	(selected ? sp.UiAccent : sp.UiText);
 
 			string prefix =	selected ? "▶  " : "    ";
-			string suffix =	entry.IsEmulated ? "  (emulated)" :	"  (native)";
+			string typeTag =	entry.IsEmulated ? "  (emulated)" :	"  (native)";
+			// The user-requested "(missing)" suffix takes precedence over
+			// the type tag so the row reads as "Combat (missing)" rather
+			// than "Combat (emulated) (missing)". The type info is less
+			// useful when the entry is unplayable anyway.
+			string suffix =	avail ? typeTag :	"  (missing)";
 			string text =	$"{prefix}{entry.Name}{suffix}";
 			font.DrawText(spriteBatch, text, new Vector2(menuLeft, y), c, scale);
-			y +=	mainTextH;
+		}
 
-			if (!avail && entry.UnavailableReason != null)
-			{
-				y +=	4;	// small gap between name and reason
-				// Left-justified and wrapped to the viewport so long config
-				// paths don't run off the right edge. Indent slightly from the
-				// screen edge for readability; the menu items above are
-				// centered, this line breaks that alignment intentionally.
-				const float reasonLeft =	24f;
-				float reasonMaxWidth =	vp.Width - reasonLeft * 2;
-				float used =	font.DrawWrappedText(spriteBatch,
-					"⚠ " + entry.UnavailableReason,
-					new Vector2(reasonLeft, y), errorColor, reasonMaxWidth, reasonScale);
-				y +=	used + postReasonGap;
-			}
+		// Scroll indicators — only when there's actually content above/below.
+		if (_scrollOffset > 0)
+		{
+			font.DrawText(spriteBatch, "▲ more above",
+				new Vector2(menuLeft, ListTop - PixelFont.CharH * scrollIndScale - 4),
+				sp.UiDim, scrollIndScale);
+		}
+		if (endIdx < _library.Games.Count)
+		{
+			float belowY =	ListTop + visible * RowHeight + 2;
+			font.DrawText(spriteBatch, "▼ more below",
+				new Vector2(menuLeft, belowY),
+				sp.UiDim, scrollIndScale);
+		}
 
-			y +=	postEntryGap;
+		// ── Reason footer: only the selected row's reason, wrapped.
+		// Avoids the visual wall that came from rendering 22 identical
+		// "ROM 'X' not found" lines inline in the list.
+		var selectedEntry =	_library.Games.Count > 0 ?	_library.Games[_selection] :	null;
+		if (selectedEntry != null && !selectedEntry.IsAvailable && selectedEntry.UnavailableReason != null)
+		{
+			const float reasonLeft =	24f;
+			float reasonMaxWidth =	vp.Width - reasonLeft * 2;
+			float reasonTop =	vp.Height - ReasonFooterHeight - 30f;
+			font.DrawWrappedText(spriteBatch,
+				"⚠ " + selectedEntry.UnavailableReason,
+				new Vector2(reasonLeft, reasonTop),
+				errorColor, reasonMaxWidth, reasonScale);
 		}
 
 		// Footer hint. C and R are advanced/diagnostic; only surface them
 		// when there's actually something for them to fix or inspect.
 		string hint =	HasUnavailableEntry()
-			? "↑/↓: select   E/Enter: load   C: configure paths   R: ROM manager   Esc: back"
-			: "↑/↓: select   E/Enter: load   R: ROM manager   Esc: back";
-		float hintW =	font.MeasureWidth(hint)	* scale * 0.8f;
+			? "↑/↓: select   PgUp/PgDn: jump   E/Enter: load   C: configure paths   R: ROM manager   Esc: back"
+			: "↑/↓: select   PgUp/PgDn: jump   E/Enter: load   R: ROM manager   Esc: back";
+		float hintW =	font.MeasureWidth(hint)	* scale * 0.7f;
 		font.DrawText(spriteBatch, hint,
-			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 60),
-			sp.UiDim, scale * 0.8f);
+			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 30),
+			sp.UiDim, scale * 0.7f);
 
 		Engine.RenderSystem.EndUI();
 	}
