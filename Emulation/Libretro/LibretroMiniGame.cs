@@ -60,9 +60,29 @@ namespace TileEngine.MiniGames.Libretro
 
 		// ── IEmbeddedMiniGame ────────────────────────────────────────────────
 		public string Title { get; }
-		public Point NativeResolution =>	_frameWidth > 0
-			? new Point((int)_frameWidth, (int)_frameHeight)
-			:	new Point(160, 192);	// Atari 2600 default before first frame
+
+		/// <summary>
+		/// The logical display size used for letterboxing. NOT the framebuffer
+		/// size — for systems with non-square pixels they differ. Stella, for
+		/// instance, hands us a 160-wide framebuffer where each pixel is meant
+		/// to be drawn double-wide (TIA pixels are 2:1), so the framebuffer is
+		/// 160×228 but the rendered display is 320×228 (close to 4:3). The
+		/// core's retro_get_system_av_info reports the right display size as
+		/// base_width × base_height — we cache those in LibretroCore. Falling
+		/// back to the raw framebuffer dims would render Atari games at ~2:3,
+		/// way too tall.
+		/// </summary>
+		public Point NativeResolution
+		{
+			get
+			{
+				if (_core != null && _core.BaseWidth > 0 && _core.BaseHeight > 0)
+					return new Point((int)_core.BaseWidth, (int)_core.BaseHeight);
+				if (_frameWidth > 0)
+					return new Point((int)_frameWidth, (int)_frameHeight);
+				return new Point(320, 192);	// Atari 2600 visible area, 4:3
+			}
+		}
 		public bool IsFinished =>	_finished;
 
 		public LibretroMiniGame(string corePath, string romPath, string title = "", string systemDirectory = "")
@@ -143,7 +163,11 @@ namespace TileEngine.MiniGames.Libretro
 
 			if (_frameTexture == null)	return;
 
-			var fit =	LetterboxFit(new Point(_texWidth, _texHeight),
+			// Letterbox by the LOGICAL display size (NativeResolution), not
+			// the raw framebuffer dims. The texture stretches horizontally to
+			// match — for Atari that means the 160×228 framebuffer is drawn
+			// into a 320×228-aspect destination rectangle.
+			var fit =	LetterboxFit(NativeResolution,
 				new Point((int)viewport.Width, (int)viewport.Height));
 			var dst =	new Rectangle(
 				(int)(viewport.X + fit.X),

@@ -7,12 +7,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Battleshoot</RootNamespace>
     <AssemblyName>Battleshoot</AssemblyName>
-    <!-- ChildhoodAdventure references this project and publishes
-         self-contained; NETSDK1150 requires referenced exe projects to
-         agree on self-contained mode. Only takes effect at publish time
-         when a RuntimeIdentifier is set, so plain `dotnet run` still
-         works as a normal framework-dependent build. -->
-    <SelfContained>true</SelfContained>
+    <!-- Battleshoot is both a standalone game (its own Main / dotnet run
+         entry point) AND a library referenced by ChildhoodAdventure. The
+         SDK's NETSDK1150/1151 validation insists exe-to-exe references
+         agree on self-contained mode, which conflicts because:
+           * plain `dotnet build` builds both projects framework-dependent
+           * `dotnet publish ChildhoodAdventure -r win-x64` makes
+             ChildhoodAdventure self-contained, but Battleshoot doesn't
+             always pick up the RID transitively.
+         Setting ShouldBeValidatedAsExecutableReference=false opts this
+         project out of that specific check — ChildhoodAdventure sees
+         Battleshoot the same way it would see a plain library. The
+         actual Battleshoot.exe is still produced for standalone use; it's
+         just not used by ChildhoodAdventure's publish output. -->
+    <ShouldBeValidatedAsExecutableReference>false</ShouldBeValidatedAsExecutableReference>
   </PropertyGroup>
 
   <ItemGroup>
