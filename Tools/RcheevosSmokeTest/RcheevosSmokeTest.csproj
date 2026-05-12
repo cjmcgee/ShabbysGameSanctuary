@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      Verifies the Phase 1 plumbing (Native/Rcheevos/Makefile + the
+      TileEngine.Rcheevos P/Invoke wrapper) end-to-end: parse a formula
+      string, evaluate it against synthetic memory, assert the result.
+      Doesn't pull in MonoGame or any other game-runtime cost.
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TileEngine\TileEngine.csproj" />
+  </ItemGroup>
+
+  <!-- Build the rcheevos shared library and stage it next to our exe so
+       the wrapper's DllImport finds it. Mirrors the build target in
+       ChildhoodAdventure.csproj; this test project only ever runs on the
+       dev host, so we don't need the win-x64 cross-build here. -->
+  <PropertyGroup>
+    <_RcheevosDir>$(MSBuildProjectDirectory)/../../Native/Rcheevos</_RcheevosDir>
+    <_RcheevosExt Condition="$([MSBuild]::IsOSPlatform('Windows'))">dll</_RcheevosExt>
+    <_RcheevosExt Condition="$([MSBuild]::IsOSPlatform('OSX'))">dylib</_RcheevosExt>
+    <_RcheevosExt Condition="'$(_RcheevosExt)' == ''">so</_RcheevosExt>
+    <_RcheevosLibName Condition="'$(_RcheevosExt)' == 'dll'">rcheevos.dll</_RcheevosLibName>
+    <_RcheevosLibName Condition="'$(_RcheevosLibName)' == ''">librcheevos.$(_RcheevosExt)</_RcheevosLibName>
+    <_RcheevosLib>$(_RcheevosDir)/$(_RcheevosLibName)</_RcheevosLib>
+  </PropertyGroup>
+
+  <Target Name="BuildRcheevosNativeLib"
+          BeforeTargets="PrepareForBuild"
+          Condition="Exists('$(_RcheevosDir)/Makefile')">
+    <Exec Command="make -j$([System.Environment]::ProcessorCount) -C &quot;$(_RcheevosDir)&quot;"
+          ConsoleToMsBuild="true" />
+  </Target>
+
+  <ItemGroup Condition="Exists('$(_RcheevosLib)')">
+    <None Include="$(_RcheevosLib)">
+      <Link>$(_RcheevosLibName)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+
+</Project>

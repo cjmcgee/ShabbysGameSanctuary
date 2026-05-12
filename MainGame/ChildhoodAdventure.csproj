@@ -76,6 +76,46 @@
     </None>
   </ItemGroup>
 
+  <!-- ── rcheevos shared library build ──────────────────────────────────────
+       The rcheevos submodule is compiled into librcheevos.{so,dll,dylib}
+       and copied next to the exe so the C# P/Invoke wrapper in
+       TileEngine/Rcheevos/Rcheevos.cs can load it. Same gating shape as
+       Stella: -p:BuildRcheevos=false skips the native build entirely.
+
+       Output naming auto-detects from the Makefile based on host OS, and
+       the win-x64 cross-build (BuildRcheevosWindowsLib below) is wired
+       to mingw-w64. -->
+  <PropertyGroup>
+    <BuildRcheevos Condition="'$(BuildRcheevos)' == ''">true</BuildRcheevos>
+    <_RcheevosDir>$(MSBuildProjectDirectory)/../Native/Rcheevos</_RcheevosDir>
+    <_RcheevosExt Condition="$([MSBuild]::IsOSPlatform('Windows'))">dll</_RcheevosExt>
+    <_RcheevosExt Condition="$([MSBuild]::IsOSPlatform('OSX'))">dylib</_RcheevosExt>
+    <_RcheevosExt Condition="'$(_RcheevosExt)' == ''">so</_RcheevosExt>
+    <!-- mingw-built dll has no "lib" prefix; everything else does. -->
+    <_RcheevosLibName Condition="'$(_RcheevosExt)' == 'dll'">rcheevos.dll</_RcheevosLibName>
+    <_RcheevosLibName Condition="'$(_RcheevosLibName)' == ''">librcheevos.$(_RcheevosExt)</_RcheevosLibName>
+    <_RcheevosLib>$(_RcheevosDir)/$(_RcheevosLibName)</_RcheevosLib>
+  </PropertyGroup>
+
+  <Target Name="BuildRcheevosNativeLib"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(BuildRcheevos)' == 'true' AND Exists('$(_RcheevosDir)/Makefile')">
+    <!-- No Inputs/Outputs here: make tracks per-file deps itself, and a
+         no-op rebuild costs only the time to stat the .o files. Listing
+         every rcheevos .c file as an Input would be brittle on updates. -->
+    <Message Importance="high" Text="Building rcheevos shared library ..." />
+    <Exec Command="make -j$([System.Environment]::ProcessorCount) -C &quot;$(_RcheevosDir)&quot;"
+          ConsoleToMsBuild="true" />
+  </Target>
+
+  <ItemGroup Condition="Exists('$(_RcheevosLib)') AND '$(BuildRcheevos)' == 'true'">
+    <None Include="$(_RcheevosLib)">
+      <Link>$(_RcheevosLibName)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+
   <!-- ── Yarn dialogue bundling ──────────────────────────────────────────────
        The .yarn source files are GZip-compressed into a single bundle at build
        time and embedded as a managed resource.  No loose .yarn files are shipped
@@ -174,6 +214,42 @@
           ConsoleToMsBuild="true" />
   </Target>
 
+  <!-- ── Cross-build rcheevos for Windows via mingw-w64 ──────────────────────
+       Same pattern as BuildStellaWindowsCore: probe for the toolchain,
+       warn-and-continue if missing, otherwise wipe the prior .o tree and
+       rebuild with CC pointed at the mingw cross-compiler. The rcheevos
+       Makefile auto-picks the .dll output extension when it sees a
+       mingw CC. -->
+  <Target Name="BuildRcheevosWindowsLib"
+          BeforeTargets="Publish"
+          Condition="$(RuntimeIdentifier.StartsWith('win')) AND !$([MSBuild]::IsOSPlatform('Windows')) AND Exists('$(_RcheevosDir)/Makefile')"
+          Inputs="$(_RcheevosDir)/Makefile"
+          Outputs="$(_RcheevosDir)/rcheevos.dll">
+
+    <Exec Command="x86_64-w64-mingw32-gcc --version"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          EchoOff="true"
+          ConsoleToMsBuild="true">
+      <Output TaskParameter="ExitCode" PropertyName="_MingwGccProbeExit" />
+    </Exec>
+
+    <Warning Condition="'$(_MingwGccProbeExit)' != '0'"
+             Text="mingw-w64 (gcc) not installed — high-score evaluator will be missing from the Windows archive. Install with: sudo apt install mingw-w64" />
+
+    <Message Condition="'$(_MingwGccProbeExit)' == '0'"
+             Importance="high"
+             Text="Cross-building rcheevos for Windows (mingw-w64) ..." />
+
+    <Exec Condition="'$(_MingwGccProbeExit)' == '0'"
+          Command="make -C &quot;$(_RcheevosDir)&quot; clean"
+          ConsoleToMsBuild="true" />
+
+    <Exec Condition="'$(_MingwGccProbeExit)' == '0'"
+          Command="make CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar -j$([System.Environment]::ProcessorCount) -C &quot;$(_RcheevosDir)&quot;"
+          ConsoleToMsBuild="true" />
+  </Target>
+
   <!-- ── Post-publish: drop in the RID-matched Stella core, then archive ────
        Runs after `dotnet publish`. Decides per-RID which native libretro
        file to include (.so/.dll/.dylib) and which archive format to use
@@ -204,6 +280,21 @@
              Text="Stella libretro core for $(RuntimeIdentifier) not found at $(_StellaRidLib). Archive will not include Combat — players will see it greyed out in the menu." />
     <Copy Condition="Exists('$(_StellaRidLib)')"
           SourceFiles="$(_StellaRidLib)"
+          DestinationFolder="$(PublishDir)" />
+
+    <!-- rcheevos shared library: same RID-matched pattern. Without this
+         the publish would only contain the build-host's .so/.dylib, not
+         the .dll the Windows archive needs. -->
+    <PropertyGroup>
+      <_RcheevosRidName Condition="$(RuntimeIdentifier.StartsWith('win'))">rcheevos.dll</_RcheevosRidName>
+      <_RcheevosRidName Condition="$(RuntimeIdentifier.StartsWith('osx'))">librcheevos.dylib</_RcheevosRidName>
+      <_RcheevosRidName Condition="$(RuntimeIdentifier.StartsWith('linux'))">librcheevos.so</_RcheevosRidName>
+      <_RcheevosRidLib>$(_RcheevosDir)/$(_RcheevosRidName)</_RcheevosRidLib>
+    </PropertyGroup>
+    <Warning Condition="!Exists('$(_RcheevosRidLib)')"
+             Text="rcheevos lib for $(RuntimeIdentifier) not found at $(_RcheevosRidLib). Archive will not be able to evaluate high-score formulas." />
+    <Copy Condition="Exists('$(_RcheevosRidLib)')"
+          SourceFiles="$(_RcheevosRidLib)"
           DestinationFolder="$(PublishDir)" />
 
     <!-- Fresh stage dir, then copy every published file into it under a
