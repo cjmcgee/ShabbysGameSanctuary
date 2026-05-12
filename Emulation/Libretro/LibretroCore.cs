@@ -35,6 +35,17 @@ namespace TileEngine.MiniGames.Libretro
 		private retro_unload_game_t				_unloadGame =	null!;
 		private retro_run_t						_run =	null!;
 		private retro_reset_t?					_reset;
+		private retro_get_memory_data_t?		_getMemoryData;
+		private retro_get_memory_size_t?		_getMemorySize;
+
+		// Cache of the SYSTEM_RAM pointer + size, populated after
+		// retro_load_game and invalidated on Reset / Unload. The cache
+		// avoids two native calls per memory peek; the cost of being
+		// stale on a missed invalidation is "we read from an
+		// unmapped pointer and segfault" so the cache MUST be cleared
+		// in any path that could move the underlying buffer.
+		private IntPtr _systemRamPtr;
+		private uint   _systemRamSize;
 
 		// ── Callback delegates (held to prevent GC from sweeping them out
 		// from under the unmanaged core mid-call). Each is built once and
@@ -127,6 +138,12 @@ namespace TileEngine.MiniGames.Libretro
 			_unloadGame =			GetExport<retro_unload_game_t>("retro_unload_game");
 			_run =					GetExport<retro_run_t>("retro_run");
 			_reset =				TryGetExport<retro_reset_t>("retro_reset");
+			// Memory access is technically optional in libretro (a core
+			// that doesn't expose RAM can omit it), but Stella does
+			// export both. Resolve via TryGetExport so a non-supporting
+			// core fails gracefully via ReadSystemRam returning 0.
+			_getMemoryData =		TryGetExport<retro_get_memory_data_t>("retro_get_memory_data");
+			_getMemorySize =		TryGetExport<retro_get_memory_size_t>("retro_get_memory_size");
 
 			// Probe library identity. Some cores set library_name in
 			// retro_init only; this is just an informational read.
@@ -197,6 +214,12 @@ namespace TileEngine.MiniGames.Libretro
 				MaxHeight =		av.geometry.max_height;
 				Fps =			av.timing.fps;
 				SampleRate =	av.timing.sample_rate;
+
+				// SYSTEM_RAM pointer/size aren't valid until the game is
+				// loaded — Stella allocates its TIA RAM as part of the
+				// load-game path. Cache them now so ReadSystemRam doesn't
+				// have to hit two native entry points per peek.
+				RefreshSystemRam();
 				return true;
 			}
 			finally
@@ -210,7 +233,73 @@ namespace TileEngine.MiniGames.Libretro
 		public void Run()	=>	_run();
 
 		/// <summary>Soft-reset the running game, if the core supports it.</summary>
-		public void Reset()	=>	_reset?.Invoke();
+		public void Reset()
+		{
+			_reset?.Invoke();
+			// libretro.h says retro_reset can invalidate the memory data
+			// pointer, so re-query after every reset.
+			RefreshSystemRam();
+		}
+
+		/// <summary>
+		/// Size of the emulated system RAM exposed by the core, in bytes.
+		/// Zero when no game is loaded, when the core doesn't export
+		/// memory access, or when the core has no SYSTEM_RAM region (some
+		/// systems use SAVE_RAM only). For the Atari 2600 via Stella this
+		/// is 128.
+		/// </summary>
+		public uint SystemRamSize =>	_systemRamSize;
+
+		/// <summary>
+		/// Read 1, 2, or 4 bytes (little-endian) from the emulated system
+		/// RAM at <paramref name="address"/>. Returns 0 for out-of-range
+		/// reads, no-game-loaded, or core-doesn't-support-memory cases —
+		/// this matches the rcheevos peek convention so the result is
+		/// usable as a <c>MemoryPeek</c> directly:
+		/// <code>
+		///   rcValue.Evaluate(core.ReadSystemRam);
+		/// </code>
+		/// </summary>
+		/// <param name="numBytes">Must be 1, 2, or 4. Other values return 0.</param>
+		public uint ReadSystemRam(uint address, uint numBytes)
+		{
+			if (_systemRamPtr == IntPtr.Zero || _systemRamSize == 0)	return 0;
+			if (numBytes != 1 && numBytes != 2 && numBytes != 4)	return 0;
+			// Bounds check including the last byte we'd touch.
+			if (address >= _systemRamSize)	return 0;
+			if (address + numBytes > _systemRamSize)	return 0;
+
+			// Little-endian assemble. Marshal.ReadByte is safe here because
+			// we just verified the range is inside what the core gave us.
+			uint value =	0;
+			for (int i = 0; i < numBytes; i++)
+				value |=	(uint)Marshal.ReadByte(_systemRamPtr, (int)address + i) << (8 * i);
+			return value;
+		}
+
+		/// <summary>
+		/// Look up the SYSTEM_RAM pointer + size from the core and cache
+		/// them. Called after retro_load_game and retro_reset — anywhere
+		/// libretro's pointer-stability contract says the pointer might
+		/// have moved.
+		/// </summary>
+		private void RefreshSystemRam()
+		{
+			_systemRamPtr =	IntPtr.Zero;
+			_systemRamSize =	0;
+
+			if (_getMemoryData == null || _getMemorySize == null)	return;	// core opted out
+
+			IntPtr ptr =	_getMemoryData(RETRO_MEMORY_SYSTEM_RAM);
+			UIntPtr size =	_getMemorySize(RETRO_MEMORY_SYSTEM_RAM);
+
+			// A core that recognises the region id but has nothing to
+			// expose returns (NULL, 0) — same as not implementing it.
+			if (ptr == IntPtr.Zero || size == UIntPtr.Zero)	return;
+
+			_systemRamPtr =	ptr;
+			_systemRamSize =	(uint)size;	// A2600 = 128; safe to narrow
+		}
 
 		// ── IDisposable ─────────────────────────────────────────────────────
 

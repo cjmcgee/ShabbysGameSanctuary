@@ -188,6 +188,37 @@ namespace TileEngine.MiniGames.Libretro
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void retro_reset_t();
 
+		// ── Memory access ────────────────────────────────────────────────────
+		//
+		// libretro exposes pointers into the core's emulated memory regions
+		// via two entry points keyed by a numeric region id. We only need
+		// SYSTEM_RAM for high-score reads (the Atari 2600's 128-byte RAM
+		// block); the other ids are listed for completeness in case a
+		// future core needs them.
+		//
+		// Pointer-stability rules per libretro.h: the returned pointer may
+		// be invalidated by retro_load_game / retro_unload_game / retro_reset
+		// / retro_serialize_state, plus retro_init / retro_deinit at the
+		// session boundary. Between those events the pointer is stable, so
+		// caching after retro_load_game is safe — we just re-resolve on Reset.
+		public const uint RETRO_MEMORY_MASK			=	0xff;
+		public const uint RETRO_MEMORY_SAVE_RAM		=	0;
+		public const uint RETRO_MEMORY_RTC			=	1;
+		public const uint RETRO_MEMORY_SYSTEM_RAM	=	2;
+		public const uint RETRO_MEMORY_VIDEO_RAM	=	3;
+
+		// void* retro_get_memory_data(unsigned id);
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr retro_get_memory_data_t(uint id);
+
+		// size_t retro_get_memory_size(unsigned id);
+		// size_t round-trips through UIntPtr / nuint so the binding is
+		// correct on both 32- and 64-bit hosts. The A2600 size is small
+		// (128 bytes) and trivially fits in uint, but writing the binding
+		// correctly is free.
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate UIntPtr retro_get_memory_size_t(uint id);
+
 		// ── Callback signatures (frontend → core) ───────────────────────────
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
