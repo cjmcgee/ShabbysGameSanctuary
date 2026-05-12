@@ -82,9 +82,11 @@ namespace ChildhoodAdventure
 				var keys   = Keyboard.GetState();
 				var mouse  = Mouse.GetState();
 
-				// Escape quits the program — but NOT while a mini-game is hosted.
-				// In that case the MiniGameScene routes Escape as an exit-request
-				// to the embedded game, which returns to the previous scene.
+				// Escape quits the program — but NOT while a mini-game is hosted,
+				// and NOT inside the in-game menus (game select, emulator config).
+				// MiniGameScene routes Escape to the embedded game; the menu scenes
+				// route it to "back" via their own handlers. If we Exit() here on
+				// the same frame those scenes try to navigate, the quit wins.
 				//
 				// Edge-triggered (press, not hold): a single Escape press while
 				// in the mini-game routes through MiniGameScene; the scene swap
@@ -93,8 +95,11 @@ namespace ChildhoodAdventure
 				// held Escape would re-enter this branch with CurrentScene now
 				// being Home and quit the program immediately.
 				bool escapePressed = keys.IsKeyDown( Keys.Escape ) && !_prevKeys.IsKeyDown( Keys.Escape );
-				if( escapePressed &&
-					TileEngine.Core.GameEngine.Instance.CurrentScene is not MiniGameScene ) { Exit(); }
+				var scene =	TileEngine.Core.GameEngine.Instance.CurrentScene;
+				if( escapePressed
+					&& scene is not MiniGameScene
+					&& scene is not GameSelectMenuScene
+					&& scene is not EmulatorConfigScene ) { Exit(); }
 
 				// F1-F5: switch retro system and reload current scene
 				HandleSystemSwitch( keys );

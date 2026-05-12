@@ -85,11 +85,11 @@ public sealed class GameLibrary
 		string?	unavailable =	null;
 		if( !File.Exists( corePath ) )
 		{
-			unavailable =	$"Don't know where to look for emulator cores! Set CoreRoot in emulator-config.json. Currently: {corePath}";
+			unavailable =	$"Emulator core missing — press C to set the core folder. Looked for: {corePath}";
 		}
 		else if( string.IsNullOrEmpty( config.EffectiveRomRoot ) )
 		{
-			unavailable =	"ROM location is not set! Please set RomRoot in emulator-config.json";
+			unavailable =	"ROM folder not set — press C to choose a folder containing your ROMs.";
 		}
 		else if( string.IsNullOrEmpty( romPath ) || !File.Exists( romPath ) )
 		{
@@ -97,8 +97,7 @@ public sealed class GameLibrary
 			// but vanished between resolution and now (race / unmount).
 			unavailable =
 				$"ROM '{CombatRom}' (≤ {Atari2600MaxRomBytes / 1024} KB) not found under {config.EffectiveRomRoot}. " +
-				"Any same-name files that exceed the size cap are intentionally skipped — " +
-				"check for stray same-name copies in other system folders.";
+				"Press C to pick a different folder, or check for stray same-name copies in other system folders.";
 		}
 
 		games.Add( new GameEntry(

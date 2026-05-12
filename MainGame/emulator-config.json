@@ -1,5 +1,5 @@
 {
-  "_comment": "Set RomRoot to wherever your ROMs live (mount an SMB share to a local path first).",
+  "_comment": "Schema reference only — the real config lives in the per-user app-data folder and is written by the in-game Configure menu (press C on the cartridge-select screen).",
   "RomRoot": "",
   "CoreRoot": "",
   "SystemRoot": ""

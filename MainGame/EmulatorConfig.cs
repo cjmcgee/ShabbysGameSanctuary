@@ -5,12 +5,19 @@ namespace ChildhoodAdventure;
 
 /// <summary>
 /// Runtime configuration for the in-game console — where to find libretro
-/// cores and ROM files. The defaults assume nothing exists; the user is
-/// expected to point these at their local setup (mounting an SMB share,
-/// pointing at a RetroArch install, etc).
+/// cores and ROM files.
 ///
-/// Loaded from <c>emulator-config.json</c> next to the executable. Missing
-/// file → defaults; malformed file → defaults + warning to stderr.
+/// Storage: a per-user file under the OS-standard application data dir
+/// (Windows: %APPDATA%\ChildhoodAdventure\, Linux: $XDG_CONFIG_HOME or
+/// ~/.config/ChildhoodAdventure/, macOS: ~/Library/Application Support/
+/// ChildhoodAdventure/). This keeps the install directory read-only, so
+/// Windows users don't need to elevate to edit a config file inside
+/// Program Files.
+///
+/// Legacy fallback: if the per-user file doesn't exist, an
+/// <c>emulator-config.json</c> next to the executable (or in the project
+/// dir during <c>dotnet run</c>) is still read so existing installs keep
+/// working through the transition.
 /// </summary>
 public sealed class EmulatorConfig
 {
@@ -38,7 +45,7 @@ public sealed class EmulatorConfig
 
 	/// <summary>
 	/// RomRoot effective value used by <see cref="ResolveRom"/>. If the user
-	/// left RomRoot empty in the JSON, debug builds fall back to a sibling
+	/// left RomRoot empty, debug builds fall back to a sibling
 	/// <c>TestROMs/</c> folder (handy for local dev where ROMs live next to
 	/// the repo but aren't checked in). Release builds return empty so the
 	/// menu surfaces the "not set" error rather than searching random dirs.
@@ -58,31 +65,89 @@ public sealed class EmulatorConfig
 	}
 
 	private const string FileName =	"emulator-config.json";
+	private const string AppDirName =	"ChildhoodAdventure";
+
+	/// <summary>
+	/// Absolute path of the per-user config file. The containing directory
+	/// is created on demand by <see cref="Save"/>; this property is safe to
+	/// read even when nothing has been written yet.
+	/// </summary>
+	public static string UserConfigPath
+	{
+		get
+		{
+			// SpecialFolder.ApplicationData maps to:
+			//   Windows : %APPDATA%   (e.g. C:\Users\me\AppData\Roaming)
+			//   Linux   : $XDG_CONFIG_HOME (or ~/.config)
+			//   macOS   : ~/.config (since .NET picks XDG semantics here too,
+			//             which is fine — it's writable without elevation).
+			var baseDir =	Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData);
+			return Path.Combine(baseDir, AppDirName, FileName);
+		}
+	}
 
 	public static EmulatorConfig LoadOrDefault()
 	{
-		var baseDir =	AppContext.BaseDirectory;
-		var path =	Path.Combine(baseDir, FileName);
-		if (!File.Exists(path))
-		{
-			// Also try the project directory (handy when running via `dotnet run`
-			// where BaseDirectory is bin/Debug/...).
-			var alt =	Path.Combine(baseDir, "..", "..", "..", FileName);
-			if (File.Exists(alt))	path =	Path.GetFullPath(alt);
-			else return new EmulatorConfig();
-		}
+		// Preferred: per-user file. Always writable, no admin required.
+		var userPath =	UserConfigPath;
+		if (File.Exists(userPath) && TryLoad(userPath, out var fromUser))
+			return fromUser;
 
+		// Legacy: file next to the executable (pre-migration installs).
+		var exeDir =	AppContext.BaseDirectory;
+		var legacyExe =	Path.Combine(exeDir, FileName);
+		if (File.Exists(legacyExe) && TryLoad(legacyExe, out var fromExe))
+			return fromExe;
+
+		// Dev: file in the project directory when running via `dotnet run`
+		// (BaseDirectory is bin/Debug/..., the source file sits five levels up).
+		var legacyProject =	Path.GetFullPath(Path.Combine(exeDir, "..", "..", "..", FileName));
+		if (File.Exists(legacyProject) && TryLoad(legacyProject, out var fromProject))
+			return fromProject;
+
+		return new EmulatorConfig();
+	}
+
+	private static bool TryLoad(string path, out EmulatorConfig cfg)
+	{
 		try
 		{
 			var json =	File.ReadAllText(path);
-			return JsonSerializer.Deserialize<EmulatorConfig>(json,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+			cfg =	JsonSerializer.Deserialize<EmulatorConfig>(json,
+					new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
 				?? new EmulatorConfig();
+			return true;
 		}
 		catch (Exception ex)
 		{
 			Console.Error.WriteLine($"[EmulatorConfig] Failed to read {path}: {ex.Message}");
-			return new EmulatorConfig();
+			cfg =	new EmulatorConfig();
+			return false;
+		}
+	}
+
+	/// <summary>
+	/// Persist the current values to <see cref="UserConfigPath"/>. Creates
+	/// the parent directory if it doesn't exist. Returns true on success.
+	/// </summary>
+	public bool Save()
+	{
+		try
+		{
+			var path =	UserConfigPath;
+			var dir =	Path.GetDirectoryName(path);
+			if (!string.IsNullOrEmpty(dir))	Directory.CreateDirectory(dir);
+
+			var json =	JsonSerializer.Serialize(this,
+				new JsonSerializerOptions { WriteIndented = true });
+			File.WriteAllText(path, json);
+			return true;
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"[EmulatorConfig] Failed to save: {ex.Message}");
+			return false;
 		}
 	}
 
@@ -94,8 +159,7 @@ public sealed class EmulatorConfig
 	///      <paramref name="maxBytes"/> so a same-name file from a
 	///      different system (e.g. a 512 KB homebrew "Combat" cart in
 	///      another folder) doesn't get picked over the real one.
-	/// If nothing matches, returns the expected (level-1) path so callers
-	/// can show it in a "not found" error.
+	/// If nothing matches, returns empty so callers can show an error.
 	///
 	/// The recursive search lets the user organise ROMs into any nested
 	/// folder layout (e.g. <c>Atari2600/Sports/Combat.bin</c>) without
@@ -152,10 +216,6 @@ public sealed class EmulatorConfig
 			catch (IOException)	{ /* network share hiccup, etc */ }
 		}
 
-		// Nothing usable. Return empty so callers can distinguish
-		// "found and valid" from "no match within constraints" — the
-		// previous behaviour (fall back to the level-1 path) caused
-		// callers to load a same-name but wrong-size file.
 		Console.Error.WriteLine(
 			$"[ResolveRom] {romFile} not found under {root}" +
 			(maxBytes > 0 ? $" within {maxBytes:N0} bytes." :	"."));

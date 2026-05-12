@@ -58,6 +58,7 @@ public sealed class GameSelectMenuScene :	Scene
 		bool up =	IsPressed(keys, Keys.Up)   || IsPressed(keys, Keys.W);
 		bool select =	IsPressed(keys, Keys.E)    || IsPressed(keys, Keys.Enter);
 		bool cancel =	IsPressed(keys, Keys.Escape);
+		bool configure =	IsPressed(keys, Keys.C);
 
 		if (down)	Move(+1);
 		if (up)		Move(-1);
@@ -65,6 +66,20 @@ public sealed class GameSelectMenuScene :	Scene
 		if (cancel)
 		{
 			Engine.LoadScene(_returnTo());
+			return;
+		}
+
+		if (configure && HasUnavailableEntry())
+		{
+			// Reload-on-return: build a fresh library from disk so the menu
+			// reflects whatever the user just configured (e.g. Combat flips
+			// from greyed-out to playable as soon as RomRoot is valid).
+			var returnHere =	_returnTo;
+			Engine.LoadScene(new EmulatorConfigScene(
+				EmulatorConfig.LoadOrDefault(),
+				returnTo: () =>	new GameSelectMenuScene(
+					new GameLibrary(EmulatorConfig.LoadOrDefault()),
+					returnHere)));
 			return;
 		}
 
@@ -78,6 +93,13 @@ public sealed class GameSelectMenuScene :	Scene
 		}
 
 		_prevKeys =	keys;
+	}
+
+	private bool HasUnavailableEntry()
+	{
+		for (int i = 0; i < _library.Games.Count; i++)
+			if (!_library.Games[i].IsAvailable)	return true;
+		return false;
 	}
 
 	private bool IsPressed(KeyboardState keys, Keys k)	=>
@@ -161,8 +183,11 @@ public sealed class GameSelectMenuScene :	Scene
 			y +=	postEntryGap;
 		}
 
-		// Footer hint.
-		string hint =	"↑/↓: select   E/Enter: load   Esc: back";
+		// Footer hint. Mention C only when there is something to fix — no
+		// point teaching the keystroke when every cartridge already works.
+		string hint =	HasUnavailableEntry()
+			? "↑/↓: select   E/Enter: load   C: configure ROM path   Esc: back"
+			: "↑/↓: select   E/Enter: load   Esc: back";
 		float hintW =	font.MeasureWidth(hint)	* scale * 0.8f;
 		font.DrawText(spriteBatch, hint,
 			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 60),

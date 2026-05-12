@@ -19,12 +19,11 @@
     <ProjectReference Include="..\Battleshoot\Battleshoot.csproj" />
   </ItemGroup>
 
-  <!-- Copy the emulator config to the output dir so the exe finds it next to itself. -->
-  <ItemGroup>
-    <None Update="emulator-config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  <!-- emulator-config.json is no longer shipped next to the executable —
+       runtime config lives under the per-user app-data folder (see
+       EmulatorConfig.UserConfigPath) so users on Windows can edit it
+       without admin elevation. The file in the project root is kept only
+       as a schema reference for developers reading the source. -->
 
   <!-- ── libretro core build (stella, vendored as a git submodule) ─────────
        The Stella project's libretro target is a normal GNU Make build under
