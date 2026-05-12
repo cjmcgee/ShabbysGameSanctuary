@@ -1,0 +1,48 @@
+<Project>
+
+	<!--
+		Single source of truth for the version stamped on every shipped
+		binary and on the Windows installer. Bump this once before
+		running ./publish-all.sh — nothing else needs to change.
+
+		What gets the value:
+		  • ChildhoodAdventure.exe and the other shipped .dlls:
+		      Properties > Details > File Version    = $(Version).0
+		      Properties > Details > Product Version = $(Version)
+		      (the trailing .0 is Windows showing the 4-part form of a
+		       3-part version; AssemblyVersion + FileVersion are derived
+		       from $(Version) automatically by the .NET SDK)
+		  • setup.exe (built by NSIS in ChildhoodAdventure.csproj):
+		      Properties > Details > File Version    = $(Version).0
+		      Properties > Details > Product Version = $(Version)
+		      (csproj sets InstallerVersion default = $(Version), which
+		       the .nsi script embeds via VIProductVersion / VIAddVersionKey)
+
+		Format: Major.Minor.Patch (three parts). NSIS appends a fourth
+		".0" itself, so do NOT put a four-part value here or makensis
+		will reject it.
+
+		Bumping policy is up to you, but the obvious convention is:
+		  • patch — bugfix-only publish
+		  • minor — new feature, backwards-compatible
+		  • major — breaking change to save format, install layout, etc.
+
+		Auto-import: MSBuild reads this file before every csproj in the
+		repo, so the same $(Version) lands on TileEngine.dll,
+		Battleshoot.dll, etc. — useful when diagnosing which build is
+		running by right-clicking any of the shipped files.
+	-->
+
+	<PropertyGroup>
+		<Version>1.0.2</Version>
+
+		<!--
+			.NET 8+ appends "+<git-sha>" to AssemblyInformationalVersion
+			by default, which Windows then shows as the Product Version.
+			That's the GUID-looking suffix that's not useful for human
+			version tracking. Turn it off.
+		-->
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+	</PropertyGroup>
+
+</Project>

@@ -245,12 +245,14 @@
        Requires the `makensis` compiler. On Debian/Ubuntu: sudo apt install nsis.
        Missing toolchain → single actionable warning + skip.
 
-       Version is taken from $(InstallerVersion) (default 1.0.0) so the
-       publish script / CI can stamp the release version, e.g.
+       Version defaults to $(Version) from Directory.Build.props so the
+       installer matches the .exe File/Product version. Override on the
+       cmdline only when shipping a hotfix where the installer needs a
+       different stamp than the binary, e.g.
        `dotnet publish ... -p:InstallerVersion=1.4.2`.
   -->
   <PropertyGroup>
-    <InstallerVersion Condition="'$(InstallerVersion)' == ''">1.0.0</InstallerVersion>
+    <InstallerVersion Condition="'$(InstallerVersion)' == ''">$(Version)</InstallerVersion>
   </PropertyGroup>
 
   <Target Name="BuildWindowsInstaller" AfterTargets="ArchivePublishedOutput"
