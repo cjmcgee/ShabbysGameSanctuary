@@ -340,7 +340,47 @@ public static class NativeFilePicker
 		[DllImport("user32.dll")]
 		private static extern IntPtr GetForegroundWindow();
 
+		/// <summary>
+		/// Public entry point. The actual COM dance happens in
+		/// <see cref="PickOnStaThread"/> on a dedicated STA thread —
+		/// IFileOpenDialog requires single-threaded-apartment semantics to
+		/// drive its modal message loop, but the game's main thread is MTA
+		/// (the default — Program.Main has no <c>[STAThread]</c> attribute
+		/// and MonoGame doesn't request one). Calling the dialog from MTA
+		/// hangs: COM marshals the call to a thread without a real message
+		/// pump and the modal loop never returns. Spinning up an STA worker
+		/// is the standard workaround and lets the main thread block-and-wait
+		/// just like it does for the zenity / osascript subprocesses on
+		/// other platforms.
+		/// </summary>
 		public static string? Pick(string title, string? startDir,
+			FileFilter[]? filters, bool foldersOnly)
+		{
+			string? result =	null;
+			Exception? failure =	null;
+
+			var thread =	new Thread(() =>
+			{
+				try		{ result =	PickOnStaThread(title, startDir, filters, foldersOnly); }
+				catch (Exception ex)	{ failure =	ex; }
+			})
+			{
+				IsBackground =	true,
+				Name =	"NativeFilePicker.STA",
+			};
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			thread.Join();
+
+			if (failure != null)
+			{
+				Console.Error.WriteLine($"[NativeFilePicker] {failure.Message}");
+				return null;
+			}
+			return result;
+		}
+
+		private static string? PickOnStaThread(string title, string? startDir,
 			FileFilter[]? filters, bool foldersOnly)
 		{
 			var clsidType =	Type.GetTypeFromCLSID(CLSID_FileOpenDialog)
