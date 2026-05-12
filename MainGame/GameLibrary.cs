@@ -1,5 +1,7 @@
 using System.IO;
 using Battleshoot;
+using ChildhoodAdventure.Scoring;
+using TileEngine.Core;
 using TileEngine.MiniGames;
 using TileEngine.MiniGames.Libretro;
 
@@ -140,16 +142,65 @@ public sealed class GameLibrary
 			// a local makes the intent explicit and survives refactors).
 			string title =	match.Spec.Name;
 			string? path =	match.ResolvedPath;
+			string sha256 =	match.Spec.ExpectedSha256Hex;
+
+			// Pre-look-up the score formula so we can skip the cost
+			// (rcheevos parse + monitor allocation) on games we have
+			// no formula for. Captured into the factory closure by
+			// reference; the actual ScoreMonitor is built lazily inside
+			// the factory so each launch gets a fresh session.
+			var catalogEntry =	ScoreCatalog.Instance.LookupBySha256(sha256);
+
 			games.Add( new GameEntry(
 				id:					title.ToLowerInvariant().Replace( ' ', '_' ),
 				name:				title,
 				isEmulated:			true,
-				factory:			() =>	new LibretroMiniGame( corePath, path ?? "",
-										title:				title,
-										systemDirectory:	config.SystemRoot ),
+				factory:			() =>	BuildEmulatedMiniGame(
+											corePath, path ?? "", title,
+											config.SystemRoot, catalogEntry ),
 				unavailableReason:	unavailable ) );
 		}
 
 		Games =	games;
+	}
+
+	// Constructs the actual LibretroMiniGame and, when we have a score
+	// formula in the catalog, attaches a fresh ScoreMonitor that drives
+	// the new lifecycle hooks. The monitor is created per-launch so
+	// each play of a game gets its own session counter / HWM.
+	//
+	// Failures here must NOT prevent the mini-game from running — high-
+	// score tracking is best-effort. If the formula parses fine it gets
+	// wired up; if it doesn't, we log and proceed without scoring.
+	private static LibretroMiniGame BuildEmulatedMiniGame(
+		string corePath,
+		string romPath,
+		string title,
+		string systemDirectory,
+		ScoreCatalogEntry? catalogEntry)
+	{
+		var game =	new LibretroMiniGame(corePath, romPath,
+			title:				title,
+			systemDirectory:	systemDirectory);
+
+		if (catalogEntry?.ScoreFormula != null)
+		{
+			try
+			{
+				var monitor =	new ScoreMonitor(
+					gameName:		title,
+					scoreFormula:	catalogEntry.ScoreFormula,
+					highscores:		Highscores.Instance);
+				monitor.AttachTo(game);
+			}
+			catch (Exception ex)
+			{
+				// Bad formula → drop scoring for this session only.
+				// The mini-game itself is still playable.
+				Log.Warn("GameLibrary",
+					$"Score tracking disabled for {title}: {ex.Message}");
+			}
+		}
+		return game;
 	}
 }

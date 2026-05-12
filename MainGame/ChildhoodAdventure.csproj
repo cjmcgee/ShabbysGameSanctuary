@@ -149,6 +149,17 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- ── ScoreCatalog data file ──────────────────────────────────────────
+       AtariScores.json is generated offline by Tools/RaScoreFetcher and
+       checked in. We embed it as a managed resource so the runtime
+       loads from Assembly.GetManifestResourceStream rather than a loose
+       file on disk — same approach as the Yarn dialogue bundle. -->
+  <ItemGroup>
+    <EmbeddedResource Include="AtariScores.json">
+      <LogicalName>ChildhoodAdventure.AtariScores.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <!--
     Generate (or update) the bundle before the compiler pipeline needs it.
     Inputs/Outputs gives incremental build: only re-runs when .yarn files change.

@@ -59,6 +59,27 @@ namespace TileEngine.MiniGames.Libretro
 		private DynamicSoundEffectInstance?	_audio;
 		private byte[]	_audioBuf =	Array.Empty<byte>();
 
+		// ── Session lifecycle hooks ──────────────────────────────────────────
+		//
+		// External observers (currently just ScoreMonitor in ChildhoodAdventure)
+		// attach to these to follow the emulated session without the engine
+		// layer needing to know about high-scores. Hook lifecycle:
+		//
+		//   OnCoreReady  — fires once after retro_load_game succeeds. The
+		//                  LibretroCore passed in is fully initialised; its
+		//                  SystemRamSize is non-zero (when the core exports
+		//                  RAM, like Stella does).
+		//   OnFrameTick  — fires after every retro_run() call. Observers
+		//                  should throttle their own work; this fires at the
+		//                  emulated frame rate (~60 Hz NTSC).
+		//   OnSessionEnd — fires once on Dispose, BEFORE the core is torn
+		//                  down. Last chance to read memory or note the
+		//                  final session state.
+
+		public Action<LibretroCore>?	OnCoreReady { get; set; }
+		public Action<LibretroCore>?	OnFrameTick { get; set; }
+		public Action<LibretroCore>?	OnSessionEnd { get; set; }
+
 		// ── IEmbeddedMiniGame ────────────────────────────────────────────────
 		public string Title { get; }
 
@@ -136,6 +157,10 @@ namespace TileEngine.MiniGames.Libretro
 				Log.Warn("LibretroMiniGame", $"audio init failed: {ex.Message} — running silent.");
 				_audio =	null;
 			}
+
+			// Core + game are fully initialised. Late-bind observers
+			// (e.g. ScoreMonitor) before the first retro_run.
+			OnCoreReady?.Invoke(_core);
 		}
 
 		public void Update(GameTime gameTime, IMiniGameInput input)
@@ -154,6 +179,11 @@ namespace TileEngine.MiniGames.Libretro
 				_core.Run();
 				_runAccumulator -=	targetFrameSeconds;
 				runs++;
+				// Per-emulated-frame observer hook. Fires at the core's
+				// frame rate (so ~60 Hz on Stella), not the host render
+				// rate — gives consumers a stable cadence for time-based
+				// throttling.
+				OnFrameTick?.Invoke(_core);
 			}
 			if (_runAccumulator > targetFrameSeconds * 4)	_runAccumulator =	0;
 		}
@@ -187,6 +217,17 @@ namespace TileEngine.MiniGames.Libretro
 		{
 			if (_disposed)	return;
 			_disposed =	true;
+
+			// Session-end fires BEFORE the core is torn down, so observers
+			// (ScoreMonitor) can still peek memory and persist the final
+			// session state. Swallow exceptions — a misbehaving observer
+			// shouldn't prevent native cleanup.
+			if (_core != null)
+			{
+				try		{ OnSessionEnd?.Invoke(_core); }
+				catch (Exception ex)	{ Log.Error("LibretroMiniGame", $"OnSessionEnd handler threw: {ex.Message}"); }
+			}
+
 			if (_audio != null)
 			{
 				try		{ _audio.Stop(); }
