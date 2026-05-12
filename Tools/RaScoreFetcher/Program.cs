@@ -51,14 +51,17 @@ if (string.IsNullOrEmpty(romRoot))
 }
 
 string raUser =		Environment.GetEnvironmentVariable("RA_USER")		?? "";
-string raToken =	Environment.GetEnvironmentVariable("RA_TOKEN")		?? "";
 string raApiKey =	Environment.GetEnvironmentVariable("RA_API_KEY")	?? "";
-if (raUser == "" || raToken == "" || raApiKey == "")
+// RA_PASSWORD is only needed on the first run (or whenever the cached
+// connect token expires / is rejected). The token cache stores the result
+// of POSTing r=login2 to dorequest.php; subsequent runs reuse it.
+string raPassword =	Environment.GetEnvironmentVariable("RA_PASSWORD")	?? "";
+if (raUser == "" || raApiKey == "")
 {
-	Console.Error.WriteLine("ERROR: missing required env vars: RA_USER, RA_TOKEN, RA_API_KEY");
-	Console.Error.WriteLine("  RA_USER     — your RetroAchievements username");
-	Console.Error.WriteLine("  RA_TOKEN    — your RA login token (account settings → connect)");
-	Console.Error.WriteLine("  RA_API_KEY  — your RA web API key");
+	Console.Error.WriteLine("ERROR: missing required env vars: RA_USER, RA_API_KEY");
+	Console.Error.WriteLine("  RA_USER      — your RetroAchievements username");
+	Console.Error.WriteLine("  RA_API_KEY   — your RA Web API Key (account settings → Keys)");
+	Console.Error.WriteLine("  RA_PASSWORD  — only required on first run (we cache the connect token after)");
 	return 1;
 }
 
@@ -96,6 +99,14 @@ if (missing.Count > 0)
 // ── Phase 2: pull RA's A2600 game list with hashes; map MD5 → game ID ─────
 using var http =	new HttpClient();
 http.DefaultRequestHeaders.UserAgent.ParseAdd("RaScoreFetcher/1.0");
+
+// Obtain a dorequest.php connect token: try the on-disk cache first, and
+// only fall back to a fresh login (which requires RA_PASSWORD) if the
+// cache is missing or the cached token has been invalidated server-side.
+// The cache is per-user under SpecialFolder.ApplicationData so it survives
+// dotnet build cleans and is plain-text by design (the token is the same
+// credential RetroArch leaves in cheevos.conf).
+string raToken =	await GetConnectToken(http, raUser, raPassword);
 
 Console.WriteLine("Fetching RA Atari 2600 game list (with hashes) …");
 var gameListJson =	await http.GetStringAsync(
@@ -152,13 +163,24 @@ foreach (var spec in specs)
 	entry.RaGameTitle =	gameTitleById.GetValueOrDefault(gameId, "?");
 
 	Console.WriteLine($"Fetching patch for {spec.Name} (RA gameId={gameId}) …");
-	string patchUrl =
-		$"https://retroachievements.org/dorequest.php?r=patch" +
-		$"&u={Uri.EscapeDataString(raUser)}" +
-		$"&t={Uri.EscapeDataString(raToken)}" +
-		$"&g={gameId}";
 	string patchJson;
-	try		{ patchJson =	await http.GetStringAsync(patchUrl); }
+	try		{ patchJson =	await FetchPatch(http, raUser, raToken, gameId); }
+	catch (TokenRejectedException)
+	{
+		// Server invalidated the cached token mid-run. Force a fresh login
+		// and retry once. After that, give up on this game.
+		Console.Error.WriteLine("  cached token rejected mid-run; re-authenticating …");
+		ClearTokenCache();
+		raToken =	await GetConnectToken(http, raUser, raPassword);
+		try		{ patchJson =	await FetchPatch(http, raUser, raToken, gameId); }
+		catch (Exception ex2)
+		{
+			entry.Source =	$"patch fetch failed after re-auth: {ex2.Message}";
+			results.Add(entry);
+			await Task.Delay(delayMs);
+			continue;
+		}
+	}
 	catch (Exception ex)
 	{
 		entry.Source =	$"patch fetch failed: {ex.Message}";
@@ -202,6 +224,125 @@ static void PrintUsage()
 {
 	Console.Error.WriteLine("Usage: RaScoreFetcher --rom-root <path> [--specs specs.json] [--out AtariScores.json] [--delay 200] [-v]");
 	Console.Error.WriteLine("Env vars: RA_USER, RA_TOKEN, RA_API_KEY");
+}
+
+// Connect-token cache location: same per-user app-data folder convention as
+// EmulatorConfig in the game. Plain text — the token is the same credential
+// RetroArch keeps in cheevos.conf, and the file inherits user-private mode
+// on Linux/macOS automatically since Directory.CreateDirectory respects the
+// process umask.
+static string TokenCachePath() =>	Path.Combine(
+	Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+	"RaScoreFetcher",
+	"connect-token");
+
+static void ClearTokenCache()
+{
+	try		{ File.Delete(TokenCachePath()); }
+	catch	{ /* best-effort */ }
+}
+
+// Resolve a usable connect token: prefer a cached one (and revalidate it),
+// otherwise log in with RA_PASSWORD. The revalidation step is a second
+// r=login2 call with t=<cached>; RA returns Success=false if the token has
+// been rotated server-side, which makes this safer than blindly trusting
+// whatever's on disk.
+static async Task<string> GetConnectToken(HttpClient http, string user, string password)
+{
+	string cachePath =	TokenCachePath();
+
+	if (File.Exists(cachePath))
+	{
+		string cached =	(await File.ReadAllTextAsync(cachePath)).Trim();
+		if (cached.Length > 0)
+		{
+			if (await ValidateToken(http, user, cached))
+			{
+				Console.WriteLine($"Using cached connect token from {cachePath}.");
+				return cached;
+			}
+			Console.WriteLine("Cached connect token was rejected; re-authenticating …");
+		}
+	}
+
+	if (string.IsNullOrEmpty(password))
+	{
+		throw new Exception(
+			"No usable cached token and RA_PASSWORD is not set. " +
+			"Set RA_PASSWORD once so we can fetch a connect token (it will be cached at " +
+			cachePath + " for next time).");
+	}
+
+	var form =	new FormUrlEncodedContent(new[]
+	{
+		new KeyValuePair<string, string>("r",	"login2"),
+		new KeyValuePair<string, string>("u",	user),
+		new KeyValuePair<string, string>("p",	password),
+	});
+	using var resp =	await http.PostAsync("https://retroachievements.org/dorequest.php", form);
+	string body =	await resp.Content.ReadAsStringAsync();
+	var node =	JsonNode.Parse(body)	?? throw new Exception("Login response was not JSON");
+	if (node["Success"]?.GetValue<bool>() != true)
+	{
+		string code =	node["Code"]?.GetValue<string>()	?? "";
+		string err =	node["Error"]?.GetValue<string>()	?? body;
+		throw new Exception($"Login failed ({code}): {err}");
+	}
+	string token =	node["Token"]?.GetValue<string>()
+		?? throw new Exception("Login succeeded but response had no Token field.");
+
+	Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
+	await File.WriteAllTextAsync(cachePath, token);
+	Console.WriteLine($"Logged in; token cached to {cachePath}.");
+	return token;
+}
+
+// Server-side validate a token by attempting r=login2 with t=<token>. RA
+// treats this as a token-refresh call and returns Success=true (with the
+// same or rotated token) if the token is still good. Cheap and avoids
+// needing a real game ID just to probe auth.
+static async Task<bool> ValidateToken(HttpClient http, string user, string token)
+{
+	var form =	new FormUrlEncodedContent(new[]
+	{
+		new KeyValuePair<string, string>("r",	"login2"),
+		new KeyValuePair<string, string>("u",	user),
+		new KeyValuePair<string, string>("t",	token),
+	});
+	using var resp =	await http.PostAsync("https://retroachievements.org/dorequest.php", form);
+	string body =	await resp.Content.ReadAsStringAsync();
+	var node =	JsonNode.Parse(body);
+	return node?["Success"]?.GetValue<bool>() == true;
+}
+
+// Wraps the GET so a credential-rejection comes back as a strongly-typed
+// exception the loop can catch and react to (clear cache + re-login),
+// distinct from a generic network failure.
+static async Task<string> FetchPatch(HttpClient http, string user, string token, int gameId)
+{
+	string url =
+		"https://retroachievements.org/dorequest.php?r=patch" +
+		$"&u={Uri.EscapeDataString(user)}" +
+		$"&t={Uri.EscapeDataString(token)}" +
+		$"&g={gameId}";
+	string body =	await http.GetStringAsync(url);
+
+	// dorequest.php returns 200 OK even on auth failure, with Success=false
+	// in the body. Inspect the JSON so we can distinguish credential
+	// rejection from a usable response.
+	JsonNode? probe;
+	try		{ probe =	JsonNode.Parse(body); }
+	catch	{ return body; }	// not JSON; let the caller handle it
+
+	if (probe?["Success"]?.GetValue<bool>() == false)
+	{
+		string code =	probe["Code"]?.GetValue<string>() ?? "";
+		if (code == "invalid_credentials")
+			throw new TokenRejectedException(probe["Error"]?.GetValue<string>() ?? "invalid token");
+		throw new Exception($"patch returned {code}: {probe["Error"]?.GetValue<string>()}");
+	}
+
+	return body;
 }
 
 static string HashFile(string path, HashAlgorithm algo)
@@ -314,6 +455,11 @@ static string? ExtractValueFromMem(string mem)
 // ─────────────────────────────────────────────────────────────────────────
 // DTOs
 // ─────────────────────────────────────────────────────────────────────────
+
+sealed class TokenRejectedException :	Exception
+{
+	public TokenRejectedException(string message) :	base(message) {}
+}
 
 sealed class Spec
 {
