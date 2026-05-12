@@ -334,11 +334,18 @@ public static class NativeFilePicker
 			IntPtr pbc,
 			[In] ref Guid riid);
 
-		// Parent the dialog to whatever window is currently in front (the
-		// game). This is what keeps it from getting buried behind a
-		// fullscreen MonoGame window.
-		[DllImport("user32.dll")]
-		private static extern IntPtr GetForegroundWindow();
+		// We deliberately do NOT parent the dialog to the game window.
+		// A modal IFileDialog sends synchronous SendMessage calls to its
+		// owner (WM_ENABLE to disable it, plus activation / metrics
+		// messages). Our owner candidate is the MonoGame window, which is
+		// owned by the main thread — and the main thread is blocked on
+		// thread.Join() waiting for this STA worker to return. The dialog
+		// blocks waiting for the main thread to pump; the main thread is
+		// blocked waiting for the dialog. Deadlock.
+		//
+		// Showing with IntPtr.Zero makes the dialog a top-level unowned
+		// window; it activates itself onto the foreground via the usual
+		// CreateWindowEx path, which doesn't SendMessage to anyone.
 
 		/// <summary>
 		/// Public entry point. The actual COM dance happens in
@@ -423,7 +430,7 @@ public static class NativeFilePicker
 					}
 				}
 
-				int hr =	dialog.Show(GetForegroundWindow());
+				int hr =	dialog.Show(IntPtr.Zero);
 				if (hr == HRESULT_CANCELLED)	return null;
 				if (hr != 0)
 				{
@@ -432,14 +439,15 @@ public static class NativeFilePicker
 				}
 
 				dialog.GetResult(out var result);
-				result.GetDisplayName(SIGDN_FILESYSPATH, out var pszPath);
 				try
 				{
-					return Marshal.PtrToStringUni(pszPath);
+					result.GetDisplayName(SIGDN_FILESYSPATH, out var pszPath);
+					try		{ return Marshal.PtrToStringUni(pszPath); }
+					finally	{ Marshal.FreeCoTaskMem(pszPath); }
 				}
 				finally
 				{
-					Marshal.FreeCoTaskMem(pszPath);
+					Marshal.ReleaseComObject(result);
 				}
 			}
 			finally
