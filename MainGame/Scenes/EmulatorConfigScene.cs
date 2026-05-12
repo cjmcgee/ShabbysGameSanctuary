@@ -39,6 +39,12 @@ public sealed class EmulatorConfigScene :	Scene
 		public string Hint =	"";
 		public Func<EmulatorConfig, string> Get =	_ =>	"";
 		public Action<EmulatorConfig, string> Set =	(_, _) =>	{};
+
+		// Non-null on rows that aren't folder pickers — e.g. the "ROM
+		// Manager" row navigates to another scene instead of popping the
+		// native folder dialog. When set, BrowseSelected calls this
+		// instead of running the folder-picker flow; Clear becomes a no-op.
+		public Action<EmulatorConfigScene>? OnSelect =	null;
 	}
 
 	public EmulatorConfigScene(EmulatorConfig config, Func<Scene> returnTo)
@@ -70,7 +76,52 @@ public sealed class EmulatorConfigScene :	Scene
 				Get =	c =>	c.SystemRoot,
 				Set =	(c, v) =>	c.SystemRoot =	v,
 			},
+			new Row
+			{
+				Label =	"ROM Manager",
+				Hint =	"Verify per-ROM matches and pick files for any the auto-resolver missed.",
+				// Tag-style "value" shows live counts — built fresh on each
+				// draw so the user sees status without leaving the scene.
+				Get =	c =>	BuildRomTally(c),
+				// No file-system value to clear on this row.
+				Set =	(_, _) =>	{},
+				OnSelect =	self =>	self.OpenRomManager(),
+			},
 		};
+	}
+
+	// Re-resolve every spec to render the live tally inline with the row.
+	// Cheap (single dir walk, hashes already cached during the row's draw
+	// frame… well, no — resolver is called fresh here. With 22 ROMs and
+	// hashing only size-matched files this is well under a frame even on
+	// slow disks, so it's fine to call from the draw path. If it ever
+	// becomes a hot spot, cache per-scene-load).
+	private static string BuildRomTally(EmulatorConfig c)
+	{
+		var matches =	RomResolver.Resolve(GameLibrary.RequiredRoms, c.EffectiveRomRoot, c.RomOverrides);
+		int byHash =	0, byName =	0, ovr =	0, missing =	0;
+		foreach (var m in matches)
+		{
+			switch (m.Resolution)
+			{
+				case RomResolution.FoundByHash:	byHash++; break;
+				case RomResolution.FoundByName:	byName++; break;
+				case RomResolution.Override:		ovr++; break;
+				default:							missing++; break;
+			}
+		}
+		return $"{matches.Count} ROMs:  {byHash} by hash  •  {byName} by name  •  {ovr} overridden  •  {missing} missing";
+	}
+
+	private void OpenRomManager()
+	{
+		// Capture our own return path so the manager comes back here, and
+		// from here Esc returns to wherever EmulatorConfigScene was launched
+		// from (game-select / home interior).
+		var ourReturn =	_returnTo;
+		Engine.LoadScene(new RomManagerScene(
+			_config,
+			returnTo: () =>	new EmulatorConfigScene(EmulatorConfig.LoadOrDefault(), ourReturn)));
 	}
 
 	protected override void OnLoad()
@@ -115,6 +166,15 @@ public sealed class EmulatorConfigScene :	Scene
 	private void BrowseSelected()
 	{
 		var row =	_rows[_selection];
+
+		// Non-folder rows route Enter to their own action (e.g. opening a
+		// sub-scene). The folder-picker flow below is for path rows only.
+		if (row.OnSelect != null)
+		{
+			row.OnSelect(this);
+			return;
+		}
+
 		string current =	row.Get(_config);
 		string? start =	!string.IsNullOrEmpty(current) ? current :	null;
 
@@ -131,6 +191,10 @@ public sealed class EmulatorConfigScene :	Scene
 	private void ClearSelected()
 	{
 		var row =	_rows[_selection];
+
+		// Action rows have no path value to wipe — Clear is a no-op there.
+		if (row.OnSelect != null)	return;
+
 		if (string.IsNullOrEmpty(row.Get(_config)))	return;	// already empty
 
 		row.Set(_config, "");

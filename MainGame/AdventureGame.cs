@@ -114,7 +114,8 @@ namespace ChildhoodAdventure
 				if( escapePressed
 					&& scene is not MiniGameScene
 					&& scene is not GameSelectMenuScene
-					&& scene is not EmulatorConfigScene ) { Exit(); }
+					&& scene is not EmulatorConfigScene
+					&& scene is not RomManagerScene ) { Exit(); }
 
 				// F1-F5: switch retro system and reload current scene
 				HandleSystemSwitch( keys );

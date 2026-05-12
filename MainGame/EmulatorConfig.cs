@@ -36,6 +36,21 @@ public sealed class EmulatorConfig
 	public string SystemRoot { get; set; } =	"";
 
 	/// <summary>
+	/// Per-ROM manual selections, keyed by the canonical name in
+	/// <c>GameLibrary.RequiredRoms</c> (e.g. "Combat", "Pac-Man") and
+	/// pointing at an absolute file path. <see cref="RomResolver"/>
+	/// honours an entry here over any name- or hash-based auto-resolve,
+	/// so the user can override a wrong guess and have it stick across
+	/// sessions.
+	/// <para>
+	/// Defaults to an empty dictionary — System.Text.Json round-trips
+	/// the property cleanly because the field is a concrete
+	/// <c>Dictionary&lt;string,string&gt;</c>.
+	/// </para>
+	/// </summary>
+	public Dictionary<string, string> RomOverrides { get; set; } =	new();
+
+	/// <summary>
 	/// CoreRoot effective value used by <see cref="ResolveCore"/>. If the
 	/// user left CoreRoot empty in the JSON we fall back to the executable's
 	/// own directory — that's where the build target lands the vendored

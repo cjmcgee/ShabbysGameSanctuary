@@ -59,6 +59,7 @@ public sealed class GameSelectMenuScene :	Scene
 		bool select =	IsPressed(keys, Keys.E)    || IsPressed(keys, Keys.Enter);
 		bool cancel =	IsPressed(keys, Keys.Escape);
 		bool configure =	IsPressed(keys, Keys.C);
+		bool romManager =	IsPressed(keys, Keys.R);
 
 		if (down)	Move(+1);
 		if (up)		Move(-1);
@@ -80,6 +81,32 @@ public sealed class GameSelectMenuScene :	Scene
 				returnTo: () =>	new GameSelectMenuScene(
 					new GameLibrary(EmulatorConfig.LoadOrDefault()),
 					returnHere)));
+			return;
+		}
+
+		// R opens the ROM Manager. Available whenever there's a RomRoot
+		// configured to scan against — pressing R with no RomRoot would
+		// just show 22 [MISSING] rows. Send the user to the path config
+		// first in that case so they have something to manage.
+		if (romManager)
+		{
+			var cfg =	EmulatorConfig.LoadOrDefault();
+			var returnHere =	_returnTo;
+
+			Scene returnScene() =>	new GameSelectMenuScene(
+				new GameLibrary(EmulatorConfig.LoadOrDefault()),
+				returnHere);
+
+			if (string.IsNullOrEmpty(cfg.EffectiveRomRoot))
+			{
+				// Fall through to the path-config scene; from there the
+				// user can pick a folder and then walk into the manager.
+				Engine.LoadScene(new EmulatorConfigScene(cfg, returnScene));
+			}
+			else
+			{
+				Engine.LoadScene(new RomManagerScene(cfg, returnScene));
+			}
 			return;
 		}
 
@@ -183,11 +210,11 @@ public sealed class GameSelectMenuScene :	Scene
 			y +=	postEntryGap;
 		}
 
-		// Footer hint. Mention C only when there is something to fix — no
-		// point teaching the keystroke when every cartridge already works.
+		// Footer hint. C and R are advanced/diagnostic; only surface them
+		// when there's actually something for them to fix or inspect.
 		string hint =	HasUnavailableEntry()
-			? "↑/↓: select   E/Enter: load   C: configure ROM path   Esc: back"
-			: "↑/↓: select   E/Enter: load   Esc: back";
+			? "↑/↓: select   E/Enter: load   C: configure paths   R: ROM manager   Esc: back"
+			: "↑/↓: select   E/Enter: load   R: ROM manager   Esc: back";
 		float hintW =	font.MeasureWidth(hint)	* scale * 0.8f;
 		font.DrawText(spriteBatch, hint,
 			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 60),
