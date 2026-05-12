@@ -1,0 +1,188 @@
+{
+  "System": "Atari 2600",
+  "FetchedAt": "2026-05-12T22:54:04.4650167Z",
+  "Games": [
+    {
+      "Name": "Adventure",
+      "Sha256": "b0326b45e5cab066b2d03f1e683708d82de3ffe60b2e968bf88c5494237f0a96",
+      "Md5": "157bddb7192754a45372be196797f284",
+      "RaGameId": 11778,
+      "RaGameTitle": "Adventure",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Asteroids",
+      "Sha256": "d1a6e808412b4535c7e54fc25414943a9418b1095b4d4969dc33290f7eaa72a4",
+      "Md5": "dd7884b4f93cab423ac471aa1935e3df",
+      "RaGameId": 11687,
+      "RaGameTitle": "Asteroids",
+      "ScoreFormula": "b0xh03e*10_b0xh03d*1000",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #4244 \u0022Top Score (Game 1)\u0022"
+    },
+    {
+      "Name": "Centipede",
+      "Sha256": "6def669f54bd886f43026e7fc7f82b9acb92680bb3e3aa68da3767f8797c8cbe",
+      "Md5": "91c2098e88a6b13f977af8c003e0bca5",
+      "RaGameId": 11799,
+      "RaGameTitle": "Centipede",
+      "ScoreFormula": "b0xH74*10000_b0xH75*100_b0xH76",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #23331 \u0022High Score [Standard]\u0022"
+    },
+    {
+      "Name": "Combat",
+      "Sha256": "509e845d17bb192ba7587cc977411bd43b8ee31385eeefc3fef8c16e249f4820",
+      "Md5": "4c8832ed387bbafc055320c05205bc08",
+      "RaGameId": 14062,
+      "RaGameTitle": "Combat",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Combat Two",
+      "Sha256": "2f06583d9d91924fa475b5ed5ce827146e52ea5d4d05a13128c30eaa309074ca",
+      "Md5": "b0c9cf89a6d4e612524f4fd48b5bb562",
+      "RaGameId": 35099,
+      "RaGameTitle": "~Prototype~ Combat Two",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Defender",
+      "Sha256": "e3c7ed7a073fe8f4b2711bebd624d0b249957daa0ebb93d78823fe36b235ba8c",
+      "Md5": "0f643c34e40e3f1daafd9c524d3ffe64",
+      "RaGameId": 13034,
+      "RaGameTitle": "Defender",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Demon Attack",
+      "Sha256": "8d72feeb267d23cb5d58bb4511566414884c572d2b4dcba8f6893ad7426442d4",
+      "Md5": "f0e0addc07971561ab80d9abe1b8d333",
+      "Source": "RA has no game registered for md5=f0e0addc07971561ab80d9abe1b8d333"
+    },
+    {
+      "Name": "E.T.",
+      "Sha256": "e9539483b4f51853888cc5db075eb0155bbb2e6c016a3e6eadd6f19fc1fa0947",
+      "Md5": "615a3bf251a38eb6638cdc7ffbde5480",
+      "RaGameId": 11710,
+      "RaGameTitle": "E.T.: The Extra-Terrestrial",
+      "ScoreFormula": "b0xh5f*10000_b0xh60*100_b0xh61",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #7049 \u0022E.T. to the Death\u0022"
+    },
+    {
+      "Name": "Frogger",
+      "Sha256": "63e0229b80f871c6fdda8ba389583451cd5cd54be07ca32560edb752280ae04b",
+      "Md5": "081e2c114c9c20b61acf25fc95c71bf4",
+      "RaGameId": 17421,
+      "RaGameTitle": "Frogger",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Frogger II",
+      "Sha256": "fd4c43d5246fa17a162c0a09d8be88331f8d408e8e86651609d126e5f9ca385e",
+      "Md5": "27c6a2ca16ad7d814626ceea62fa8fb4",
+      "RaGameId": 17422,
+      "RaGameTitle": "Frogger II: Threeedeep!",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Kaboom!",
+      "Sha256": "21363eb5ea5ce8fde85942948212f0ebca62ddd75d9d92238f989ddf8e8de308",
+      "Md5": "5428cdfada281c569c74c7308c7f2c26",
+      "RaGameId": 12735,
+      "RaGameTitle": "Kaboom!",
+      "ScoreFormula": "B0xH25_B0xH24*100_B0xH23*10000",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #4140 \u0022Kaboom I\u0022"
+    },
+    {
+      "Name": "Missile Command",
+      "Sha256": "46c444b91854e3652cc00facf52101d3c9fa3528eaba7674cc790acc3ad59086",
+      "Md5": "3a2e2d0c6892aa14544083dfb7762782",
+      "RaGameId": 13170,
+      "RaGameTitle": "Missile Command",
+      "ScoreFormula": "b0xh73*10000_b0xh71*100_b0xh6f",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #4766 \u0022Hi-Score (Variant 1 or 2)\u0022"
+    },
+    {
+      "Name": "Ms. Pac-Man",
+      "Sha256": "dde0b43c5dee7ce1a35ac8e2f625b32a16118512d9be4064115053b972280b14",
+      "Md5": "87e79cd41ce136fd4f72cc6e2c161bee",
+      "RaGameId": 14260,
+      "RaGameTitle": "Ms. Pac-Man",
+      "ScoreFormula": "0xU00007a*100000_0xL00007a*10000_0xU000079*1000_0xL000079*100_0xU000078*10",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #8522 \u0022High Score (Arcade Mode)\u0022"
+    },
+    {
+      "Name": "Pac-Man",
+      "Sha256": "58e781b472e0583b851b7e56cbfe87bd8294a291e6d39d49d7c999107ed5b918",
+      "Md5": "6e372f076fb9586aff416144f5cfe1cb",
+      "RaGameId": 13094,
+      "RaGameTitle": "Pac-Man",
+      "ScoreFormula": "b0xH50*10000_b0xH4e*100_b0xH4c*1",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #4455 \u0022Game 1\u0022"
+    },
+    {
+      "Name": "Pitfall II",
+      "Sha256": "6755784f8f526e33b155e2c3e99e5da14ada6c53e3f203b21a8bb140118d8251",
+      "Md5": "6d842c96d5a01967be9680080dd5be54",
+      "RaGameId": 13213,
+      "RaGameTitle": "Pitfall II: Lost Caverns",
+      "ScoreFormula": "b0xh47*10000_b0xh48*v100_b0xh49",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #19221 \u0022High Score\u0022"
+    },
+    {
+      "Name": "Pitfall",
+      "Sha256": "c56c99d9e00136a015a485851e0e925c6327ea2b20aa7d3daecfbd7f9afcfdf0",
+      "Md5": "3e90cf23106f2e08b2781e41299de556",
+      "RaGameId": 11191,
+      "RaGameTitle": "Pitfall!",
+      "ScoreFormula": "d0xU000055*100000_d0xL000055*10000_d0xU000056*1000_d0xL000056*100_d0xU000057*10_d0xL000057",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #2573 \u0022High Score\u0022"
+    },
+    {
+      "Name": "River Raid",
+      "Sha256": "4c6842b8af64fc75e599b773821b3e6bee8e5028f5d63414821b0d63f0b2dfe9",
+      "Md5": "393948436d1f4cc3192410bb918f9724",
+      "RaGameId": 11688,
+      "RaGameTitle": "River Raid",
+      "ScoreFormula": "N:0xH000a=1_M:p0xH000d=0",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #19873 \u0022Bridge Breaker\u0022"
+    },
+    {
+      "Name": "River Raid II",
+      "Sha256": "6715a2a0cb2db46665b139dbd5c5224238a3df143465334ad873f3ef9c5d4ee5",
+      "Md5": "ab56f1b2542a05bebc4fbccfc4803a38",
+      "RaGameId": 12901,
+      "RaGameTitle": "River Raid II",
+      "Source": "no leaderboard or rich-presence score formula found"
+    },
+    {
+      "Name": "Space Invaders",
+      "Sha256": "7224b17462b992d67f4e06a3c85f269c9822b06df6015bf038b55f384ced0301",
+      "Md5": "72ffbef6504b75e69ee1045af9075f66",
+      "RaGameId": 11684,
+      "RaGameTitle": "Space Invaders",
+      "ScoreFormula": "R:0xH0065=128_M:0=1_N:0xH002a=1_A:b0xH0066*100_R:b0xH0068=0$A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.1._A:1*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.2._A:2*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.3._A:3*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.4._A:4*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.5._A:5*10000_A:b0xH0066*100_M:b0xH0068",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #4241 \u0022Score - Mode 1 (no trick)\u0022"
+    },
+    {
+      "Name": "Yars\u0027 Revenge",
+      "Sha256": "ff777c8d4ea06569156fcb2f5ba0e00eebaf2c2c509e5829109e5aefed199c66",
+      "Md5": "c5930d0e8cdae3e037349bfa08e871be",
+      "RaGameId": 13025,
+      "RaGameTitle": "Yars\u0027 Revenge",
+      "ScoreFormula": "0xU60*100000_0xL60*10000_0xU61*1000_0xL61*100_0xU62*10_0xL62",
+      "ScoreFormat": "SCORE",
+      "Source": "leaderboard #22370 \u0022Normal High Score\u0022"
+    }
+  ]
+}

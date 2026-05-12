@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -463,7 +464,10 @@ sealed class TokenRejectedException :	Exception
 
 sealed class Spec
 {
+	[JsonPropertyName("name")]
 	public string Name { get; set; } =	"";
+
+	[JsonPropertyName("sha256")]
 	public string Sha256 { get; set; } =	"";
 }
 
