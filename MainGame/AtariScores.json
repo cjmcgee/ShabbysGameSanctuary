@@ -1,6 +1,6 @@
 {
   "System": "Atari 2600",
-  "FetchedAt": "2026-05-12T22:54:04.4650167Z",
+  "FetchedAt": "2026-05-12T23:08:31.4274142Z",
   "Games": [
     {
       "Name": "Adventure",
@@ -18,7 +18,7 @@
       "RaGameTitle": "Asteroids",
       "ScoreFormula": "b0xh03e*10_b0xh03d*1000",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #4244 \u0022Top Score (Game 1)\u0022"
+      "Source": "leaderboard #4244 \u0022Top Score (Game 1)\u0022 [SCORE]"
     },
     {
       "Name": "Centipede",
@@ -28,7 +28,7 @@
       "RaGameTitle": "Centipede",
       "ScoreFormula": "b0xH74*10000_b0xH75*100_b0xH76",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #23331 \u0022High Score [Standard]\u0022"
+      "Source": "leaderboard #23331 \u0022High Score [Standard]\u0022 [SCORE]"
     },
     {
       "Name": "Combat",
@@ -68,7 +68,7 @@
       "RaGameTitle": "E.T.: The Extra-Terrestrial",
       "ScoreFormula": "b0xh5f*10000_b0xh60*100_b0xh61",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #7049 \u0022E.T. to the Death\u0022"
+      "Source": "leaderboard #7049 \u0022E.T. to the Death\u0022 [SCORE]"
     },
     {
       "Name": "Frogger",
@@ -76,7 +76,9 @@
       "Md5": "081e2c114c9c20b61acf25fc95c71bf4",
       "RaGameId": 17421,
       "RaGameTitle": "Frogger",
-      "Source": "no leaderboard or rich-presence score formula found"
+      "ScoreFormula": "A:b0xH004c*100_M:b0xH004e",
+      "ScoreFormat": "VALUE",
+      "Source": "leaderboard #68497 \u0022Game 1 High Score\u0022 [VALUE]"
     },
     {
       "Name": "Frogger II",
@@ -94,7 +96,7 @@
       "RaGameTitle": "Kaboom!",
       "ScoreFormula": "B0xH25_B0xH24*100_B0xH23*10000",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #4140 \u0022Kaboom I\u0022"
+      "Source": "leaderboard #4140 \u0022Kaboom I\u0022 [SCORE]"
     },
     {
       "Name": "Missile Command",
@@ -104,7 +106,7 @@
       "RaGameTitle": "Missile Command",
       "ScoreFormula": "b0xh73*10000_b0xh71*100_b0xh6f",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #4766 \u0022Hi-Score (Variant 1 or 2)\u0022"
+      "Source": "leaderboard #4766 \u0022Hi-Score (Variant 1 or 2)\u0022 [SCORE]"
     },
     {
       "Name": "Ms. Pac-Man",
@@ -114,7 +116,7 @@
       "RaGameTitle": "Ms. Pac-Man",
       "ScoreFormula": "0xU00007a*100000_0xL00007a*10000_0xU000079*1000_0xL000079*100_0xU000078*10",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #8522 \u0022High Score (Arcade Mode)\u0022"
+      "Source": "leaderboard #8522 \u0022High Score (Arcade Mode)\u0022 [SCORE]"
     },
     {
       "Name": "Pac-Man",
@@ -124,7 +126,7 @@
       "RaGameTitle": "Pac-Man",
       "ScoreFormula": "b0xH50*10000_b0xH4e*100_b0xH4c*1",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #4455 \u0022Game 1\u0022"
+      "Source": "leaderboard #4455 \u0022Game 1\u0022 [SCORE]"
     },
     {
       "Name": "Pitfall II",
@@ -134,7 +136,7 @@
       "RaGameTitle": "Pitfall II: Lost Caverns",
       "ScoreFormula": "b0xh47*10000_b0xh48*v100_b0xh49",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #19221 \u0022High Score\u0022"
+      "Source": "leaderboard #19221 \u0022High Score\u0022 [SCORE]"
     },
     {
       "Name": "Pitfall",
@@ -144,7 +146,7 @@
       "RaGameTitle": "Pitfall!",
       "ScoreFormula": "d0xU000055*100000_d0xL000055*10000_d0xU000056*1000_d0xL000056*100_d0xU000057*10_d0xL000057",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #2573 \u0022High Score\u0022"
+      "Source": "leaderboard #2573 \u0022High Score\u0022 [SCORE]"
     },
     {
       "Name": "River Raid",
@@ -154,7 +156,7 @@
       "RaGameTitle": "River Raid",
       "ScoreFormula": "N:0xH000a=1_M:p0xH000d=0",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #19873 \u0022Bridge Breaker\u0022"
+      "Source": "leaderboard #19873 \u0022Bridge Breaker\u0022 [SCORE]"
     },
     {
       "Name": "River Raid II",
@@ -172,7 +174,7 @@
       "RaGameTitle": "Space Invaders",
       "ScoreFormula": "R:0xH0065=128_M:0=1_N:0xH002a=1_A:b0xH0066*100_R:b0xH0068=0$A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.1._A:1*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.2._A:2*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.3._A:3*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.4._A:4*10000_A:b0xH0066*100_M:b0xH0068$Q:0xH0066\u003Cd0xH0066.5._A:5*10000_A:b0xH0066*100_M:b0xH0068",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #4241 \u0022Score - Mode 1 (no trick)\u0022"
+      "Source": "leaderboard #4241 \u0022Score - Mode 1 (no trick)\u0022 [SCORE]"
     },
     {
       "Name": "Yars\u0027 Revenge",
@@ -182,7 +184,7 @@
       "RaGameTitle": "Yars\u0027 Revenge",
       "ScoreFormula": "0xU60*100000_0xL60*10000_0xU61*1000_0xL61*100_0xU62*10_0xL62",
       "ScoreFormat": "SCORE",
-      "Source": "leaderboard #22370 \u0022Normal High Score\u0022"
+      "Source": "leaderboard #22370 \u0022Normal High Score\u0022 [SCORE]"
     }
   ]
 }

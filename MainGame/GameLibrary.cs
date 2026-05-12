@@ -54,8 +54,8 @@ public sealed class GameLibrary
 			("Combat",					 2048, "509e845d17bb192ba7587cc977411bd43b8ee31385eeefc3fef8c16e249f4820"),
 			("Combat Two",				 8192, "2f06583d9d91924fa475b5ed5ce827146e52ea5d4d05a13128c30eaa309074ca"),
 			("Defender",				 4096, "e3c7ed7a073fe8f4b2711bebd624d0b249957daa0ebb93d78823fe36b235ba8c"),
-			("Demon Attack",			 4096, "8d72feeb267d23cb5d58bb4511566414884c572d2b4dcba8f6893ad7426442d4"),
-			//("Demon Attack (fixed)",	 4096, "a181c5368dd648973b1f270999edaa6cb7ef80eaeb442ce72b4a9232a6eee301"),
+			//("Demon Attack",			 4096, "8d72feeb267d23cb5d58bb4511566414884c572d2b4dcba8f6893ad7426442d4"),	// original ROM
+			("Demon Attack",			 4096, "a181c5368dd648973b1f270999edaa6cb7ef80eaeb442ce72b4a9232a6eee301"), // fixed ROM 
 			("E.T.",					 8192, "e9539483b4f51853888cc5db075eb0155bbb2e6c016a3e6eadd6f19fc1fa0947"),
 			("Frogger",					 4096, "63e0229b80f871c6fdda8ba389583451cd5cd54be07ca32560edb752280ae04b"),
 			("Frogger II",				 8192, "fd4c43d5246fa17a162c0a09d8be88331f8d408e8e86651609d126e5f9ca385e"),

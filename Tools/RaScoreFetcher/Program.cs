@@ -25,6 +25,7 @@ string specsPath =		"specs.json";
 string outPath =		"AtariScores.json";
 int delayMs =			200;
 bool verbose =			false;
+bool listLeaderboards =	false;
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -36,6 +37,7 @@ for (int i = 0; i < args.Length; i++)
 		case "--delay":		delayMs =	int.Parse(args[++i]);	break;
 		case "-v":
 		case "--verbose":	verbose =	true;					break;
+		case "--list-leaderboards":	listLeaderboards =	true;	break;
 		case "-h":
 		case "--help":
 			PrintUsage();	return 0;
@@ -190,7 +192,7 @@ foreach (var spec in specs)
 		continue;
 	}
 
-	var (formula, format, source) =	PickScoreFormula(patchJson, verbose);
+	var (formula, format, source) =	PickScoreFormula(patchJson, spec.Name, listLeaderboards);
 	entry.ScoreFormula =	formula;
 	entry.ScoreFormat =	format;
 	entry.Source =	source;
@@ -357,15 +359,24 @@ static string HashFile(string path, HashAlgorithm algo)
 }
 
 // Picks the best score formula out of a RA patch payload. Preference order:
-//   1. Leaderboard with Format == "SCORE" and a title that reads as the
-//      canonical high-score board (matches /^high\s*score$/i).
-//   2. Any other SCORE-format leaderboard, preferring titles containing
-//      "score".
-//   3. First SCORE-format leaderboard (whatever order RA returned).
-//   4. Rich-presence "Score" macro definition (heuristic — RP scripts
-//      vary widely).
+//   1. SCORE-format leaderboard with a title matching /^high\s*score$/i.
+//   2. Any leaderboard whose title contains "score" or "high"
+//      (case-insensitive), of an accepted format.
+//   3. First leaderboard of an accepted format.
+//   4. Rich-presence "Score" macro definition (best-effort regex).
+//
+// Accepted formats are SCORE and VALUE — both are numeric counters where
+// "bigger is better" generally holds. TIME / TIMESECS / FRAMES are
+// skipped: those are timer-based leaderboards (lower-is-better) and would
+// give us nonsense if treated as a high-score number.
+//
+// When <paramref name="listLeaderboards"/> is true, every leaderboard
+// found for the game is dumped to stderr — useful for diagnosing why a
+// particular game ended up with no formula.
+//
 // Returns (formulaOrNull, formatOrNull, sourceDescription).
-static (string? Formula, string? Format, string Source) PickScoreFormula(string patchJson, bool verbose)
+static (string? Formula, string? Format, string Source) PickScoreFormula(
+	string patchJson, string gameName, bool listLeaderboards)
 {
 	JsonNode? root;
 	try		{ root =	JsonNode.Parse(patchJson); }
@@ -377,37 +388,85 @@ static (string? Formula, string? Format, string Source) PickScoreFormula(string 
 	// Handle both.
 	var patch =	root["PatchData"] ?? root;
 
-	var lbs =	patch["Leaderboards"] as JsonArray;
+	// Tolerate casing / pluralisation drift in the patch field name. RA's
+	// "official" payload is "Leaderboards" but older snapshots / mirrors
+	// occasionally lowercase the key.
+	var lbs =	(patch["Leaderboards"] ?? patch["leaderboards"]) as JsonArray;
+
+	if (listLeaderboards)
+	{
+		if (lbs == null || lbs.Count == 0)
+		{
+			Console.Error.WriteLine($"  [{gameName}] no leaderboards in patch");
+		}
+		else
+		{
+			Console.Error.WriteLine($"  [{gameName}] {lbs.Count} leaderboard(s):");
+			foreach (var lb in lbs)
+			{
+				if (lb == null)	continue;
+				int id =	lb["ID"]?.GetValue<int>() ?? lb["id"]?.GetValue<int>() ?? 0;
+				string fmt =	lb["Format"]?.GetValue<string>() ?? lb["format"]?.GetValue<string>() ?? "?";
+				string title =	lb["Title"]?.GetValue<string>() ?? lb["title"]?.GetValue<string>() ?? "?";
+				string mem =	lb["Mem"]?.GetValue<string>() ?? lb["mem"]?.GetValue<string>() ?? "";
+				string memShort =	mem.Length > 80 ? mem.Substring(0, 77) + "..." : mem;
+				Console.Error.WriteLine($"    #{id,-6} {fmt,-6}  {title}");
+				Console.Error.WriteLine($"           mem: {memShort}");
+			}
+		}
+	}
+
 	if (lbs != null)
 	{
-		var scoreLbs =	new List<(int Id, string Title, string Mem)>();
+		// Accepted formats: any numeric "bigger-is-better" counter.
+		// TIME / TIMESECS / FRAMES would inverters the semantics — exclude
+		// them explicitly so we don't pick a stopwatch and call it a score.
+		bool IsScoreFormat(string fmt) =>
+			string.Equals(fmt, "SCORE", StringComparison.OrdinalIgnoreCase) ||
+			string.Equals(fmt, "VALUE", StringComparison.OrdinalIgnoreCase);
+
+		var candidates =	new List<(int Id, string Title, string Format, string Mem)>();
 		foreach (var lb in lbs)
 		{
 			if (lb == null)	continue;
-			string fmt =	lb["Format"]?.GetValue<string>()
-				?? lb["format"]?.GetValue<string>() ?? "";
-			if (!string.Equals(fmt, "SCORE", StringComparison.OrdinalIgnoreCase))	continue;
+			string fmt =	lb["Format"]?.GetValue<string>() ?? lb["format"]?.GetValue<string>() ?? "";
+			if (!IsScoreFormat(fmt))	continue;
 
 			int id =	lb["ID"]?.GetValue<int>() ?? lb["id"]?.GetValue<int>() ?? 0;
-			string title =	lb["Title"]?.GetValue<string>()	?? lb["title"]?.GetValue<string>() ?? "";
-			string mem =	lb["Mem"]?.GetValue<string>()		?? lb["mem"]?.GetValue<string>() ?? "";
+			string title =	lb["Title"]?.GetValue<string>() ?? lb["title"]?.GetValue<string>() ?? "";
+			string mem =	lb["Mem"]?.GetValue<string>() ?? lb["mem"]?.GetValue<string>() ?? "";
 			if (string.IsNullOrEmpty(mem))	continue;
-			scoreLbs.Add((id, title, mem));
+			candidates.Add((id, title, fmt, mem));
 		}
 
-		// Priority: exact "high score" match, then "*score*", then first.
-		(int Id, string Title, string Mem)? pick = null;
+		// Re-order so SCORE-format boards come first while keeping each
+		// group's intra-order stable. The title-fallback below uses "first
+		// match wins" semantics, so without this Kaboom!'s "Bomb Level"
+		// (VALUE) would beat "Kaboom I" (SCORE) on the bare "take the
+		// first remaining candidate" pass. SCORE is RA's explicit score
+		// flavour; VALUE is a generic numeric counter and only the
+		// fallback when nothing else looks better.
+		candidates =	candidates
+			.OrderBy(c =>	string.Equals(c.Format, "SCORE", StringComparison.OrdinalIgnoreCase) ? 0 :	1)
+			.ToList();
+
+		// Priority sweep: exact "high score" → contains "score" → contains
+		// "high" → first remaining candidate. Each pass picks at most one.
+		(int Id, string Title, string Format, string Mem)? pick =	null;
 		var highScoreRx =	new Regex(@"^\s*high\s*score\s*$", RegexOptions.IgnoreCase);
-		foreach (var lb in scoreLbs)	if (highScoreRx.IsMatch(lb.Title)) { pick =	lb; break; }
+		foreach (var lb in candidates)	if (highScoreRx.IsMatch(lb.Title)) { pick =	lb; break; }
 		if (pick == null)
-			foreach (var lb in scoreLbs)	if (lb.Title.Contains("score", StringComparison.OrdinalIgnoreCase)) { pick =	lb; break; }
-		if (pick == null && scoreLbs.Count > 0)	pick =	scoreLbs[0];
+			foreach (var lb in candidates)	if (lb.Title.Contains("score", StringComparison.OrdinalIgnoreCase)) { pick =	lb; break; }
+		if (pick == null)
+			foreach (var lb in candidates)	if (lb.Title.Contains("high",  StringComparison.OrdinalIgnoreCase)) { pick =	lb; break; }
+		if (pick == null && candidates.Count > 0)	pick =	candidates[0];
 
 		if (pick != null)
 		{
 			string? value =	ExtractValueFromMem(pick.Value.Mem);
 			if (value != null)
-				return (value, "SCORE", $"leaderboard #{pick.Value.Id} \"{pick.Value.Title}\"");
+				return (value, pick.Value.Format,
+					$"leaderboard #{pick.Value.Id} \"{pick.Value.Title}\" [{pick.Value.Format}]");
 		}
 	}
 
@@ -420,10 +479,6 @@ static (string? Formula, string? Format, string Source) PickScoreFormula(string 
 	string rp =	patch["RichPresencePatch"]?.GetValue<string>() ?? "";
 	if (!string.IsNullOrEmpty(rp))
 	{
-		// Look for a Format block named (case-insensitively) "score" and
-		// pair it with a `@Score(...)` macro in the Display section.
-		// Best-effort — if anything looks off, we return null and let the
-		// developer fill it in by hand.
 		var formatMatch =	Regex.Match(rp,
 			@"Format:\s*Score\s*\nFormatType=VALUE\s*\n",
 			RegexOptions.IgnoreCase);
