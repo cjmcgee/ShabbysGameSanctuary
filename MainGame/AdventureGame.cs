@@ -1,3 +1,5 @@
+using System.IO;
+using System.Reflection;
 using ChildhoodAdventure.RetroSystems;
 using ChildhoodAdventure.Scenes;
 using Microsoft.Xna.Framework;
@@ -17,6 +19,19 @@ namespace ChildhoodAdventure
 
 		public AdventureGame()
 		{
+			// Bring up the logger before anything else so even early-init
+			// failures (graphics device, content root, etc.) land in the
+			// per-user log file. Same per-user dir convention as
+			// EmulatorConfig: %APPDATA%\ChildhoodAdventure\ on Windows,
+			// ~/.config/ChildhoodAdventure/ on Linux.
+			var logFile =	Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+				"ChildhoodAdventure", "Logs", "game.log");
+			Log.Configure(logFile);
+			Log.WriteSessionHeader(
+				appName:	"ChildhoodAdventure",
+				version:	Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+
 			_graphics =	new GraphicsDeviceManager( this )
 			{
 				PreferredBackBufferWidth  =	800,
@@ -122,9 +137,9 @@ namespace ChildhoodAdventure
 			catch( Exception ex )
 			{
 				if( !_updateErr )
-				{ 
-					Console.WriteLine( $"[Update] {ex}" ); 
-					_updateErr = true; 
+				{
+					Log.Error( "Update", ex.ToString() );
+					_updateErr = true;
 				}
 			}
 		}
@@ -196,10 +211,10 @@ namespace ChildhoodAdventure
 			}
 			catch( Exception ex )
 			{
-				if( !_drawErr )	
-				{ 
-					Console.WriteLine( $"[Draw] {ex}" ); 
-					_drawErr = true; 
+				if( !_drawErr )
+				{
+					Log.Error( "Draw", ex.ToString() );
+					_drawErr = true;
 				}
 			}
 		}

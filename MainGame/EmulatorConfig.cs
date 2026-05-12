@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using TileEngine.Core;
 
 namespace ChildhoodAdventure;
 
@@ -121,7 +122,7 @@ public sealed class EmulatorConfig
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine($"[EmulatorConfig] Failed to read {path}: {ex.Message}");
+			Log.Error("EmulatorConfig", $"Failed to read {path}: {ex.Message}");
 			cfg =	new EmulatorConfig();
 			return false;
 		}
@@ -146,7 +147,7 @@ public sealed class EmulatorConfig
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine($"[EmulatorConfig] Failed to save: {ex.Message}");
+			Log.Error("EmulatorConfig", $"Failed to save: {ex.Message}");
 			return false;
 		}
 	}
@@ -191,7 +192,7 @@ public sealed class EmulatorConfig
 		// file at this exact path doesn't satisfy the lookup.
 		if (File.Exists(direct) && SizeOk(direct))
 		{
-			Console.Error.WriteLine($"[ResolveRom] {romFile} -> {direct} (direct)");
+			Log.Info("ResolveRom", $"{romFile} → {direct} (direct)");
 			return direct;
 		}
 
@@ -208,7 +209,7 @@ public sealed class EmulatorConfig
 					if (!Path.GetFileName(hit).Equals(requested,
 							StringComparison.OrdinalIgnoreCase))	continue;
 					if (!SizeOk(hit))	continue;
-					Console.Error.WriteLine($"[ResolveRom] {romFile} -> {hit} (recursive)");
+					Log.Info("ResolveRom", $"{romFile} → {hit} (recursive)");
 					return hit;
 				}
 			}
@@ -216,8 +217,8 @@ public sealed class EmulatorConfig
 			catch (IOException)	{ /* network share hiccup, etc */ }
 		}
 
-		Console.Error.WriteLine(
-			$"[ResolveRom] {romFile} not found under {root}" +
+		Log.Warn("ResolveRom",
+			$"{romFile} not found under {root}" +
 			(maxBytes > 0 ? $" within {maxBytes:N0} bytes." :	"."));
 		return "";
 	}

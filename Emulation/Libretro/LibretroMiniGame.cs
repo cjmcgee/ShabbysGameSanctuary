@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TileEngine.Core;
 using TileEngine.Rendering;
 using static TileEngine.MiniGames.Libretro.LibretroNative;
 
@@ -132,7 +133,7 @@ namespace TileEngine.MiniGames.Libretro
 			{
 				// Some hosts refuse weird sample rates. Falling back to silent
 				// is better than crashing the whole mini-game.
-				Console.Error.WriteLine($"[LibretroMiniGame] audio init failed: {ex.Message} — running silent.");
+				Log.Warn("LibretroMiniGame", $"audio init failed: {ex.Message} — running silent.");
 				_audio =	null;
 			}
 		}

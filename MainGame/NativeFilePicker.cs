@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using TileEngine.Core;
 
 namespace ChildhoodAdventure;
 
@@ -53,7 +54,7 @@ public static class NativeFilePicker
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine($"[NativeFilePicker] {ex.Message}");
+			Log.Error("NativeFilePicker", ex.Message);
 		}
 		return null;
 	}
@@ -135,8 +136,8 @@ public static class NativeFilePicker
 				$"--getopenfilename \"{esc(start)}\"{filterArg} --title \"{esc(title)}\"");
 		}
 
-		Console.Error.WriteLine(
-			"[NativeFilePicker] Neither zenity nor kdialog found on PATH; install one of:\n" +
+		Log.Error("NativeFilePicker",
+			"Neither zenity nor kdialog found on PATH; install one of:\n" +
 			"  Debian/Ubuntu: sudo apt install zenity\n" +
 			"  Fedora       : sudo dnf install zenity");
 		return null;
@@ -227,7 +228,7 @@ public static class NativeFilePicker
 			// Anything else is a real failure — log the stderr so the
 			// next person to hit this isn't staring at a silent picker.
 			if (!string.IsNullOrWhiteSpace(stderr))
-				Console.Error.WriteLine($"[NativeFilePicker] {exe} exit {p.ExitCode}: {stderr.Trim()}");
+				Log.Error("NativeFilePicker", $"{exe} exit {p.ExitCode}: {stderr.Trim()}");
 			return null;
 		}
 
@@ -381,7 +382,7 @@ public static class NativeFilePicker
 
 			if (failure != null)
 			{
-				Console.Error.WriteLine($"[NativeFilePicker] {failure.Message}");
+				Log.Error("NativeFilePicker", failure.Message);
 				return null;
 			}
 			return result;
@@ -426,7 +427,7 @@ public static class NativeFilePicker
 					catch (Exception ex)
 					{
 						// Bad path is non-fatal — the dialog opens at its default location.
-						Console.Error.WriteLine($"[NativeFilePicker] SetFolder({startDir}) failed: {ex.Message}");
+						Log.Warn("NativeFilePicker", $"SetFolder({startDir}) failed: {ex.Message}");
 					}
 				}
 
@@ -434,7 +435,7 @@ public static class NativeFilePicker
 				if (hr == HRESULT_CANCELLED)	return null;
 				if (hr != 0)
 				{
-					Console.Error.WriteLine($"[NativeFilePicker] IFileOpenDialog.Show returned 0x{hr:X8}");
+					Log.Error("NativeFilePicker", $"IFileOpenDialog.Show returned 0x{hr:X8}");
 					return null;
 				}
 
