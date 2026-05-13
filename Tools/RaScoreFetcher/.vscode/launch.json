@@ -1,0 +1,30 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "C#: ChildhoodAdventure Debug",
+			"type": "dotnet",
+			"request": "launch",
+			"projectPath": "${workspaceFolder}/ChildhoodAdventure.csproj"
+		},
+		{
+			"name": "C#: RaScoreFetcher",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build",
+			"program": "${workspaceFolder}/Tools/RaScoreFetcher/bin/Debug/RaScoreFetcher.dll",
+			"args": ["--rom-root", "/usr/src/local/TileEngine/TestROMs", "--out", "../../ChildhoodAdventure/AtariScores.json"],
+			"cwd": "${workspaceFolder}/Tools/RaScoreFetcher/",
+			"console": "internalConsole",
+            "stopAtEntry": false,
+			"env": {
+				"RA_USER": "glxdel",
+				"RA_API_KEY": "l4L84YHmb71M8pmVw62X5KFhLOddNML7",
+				"RA_PASSWORD": "NdM211wwt3lpZRs"
+			}
+		}
+	]
+}
