@@ -179,6 +179,8 @@ Peripherals
 ### Apple III
 1980 November
 
+This system will not be available in game. Magazines may mention it though.
+
 Intended as a business successor to the Apple II. Famously unreliable at launch (early units had to be "dropped" to reseat chips) and recalled. The Apple III Plus (1983 December) cleaned up most issues but the line was discontinued in 1984.
 
 Peripherals
@@ -263,6 +265,8 @@ Peripherals
 
 ### Apple Lisa
 1983 January
+
+This system will not be available in game. Magazines may mention it though.
 
 Motorola 68000 at 5 MHz, 1MB RAM, mouse-driven GUI. $9,995 price and slow performance limited sales to a few thousand units. Reworked as the Lisa 2 in 1984 (single 3.5" floppy, ran Macintosh software via MacWorks).
 
