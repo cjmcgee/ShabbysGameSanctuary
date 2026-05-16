@@ -1,0 +1,9 @@
+global using System.Reflection;
+global using System.Text.Json;
+global using ChildhoodAdventure.RetroSystems;
+global using ChildhoodAdventure.Scenes;
+global using Microsoft.Xna.Framework;
+global using Microsoft.Xna.Framework.Graphics;
+global using Microsoft.Xna.Framework.Input;
+global using TileEngine.Core;
+global using TileEngine.MiniGames;

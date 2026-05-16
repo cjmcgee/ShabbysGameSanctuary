@@ -6,7 +6,7 @@ namespace ChildhoodAdventure.Demographics;
 /// of Adult Height (Ages 0–18)". Values between table entries are linearly
 /// interpolated.
 /// </summary>
-public static class GrowthCurve
+internal static class GrowthCurve
 {
 	private readonly record struct Row(float Age, float GirlPct, float BoyPct);
 

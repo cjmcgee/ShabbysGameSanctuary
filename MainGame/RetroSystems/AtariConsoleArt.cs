@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.RetroSystems;

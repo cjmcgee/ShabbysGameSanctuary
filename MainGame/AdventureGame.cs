@@ -1,15 +1,6 @@
-using System.Reflection;
-using ChildhoodAdventure.RetroSystems;
-using ChildhoodAdventure.Scenes;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using TileEngine.Core;
-using TileEngine.MiniGames;
-
 namespace ChildhoodAdventure
 {
-	public class AdventureGame : Game
+	internal class AdventureGame : Game
 	{
 		internal const string DialogueBundleResource = "ChildhoodAdventure.dialogue.bundle.gz";
 
@@ -49,6 +40,16 @@ namespace ChildhoodAdventure
 			// alternation regardless of per-frame cost.
 			IsFixedTimeStep = false;
 			_graphics.SynchronizeWithVerticalRetrace = true;
+		}
+
+		protected override void Dispose( bool disposing )
+		{
+			if( disposing )
+			{
+				_engine.Dispose();
+				_graphics.Dispose();
+			}
+			base.Dispose( disposing );
 		}
 
 		protected override void Initialize()
@@ -141,6 +142,7 @@ namespace ChildhoodAdventure
 					Log.Error( "Update", ex.ToString() );
 					_updateErr = true;
 				}
+				// else eat the exception to avoid spamming the log with repeat errors every frame after a failure.
 			}
 		}
 

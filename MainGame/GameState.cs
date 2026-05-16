@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace ChildhoodAdventure
 {
 	/// <summary>All houses that can be entered as a neighbor's home.</summary>

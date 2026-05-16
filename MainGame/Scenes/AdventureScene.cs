@@ -1,10 +1,5 @@
 using ChildhoodAdventure.Demographics;
-using ChildhoodAdventure.RetroSystems;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using TileEngine.Components;
-using TileEngine.Core;
 using TileEngine.ECS;
 using TileEngine.Npc;
 using TileEngine.Rendering;

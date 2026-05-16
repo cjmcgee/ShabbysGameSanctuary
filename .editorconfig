@@ -11,6 +11,9 @@ indent_style = tab
 indent_size = 4
 tab_width = 4
 
+# CA1031: Do not catch general exception types
+dotnet_diagnostic.CA1031.severity = suggestion
+
 [*.{json,md,yml,yaml}]
 indent_style = space
 indent_size = 2

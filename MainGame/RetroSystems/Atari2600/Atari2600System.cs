@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
 /// <summary>

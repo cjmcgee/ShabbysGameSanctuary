@@ -1,9 +1,5 @@
-using ChildhoodAdventure.RetroSystems;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TileEngine.Components;
 using TileEngine.ECS;
-using TileEngine.MiniGames;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes

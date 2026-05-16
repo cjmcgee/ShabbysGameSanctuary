@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
 public class C64Palette :	Palette

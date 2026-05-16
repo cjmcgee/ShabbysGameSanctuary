@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace ChildhoodAdventure.RetroSystems;
 
 // ── Semantic color slot indices (per part) ────────────────────────────────────

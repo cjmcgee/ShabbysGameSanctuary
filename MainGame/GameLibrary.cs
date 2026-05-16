@@ -1,9 +1,3 @@
-using Battleshoot;
-using ChildhoodAdventure.Scoring;
-using TileEngine.Core;
-using TileEngine.MiniGames;
-using TileEngine.MiniGames.Libretro;
-
 namespace ChildhoodAdventure;
 
 /// <summary>

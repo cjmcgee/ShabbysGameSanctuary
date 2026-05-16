@@ -1,6 +1,3 @@
-using System.Text.Json;
-using TileEngine.Core;
-
 namespace ChildhoodAdventure;
 
 /// <summary>
@@ -19,7 +16,7 @@ namespace ChildhoodAdventure;
 /// dir during <c>dotnet run</c>) is still read so existing installs keep
 /// working through the transition.
 /// </summary>
-public sealed class EmulatorConfig
+internal sealed class EmulatorConfig
 {
 	/// <summary>Filesystem path that ROM filenames are resolved against.</summary>
 	public string RomRoot { get; set; } =	"";
@@ -81,6 +78,12 @@ public sealed class EmulatorConfig
 
 	private const string FileName =	"emulator-config.json";
 	private const string AppDirName =	"ChildhoodAdventure";
+
+	private static readonly JsonSerializerOptions JsonOptions = new()
+	{
+		PropertyNameCaseInsensitive = true,
+		WriteIndented = true,
+	};
 
 	/// <summary>
 	/// Absolute path of the per-user config file. The containing directory
