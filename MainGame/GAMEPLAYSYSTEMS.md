@@ -188,6 +188,9 @@ Money can come from:
 ## Exploration unlocks
 Exploring locations can unlock dialog options. Finding items can also unlock dialog options. 
 
+## Magazines
+Hype upcoming systems, games and peripherals. Can unlock rare mail order items. Can unlock dialog topics. 
+
 ## Time of day sections
 This may need to change... 
 
@@ -217,3 +220,4 @@ Sunday:
 Holidays and some events may have a special layout
 
 ## NPC Schedules
+
