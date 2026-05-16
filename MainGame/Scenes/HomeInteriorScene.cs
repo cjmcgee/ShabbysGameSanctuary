@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using TileEngine.Components;
 using TileEngine.ECS;
 using TileEngine.MiniGames;
-using TileEngine.Npc;
 using TileEngine.Rendering;
 
 namespace ChildhoodAdventure.Scenes

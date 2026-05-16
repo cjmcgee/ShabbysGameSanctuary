@@ -3,7 +3,6 @@ using ChildhoodAdventure.RetroSystems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TileEngine.Collision;
 using TileEngine.Components;
 using TileEngine.Core;
 using TileEngine.ECS;

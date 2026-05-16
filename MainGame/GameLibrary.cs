@@ -1,4 +1,3 @@
-using System.IO;
 using Battleshoot;
 using ChildhoodAdventure.Scoring;
 using TileEngine.Core;
