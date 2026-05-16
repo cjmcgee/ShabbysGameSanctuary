@@ -12,7 +12,7 @@ namespace ChildhoodAdventure.RetroSystems.NES;
 ///   • Native screen: 256×224 → DefaultTilesTall = 14
 ///   • MaxTilesTall = 28 (~2× zoom out)
 /// </summary>
-public sealed class NESSystem :	RetroSystem
+internal sealed class NESSystem :	RetroSystem
 {
 	public override string	Name				=> "NES";
 	public override string	Description			=> "16-px tiles · 8×16 sprites · 14 tiles tall · NES PPU palette";

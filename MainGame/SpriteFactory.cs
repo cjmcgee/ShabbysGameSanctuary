@@ -7,7 +7,7 @@ namespace ChildhoodAdventure
 	/// Delegates character sprite creation to the active <see cref="RetroSystem"/>,
 	/// so every system produces proportionally correct, palette-appropriate sprites.
 	/// </summary>
-	public static class SpriteFactory
+	internal static class SpriteFactory
 	{
 		/// <summary>
 		/// Creates a character sprite assembled from head, body, and legs parts,
@@ -20,6 +20,8 @@ namespace ChildhoodAdventure
 		/// Creates a static flat-colour sprite. <paramref name="pixelW"/>/<paramref name="pixelH"/>
 		/// are texture dimensions; <paramref name="tileSize"/> is the world-space size in tiles.
 		/// </summary>
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
+			Justification = "Texture ownership transfers to the returned AnimatedSprite.")]
 		public static AnimatedSprite BuildStatic( GraphicsDevice gd, int pixelW, int pixelH, Vector2 tileSize, Color color )
 		{
 			var tex = new Texture2D( gd, pixelW, pixelH );

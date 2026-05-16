@@ -14,21 +14,21 @@ namespace ChildhoodAdventure.RetroSystems;
 // Each system provides exactly these three variants per body section. The enum
 // value is the index into <System>Sprites.HeadParts / BodyParts / LegsParts.
 
-public enum HeadShape
+internal enum HeadShape
 {
 	Basic			= 0,	// basic round head
 	CapHat			= 1,	// cap or hat
 	LongHair		= 2,	// long / full hair
 }
 
-public enum BodyShape
+internal enum BodyShape
 {
 	CasualShirt 	= 0,
 	Formal			= 1,	// collared / formal
 	Jacket			= 2,	// jacket / hoodie
 }
 
-public enum LegsShape
+internal enum LegsShape
 {
 	Pants			= 0,		// pants + belt
 	FormalTrousers	= 1,
@@ -39,7 +39,7 @@ public enum LegsShape
 // Each enum value is the index into the system's HeadPalettes/BodyPalettes/
 // LegPalettes arrays.
 
-public enum HeadPaletteId
+internal enum HeadPaletteId
 {
 	FairBlonde		= 0,
 	FairBrown		= 1,
@@ -48,7 +48,7 @@ public enum HeadPaletteId
 	MediumAuburn	= 4,
 }
 
-public enum BodyPaletteId
+internal enum BodyPaletteId
 {
 	Green			= 0,
 	Blue			= 1,
@@ -57,7 +57,7 @@ public enum BodyPaletteId
 	Teal			= 4,
 }
 
-public enum LegsPaletteId
+internal enum LegsPaletteId
 {
 	BlueJeansBrown	= 0,
 	BlackBlack		= 1,
@@ -65,7 +65,7 @@ public enum LegsPaletteId
 	GrayDark		= 3,
 }
 
-public sealed record HeadPalette( string Name, Color Skin, Color Hair, Color Highlight, Color Eyes, Color Accessory )
+internal sealed record HeadPalette( string Name, Color Skin, Color Hair, Color Highlight, Color Eyes, Color Accessory )
 {
 	public Color Resolve( int idx ) => idx switch
 		{
@@ -78,7 +78,7 @@ public sealed record HeadPalette( string Name, Color Skin, Color Hair, Color Hig
 		};
 }
 
-public sealed record BodyPalette( string Name, Color Skin, Color Shirt, Color ShirtHighlight, Color Buttons, Color Accessory )
+internal sealed record BodyPalette( string Name, Color Skin, Color Shirt, Color ShirtHighlight, Color Buttons, Color Accessory )
 {
 	public Color Resolve( int idx ) => idx switch
 	{
@@ -91,7 +91,7 @@ public sealed record BodyPalette( string Name, Color Skin, Color Shirt, Color Sh
 	};
 }
 
-public sealed record LegsPalette( string Name, Color Skin, Color Pants, Color PantsHighlight, Color Belt, Color BeltHighlight, Color Shoes, Color ShoeHighlight )
+internal sealed record LegsPalette( string Name, Color Skin, Color Pants, Color PantsHighlight, Color Belt, Color BeltHighlight, Color Shoes, Color ShoeHighlight )
 {
 	public Color Resolve( int idx ) => idx switch
 	{
@@ -110,7 +110,7 @@ public sealed record LegsPalette( string Name, Color Skin, Color Pants, Color Pa
 /// Selects which shape variant and color palette to use for each body section.
 /// Head/Body/Legs operate independently, allowing any combination of shape and colour.
 /// </summary>
-public sealed record CharacterAppearance(
+internal sealed record CharacterAppearance(
 	HeadShape HeadIndex, HeadPaletteId HeadPaletteIndex,
 	BodyShape BodyIndex, BodyPaletteId BodyPaletteIndex,
 	LegsShape LegsIndex, LegsPaletteId LegsPaletteIndex );

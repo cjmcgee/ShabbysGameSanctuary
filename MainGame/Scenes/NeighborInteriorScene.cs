@@ -19,13 +19,12 @@ namespace ChildhoodAdventure.Scenes
 	///   Sam       — Sam is outside; Sam's mum Linda is home
 	///   Johnson   — DeShonda + Destiny (guitar prodigy) + Tyler (moody teen)
 	/// </summary>
-	public class NeighborInteriorScene :	AdventureScene
+	internal sealed class NeighborInteriorScene :	AdventureScene
 	{
 		// ── Shared tile GIDs ─────────────────────────────────────────────────
 		private const int T_FLOOR	= 1;
 		private const int T_WALL	= 2;
 		private const int T_FURN	= 3;	// dark furniture
-		private const int T_COUNTER = 4;	// light counter / shelf
 		private const int T_DOOR	= 5;
 		private const int T_ACCENT	= 6;	// carpet / rug accent
 		private const int T_WINDOW	= 7;

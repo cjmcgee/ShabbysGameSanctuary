@@ -12,7 +12,7 @@ namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 ///   • Native screen 320×200 → DefaultTilesTall = 12.5
 ///   • MaxTilesTall = 25 (~2× zoom out)
 /// </summary>
-public sealed class CGASystem :	RetroSystem
+internal sealed class CGASystem :	RetroSystem
 {
 	public override string Name					=> "MS-DOS CGA";
 	public override string Description			=> "16-px tiles · 16×16 sprites · 12.5 tiles tall · Mode 4 palette 1 (black/cyan/magenta/white)";

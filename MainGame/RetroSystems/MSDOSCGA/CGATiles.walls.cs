@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public static partial class CGATiles
+internal static partial class CGATiles
 {
 	// Cyan bricks (1), black mortar at rows 2/6/10/14, staggered vertical joints
 	public static readonly byte[][]	Wall =

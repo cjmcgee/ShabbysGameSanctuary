@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public static partial class C64Sprites
+internal static partial class C64Sprites
 {
 	public const int LegsRows =	7;
 

@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public static partial class CGATiles
+internal static partial class CGATiles
 {
 	// Magenta planks (2), black dividers at rows 3/7/11/15, scattered grain dots
 	public static readonly byte[][]	WoodFloor =

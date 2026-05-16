@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
-public static partial class Atari2600Tiles
+internal static partial class Atari2600Tiles
 {
 	// Amber planks — 3 planks with staggered grain dots (fg=1)
 	public static readonly byte[][]	WoodFloor =

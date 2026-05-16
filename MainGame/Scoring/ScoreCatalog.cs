@@ -7,7 +7,9 @@ namespace ChildhoodAdventure.Scoring;
 /// null on entries where the RA fetcher couldn't find a usable formula
 /// (e.g. Combat — multiplayer, no high score concept).
 /// </summary>
-public sealed class ScoreCatalogEntry
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes",
+	Justification = "Instantiated by JsonSerializer.Deserialize via reflection on ScoresFile.Games.")]
+internal sealed class ScoreCatalogEntry
 {
 	public string Name { get; set; } =	"";
 	public string Sha256 { get; set; } =	"";
@@ -29,12 +31,12 @@ public sealed class ScoreCatalogEntry
 /// tracking. The user's logs will flag the parse failure but the rest
 /// of the game keeps working.
 /// </summary>
-public sealed class ScoreCatalog
+internal sealed class ScoreCatalog
 {
 	private const string ResourceName =	"ChildhoodAdventure.AtariScores.json";
 
 	private readonly Dictionary<string, ScoreCatalogEntry> _bySha256 =
-		new(StringComparer.OrdinalIgnoreCase);
+		new(StringComparer.Ordinal);
 
 	public int Count =>	_bySha256.Count;
 
@@ -45,6 +47,7 @@ public sealed class ScoreCatalog
 	/// </summary>
 	public static ScoreCatalog Instance =>	_instance.Value;
 	private static readonly Lazy<ScoreCatalog> _instance =	new(Load);
+	private static readonly JsonSerializerOptions _readOpts =	new() { PropertyNameCaseInsensitive = true };
 
 	public static ScoreCatalog Load()
 	{
@@ -59,8 +62,7 @@ public sealed class ScoreCatalog
 				return catalog;
 			}
 
-			var file =	JsonSerializer.Deserialize<ScoresFile>(stream,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+			var file =	JsonSerializer.Deserialize<ScoresFile>(stream, _readOpts);
 			if (file?.Games == null)
 			{
 				Log.Warn("ScoreCatalog", "AtariScores.json deserialised to null Games — score tracking disabled.");
@@ -70,7 +72,7 @@ public sealed class ScoreCatalog
 			foreach (var entry in file.Games)
 			{
 				if (string.IsNullOrEmpty(entry.Sha256))	continue;
-				catalog._bySha256[entry.Sha256.ToLowerInvariant()] =	entry;
+				catalog._bySha256[entry.Sha256.ToUpperInvariant()] =	entry;
 			}
 
 			int withFormula =	catalog._bySha256.Values.Count(e =>	!string.IsNullOrEmpty(e.ScoreFormula));
@@ -93,11 +95,13 @@ public sealed class ScoreCatalog
 	public ScoreCatalogEntry? LookupBySha256(string sha256)
 	{
 		if (string.IsNullOrEmpty(sha256))	return null;
-		if (!_bySha256.TryGetValue(sha256.ToLowerInvariant(), out var entry))	return null;
+		if (!_bySha256.TryGetValue(sha256.ToUpperInvariant(), out var entry))	return null;
 		if (string.IsNullOrEmpty(entry.ScoreFormula))	return null;
 		return entry;
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes",
+		Justification = "Instantiated by JsonSerializer.Deserialize via reflection.")]
 	private sealed class ScoresFile
 	{
 		public string? System { get; set; }

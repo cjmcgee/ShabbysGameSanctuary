@@ -11,7 +11,7 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 /// one color per line (in addition to the transparent color). And we will 
 /// try to keep them simple and chunky. 
 /// </summary>
-public static partial class Atari2600Sprites
+internal static partial class Atari2600Sprites
 {
 	public const int CharWidth =	16;
 	public const int BodyRows =	7;

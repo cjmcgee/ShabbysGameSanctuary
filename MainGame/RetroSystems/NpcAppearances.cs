@@ -5,7 +5,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// Each field selects a shape variant and a palette mapping independently for
 /// head, body, and legs — mixing them freely produces a unique look per NPC.
 /// </summary>
-public static class NpcAppearances
+internal static class NpcAppearances
 {
 	// ── Player ───────────────────────────────────────────────────────────────
 	public static readonly CharacterAppearance Player =

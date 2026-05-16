@@ -20,7 +20,7 @@ namespace ChildhoodAdventure.Scenes
 	/// Houses left-to-right (all 7 tiles wide):
 	///   Chen | Devon | Jake&amp;Emma | Thompson | Player | Sam | Santos | Petrov | Johnson
 	/// </summary>
-	public class NeighborhoodScene : AdventureScene
+	internal sealed class NeighborhoodScene : AdventureScene
 	{
 		// ── Base tileset GIDs (firstGid: 1) ──────────────────────────────────
 		private const int T_GRASS		= 1;
@@ -55,7 +55,7 @@ namespace ChildhoodAdventure.Scenes
 		// Index 0 reserved for the player's own home; the eight neighbour
 		// homes follow. Order is significant: it controls the per-house GID
 		// allocation in the tileset.
-		private record HouseEntry( HouseId? Id, int X, Color SidingColor );
+		private sealed record HouseEntry( HouseId? Id, int X, Color SidingColor );
 
 		private static HouseEntry[]	BuildHouseList()
 		{

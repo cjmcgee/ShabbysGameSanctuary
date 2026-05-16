@@ -18,7 +18,7 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 /// The tiles we have now are still too complex, I think. We need more 
 /// horizontal chunkiness. 
 /// </summary>
-public static partial class Atari2600Tiles
+internal static partial class Atari2600Tiles
 {
 	// Exterior siding — accent (255) bands with full-row plank shadows (idx 0
 	// renders as background black). OneBitTiles collapses everything non-zero

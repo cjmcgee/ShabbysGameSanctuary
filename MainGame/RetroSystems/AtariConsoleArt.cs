@@ -10,7 +10,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// time (Atari 2600 / C64 etc. render every odd column as the previous
 /// column's value).
 /// </summary>
-public static class AtariConsoleArt
+internal static class AtariConsoleArt
 {
 	public const int Width =	16;
 	public const int Height =	10;
@@ -39,6 +39,8 @@ public static class AtariConsoleArt
 	/// preceding even column so the sprite reads at the system's native
 	/// horizontal resolution.
 	/// </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
+		Justification = "Texture ownership transfers to the returned AnimatedSprite.")]
 	public static AnimatedSprite Build(GraphicsDevice gd, ConsolePalette palette, bool doubleWidePixels = false)
 	{
 		var pixels =	new Color[Width * Height];

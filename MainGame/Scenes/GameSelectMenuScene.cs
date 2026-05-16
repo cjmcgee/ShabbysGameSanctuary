@@ -13,7 +13,9 @@ namespace ChildhoodAdventure.Scenes;
 /// configuration can't find on disk) render dimmed with their reason printed
 /// inline, so misconfiguration is visible without launching anything.
 /// </summary>
-public sealed class GameSelectMenuScene :	Scene
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001",
+	Justification = "Disposable field _pixel is owned by the scene's load/unload lifecycle, not GC.")]
+internal sealed class GameSelectMenuScene :	Scene
 {
 	private readonly GameLibrary _library;
 	private readonly Func<Scene>	_returnTo;
@@ -164,7 +166,7 @@ public sealed class GameSelectMenuScene :	Scene
 	// How many uniform rows fit between the title and the reason-footer.
 	// Depends on viewport height; recomputed each frame so a resized
 	// window auto-adjusts.
-	private int VisibleRows()
+	private static int VisibleRows()
 	{
 		var vp =	Engine.GraphicsDevice.Viewport;
 		// 60px allowance for the key-hint line at the very bottom.
@@ -206,7 +208,7 @@ public sealed class GameSelectMenuScene :	Scene
 
 		// Title.
 		string title =	"ATARI 2600 — SELECT GAME";
-		float titleW =	font.MeasureWidth(title)	* scale;
+		float titleW =	PixelFont.MeasureWidth(title)	* scale;
 		font.DrawText(spriteBatch, title,
 			new Vector2((vp.Width - titleW)	/ 2f, 60),
 			sp.UiAccent, scale);
@@ -261,7 +263,7 @@ public sealed class GameSelectMenuScene :	Scene
 			// single visual line at the pixel font's natural pitch.
 			string namePart =	$"{prefix}{entry.Name}";
 			font.DrawText(spriteBatch, namePart, new Vector2(menuLeft, y), c, scale);
-			float x =	menuLeft + font.MeasureWidth(namePart) * scale;
+			float x =	menuLeft + PixelFont.MeasureWidth(namePart) * scale;
 
 			if (best > 0)
 			{
@@ -276,7 +278,7 @@ public sealed class GameSelectMenuScene :	Scene
 					?	errorColor
 					:	(selected ? sp.UiAccent : scoreAccent);
 				font.DrawText(spriteBatch, scoreText, new Vector2(x, y), scoreCol, scale);
-				x +=	font.MeasureWidth(scoreText) * scale;
+				x +=	PixelFont.MeasureWidth(scoreText) * scale;
 			}
 
 			font.DrawText(spriteBatch, suffix, new Vector2(x, y), c, scale);
@@ -317,7 +319,7 @@ public sealed class GameSelectMenuScene :	Scene
 		string hint =	HasUnavailableEntry()
 			? "↑/↓: select   PgUp/PgDn: jump   E/Enter: load   C: configure paths   R: ROM manager   Esc: back"
 			: "↑/↓: select   PgUp/PgDn: jump   E/Enter: load   R: ROM manager   Esc: back";
-		float hintW =	font.MeasureWidth(hint)	* scale * 0.7f;
+		float hintW =	PixelFont.MeasureWidth(hint)	* scale * 0.7f;
 		font.DrawText(spriteBatch, hint,
 			new Vector2((vp.Width - hintW)	/ 2f, vp.Height - 30),
 			sp.UiDim, scale * 0.7f);

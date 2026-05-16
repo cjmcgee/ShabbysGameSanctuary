@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public class CGAPalette :	Palette
+internal sealed class CGAPalette :	Palette
 {
 	// ── Tile palette ───────────────────────────────────────────────────────
 	public static readonly Color Black			= new(  0,   0,   0);	//  0  black

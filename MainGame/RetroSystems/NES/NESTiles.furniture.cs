@@ -1,14 +1,14 @@
 namespace ChildhoodAdventure.RetroSystems.NES;
 
-public static partial class NESTiles
+internal static partial class NESTiles
 {
 	// Solid block of palette index 28 (warm tan, counter-edge tone) — placeholder accent.
-	public static readonly byte[][]	Accent;
+	public static readonly byte[][]	Accent =	BuildAccent();
 
-	static NESTiles()
+	private static byte[][] BuildAccent()
 	{
 		var row = Enumerable.Repeat((byte)255, 16).ToArray();
-		Accent = Enumerable.Repeat(row, 16).ToArray();
+		return Enumerable.Repeat(row, 16).ToArray();
 	}
 
 	public static readonly byte[][]	Furniture =

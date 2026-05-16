@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure
 {
-	internal class AdventureGame : Game
+	internal sealed class AdventureGame : Game
 	{
 		internal const string DialogueBundleResource = "ChildhoodAdventure.dialogue.bundle.gz";
 

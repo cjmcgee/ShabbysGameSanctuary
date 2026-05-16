@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
-public class Atari2600Palette :	Palette
+internal sealed class Atari2600Palette :	Palette
 {
 	// ── Tile palette ────────────────────────────────────────────────────────
 	// Each tile in the Atari2600 art uses index 0 (background) plus ONE

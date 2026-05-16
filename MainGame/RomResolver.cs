@@ -8,7 +8,7 @@ namespace ChildhoodAdventure;
 /// hex). The size is used to narrow disk scanning to plausible
 /// candidates; the hash confirms identity.
 /// </summary>
-public sealed record RomSpec(string Name, long ExpectedSize, string ExpectedSha256Hex);
+internal sealed record RomSpec(string Name, long ExpectedSize, string ExpectedSha256Hex);
 
 /// <summary>
 /// How a <see cref="RomSpec"/> got matched on the user's disk.
@@ -16,7 +16,7 @@ public sealed record RomSpec(string Name, long ExpectedSize, string ExpectedSha2
 /// in the ROM Manager UI, and any future "best of N" tie-breaking
 /// (a hash hit always beats a name hit).
 /// </summary>
-public enum RomResolution
+internal enum RomResolution
 {
 	/// <summary>No file matched by hash, name, or override.</summary>
 	NotFound,
@@ -35,7 +35,7 @@ public enum RomResolution
 /// time (no guarantees it still does — caller should re-check
 /// <c>File.Exists</c> when launching).
 /// </summary>
-public sealed record RomMatch(RomSpec Spec, RomResolution Resolution, string? ResolvedPath)
+internal sealed record RomMatch(RomSpec Spec, RomResolution Resolution, string? ResolvedPath)
 {
 	public bool IsAvailable =>	Resolution != RomResolution.NotFound;
 }
@@ -62,7 +62,7 @@ public sealed record RomMatch(RomSpec Spec, RomResolution Resolution, string? Re
 /// the current 22-ROM list against a typical ROM collection this
 /// completes in well under a frame even on slow disks.
 /// </summary>
-public static class RomResolver
+internal static class RomResolver
 {
 	public static IReadOnlyList<RomMatch> Resolve(
 		IReadOnlyList<RomSpec> specs,
@@ -128,7 +128,7 @@ public static class RomResolver
 				using var stream =	File.OpenRead(path);
 				using var sha =	SHA256.Create();
 				var bytes =	sha.ComputeHash(stream);
-				var hex =	Convert.ToHexString(bytes).ToLowerInvariant();
+				var hex =	Convert.ToHexString(bytes);
 				hashCache[path] =	hex;
 				return hex;
 			}

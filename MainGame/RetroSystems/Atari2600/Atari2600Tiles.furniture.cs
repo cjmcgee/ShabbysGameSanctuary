@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
-public static partial class Atari2600Tiles
+internal static partial class Atari2600Tiles
 {
 	// Bold blue furniture — dark inset panel (fg=9)
 	public static readonly byte[][]	Furniture =

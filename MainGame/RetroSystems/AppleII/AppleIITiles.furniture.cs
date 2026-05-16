@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public static partial class AppleIITiles
+internal static partial class AppleIITiles
 {
 	// Blue (5) dotted outline + mid rail, black interior — palette 1
 	public static readonly byte[][]	Furniture =

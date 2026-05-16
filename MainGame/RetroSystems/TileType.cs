@@ -5,7 +5,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// Each system provides pixel art for each type; the tile GID ordering
 /// in scenes stays constant regardless of active system.
 /// </summary>
-public enum TileType
+internal enum TileType
 {
 	// Interior floors
 	WoodFloor,

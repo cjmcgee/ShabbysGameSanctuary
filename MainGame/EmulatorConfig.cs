@@ -79,12 +79,6 @@ internal sealed class EmulatorConfig
 	private const string FileName =	"emulator-config.json";
 	private const string AppDirName =	"ChildhoodAdventure";
 
-	private static readonly JsonSerializerOptions JsonOptions = new()
-	{
-		PropertyNameCaseInsensitive = true,
-		WriteIndented = true,
-	};
-
 	/// <summary>
 	/// Absolute path of the per-user config file. The containing directory
 	/// is created on demand by <see cref="Save"/>; this property is safe to
@@ -127,13 +121,15 @@ internal sealed class EmulatorConfig
 		return new EmulatorConfig();
 	}
 
+	private static readonly JsonSerializerOptions _readOpts =	new() { PropertyNameCaseInsensitive = true };
+	private static readonly JsonSerializerOptions _writeOpts =	new() { WriteIndented = true };
+
 	private static bool TryLoad(string path, out EmulatorConfig cfg)
 	{
 		try
 		{
 			var json =	File.ReadAllText(path);
-			cfg =	JsonSerializer.Deserialize<EmulatorConfig>(json,
-					new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+			cfg =	JsonSerializer.Deserialize<EmulatorConfig>(json, _readOpts)
 				?? new EmulatorConfig();
 			return true;
 		}
@@ -157,8 +153,7 @@ internal sealed class EmulatorConfig
 			var dir =	Path.GetDirectoryName(path);
 			if (!string.IsNullOrEmpty(dir))	Directory.CreateDirectory(dir);
 
-			var json =	JsonSerializer.Serialize(this,
-				new JsonSerializerOptions { WriteIndented = true });
+			var json =	JsonSerializer.Serialize(this, _writeOpts);
 			File.WriteAllText(path, json);
 			return true;
 		}

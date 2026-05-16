@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public class AppleIIPalette :	Palette
+internal sealed class AppleIIPalette :	Palette
 {
 	// ── Tile palette ───────────────────────────────────────────────────────
 	public static readonly Color Black	= new(  0,   0,   0);	//  0  black

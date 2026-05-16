@@ -10,7 +10,7 @@ namespace ChildhoodAdventure.Demographics;
 /// seeded by the NPC's id — so the same authored NPC always has the same
 /// height across runs without hand-picking each one.
 /// </summary>
-public class NpcProfile
+internal sealed class NpcProfile
 {
 	public string Id { get; }
 	public Gender Gender { get; }

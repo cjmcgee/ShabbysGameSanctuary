@@ -10,7 +10,7 @@ namespace ChildhoodAdventure;
 /// IFileOpenDialog format (Windows) — e.g. <c>"*.bin;*.a26;*.rom"</c>. The
 /// helper translates that into the right form for the other platforms.</para>
 /// </summary>
-public sealed record FileFilter(string Description, string Pattern);
+internal sealed record FileFilter(string Description, string Pattern);
 
 /// <summary>
 /// Opens a native OS file- or folder-picker dialog and returns the
@@ -24,7 +24,7 @@ public sealed record FileFilter(string Description, string Pattern);
 /// platform-standard helpers (osascript, zenity / kdialog) since there's
 /// no equivalent in-process API.
 /// </summary>
-public static class NativeFilePicker
+internal static class NativeFilePicker
 {
 	/// <summary>
 	/// Folder-selection dialog. <paramref name="startDir"/> is the initial
@@ -66,7 +66,7 @@ public static class NativeFilePicker
 	private static string? PickMac(string title, string? startDir,
 		FileFilter[]? filters, bool foldersOnly)
 	{
-		string esc(string s) =>	s.Replace("\\", "\\\\").Replace("\"", "\\\"");
+		string esc(string s) =>	s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
 
 		string defaultLoc =	(!string.IsNullOrEmpty(startDir) && Directory.Exists(startDir))
 			? $" default location POSIX file \"{esc(startDir!)}\""
@@ -85,7 +85,7 @@ public static class NativeFilePicker
 		}
 
 		string script =	$"POSIX path of ({verb} with prompt \"{esc(title)}\"{typeClause}{defaultLoc})";
-		return RunCapture("osascript", $"-e '{script.Replace("'", "'\\''")}'");
+		return RunCapture("osascript", $"-e '{script.Replace("'", "'\\''", StringComparison.Ordinal)}'");
 	}
 
 	// ── Linux ────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ public static class NativeFilePicker
 	{
 		if (HasOnPath("zenity"))
 		{
-			var args =	new List<string> { "--file-selection", $"--title=\"{title.Replace("\"", "\\\"")}\"" };
+			var args =	new List<string> { "--file-selection", $"--title=\"{title.Replace("\"", "\\\"", StringComparison.Ordinal)}\"" };
 			if (foldersOnly)	args.Add("--directory");
 			if (!string.IsNullOrEmpty(startDir) && Directory.Exists(startDir))
 				args.Add($"--filename=\"{startDir!.TrimEnd('/')}/\"");	// trailing / → start inside dir
@@ -107,7 +107,7 @@ public static class NativeFilePicker
 				foreach (var f in filters)
 				{
 					// zenity filter syntax: "Name | *.ext1 *.ext2"
-					var globs =	f.Pattern.Replace(";", " ");
+					var globs =	f.Pattern.Replace(";", " ", StringComparison.Ordinal);
 					args.Add($"--file-filter=\"{f.Description} | {globs}\"");
 				}
 			}
@@ -117,7 +117,7 @@ public static class NativeFilePicker
 		if (HasOnPath("kdialog"))
 		{
 			string start =	(!string.IsNullOrEmpty(startDir) && Directory.Exists(startDir))	? startDir! :	".";
-			string esc(string s) =>	s.Replace("\"", "\\\"");
+			string esc(string s) =>	s.Replace("\"", "\\\"", StringComparison.Ordinal);
 
 			if (foldersOnly)
 				return RunCapture("kdialog",
@@ -127,7 +127,7 @@ public static class NativeFilePicker
 			string filterArg =	"";
 			if (filters != null && filters.Length > 0)
 			{
-				var parts =	filters.Select(f =>	$"{f.Description} ({f.Pattern.Replace(";", " ")})");
+				var parts =	filters.Select(f =>	$"{f.Description} ({f.Pattern.Replace(";", " ", StringComparison.Ordinal)})");
 				filterArg =	$" \"{esc(string.Join("|", parts))}\"";
 			}
 			return RunCapture("kdialog",
@@ -328,6 +328,7 @@ public static class NativeFilePicker
 		}
 
 		[DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, PreserveSig = false)]
+		[DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
 		private static extern IShellItem SHCreateItemFromParsingName(
 			[MarshalAs(UnmanagedType.LPWStr)] string pszPath,
 			IntPtr pbc,

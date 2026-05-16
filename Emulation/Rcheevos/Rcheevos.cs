@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using TileEngine.Core;
 
@@ -90,7 +91,7 @@ public sealed class RcValue :	IDisposable
 	/// </summary>
 	public int Evaluate(MemoryPeek peek)
 	{
-		if (peek == null)	throw new ArgumentNullException(nameof(peek));
+		ArgumentNullException.ThrowIfNull(peek);
 		ObjectDisposedException.ThrowIf(_disposed, this);
 
 		// Store the caller's peek into the thread-static so the static
@@ -168,18 +169,27 @@ internal static class Native
 	// next to the consumer's exe by its csproj's CopyToOutputDirectory.
 	private const string Lib =	"rcheevos";
 
+	// rcheevos formula strings are pure-ASCII memory-address syntax
+	// (e.g. "0xFE08+0xFE09*100"); UTF-8 marshalling is a superset of
+	// ASCII so this is safe, but CA2101 still flags it because the
+	// analyzer only recognises LPWStr/Unicode.
 	[DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+	[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+	[SuppressMessage("Globalization", "CA2101", Justification = "Formula is ASCII; LPUTF8Str is correct.")]
 	public static extern int rc_value_size(
-		[MarshalAs(UnmanagedType.LPStr)] string memaddr);
+		[MarshalAs(UnmanagedType.LPUTF8Str)] string memaddr);
 
 	[DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+	[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+	[SuppressMessage("Globalization", "CA2101", Justification = "Formula is ASCII; LPUTF8Str is correct.")]
 	public static extern IntPtr rc_parse_value(
 		IntPtr buffer,
-		[MarshalAs(UnmanagedType.LPStr)] string memaddr,
+		[MarshalAs(UnmanagedType.LPUTF8Str)] string memaddr,
 		IntPtr unused_L,
 		int unused_funcs_idx);
 
 	[DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+	[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 	public static extern int rc_evaluate_value(
 		IntPtr value,
 		IntPtr peek_fnptr,

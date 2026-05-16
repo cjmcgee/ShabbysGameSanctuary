@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public static partial class AppleIITiles
+internal static partial class AppleIITiles
 {
 	// Orange planks (4) — odd-col orange dots (palette 1), black plank dividers
 	public static readonly byte[][]	WoodFloor =

@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public static partial class C64Tiles
+internal static partial class C64Tiles
 {
 	// Staggered brick wall — mortar at rows 5,11,17,23 with offset vertical joints (local: 6=white; global 7=mortar)
 	public static readonly byte[][]	Wall =

@@ -10,7 +10,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// Indices line up with <see cref="AtariConsoleArt.Layout"/>:
 ///   0=transparent  1=Wood  2=WoodLight  3=Body  4=Switch  5=WoodShadow  6=BodyShadow
 /// </summary>
-public sealed record ConsolePalette(
+internal sealed record ConsolePalette(
 	Color Wood,
 	Color WoodLight,
 	Color WoodShadow,

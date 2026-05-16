@@ -9,7 +9,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// Restricted-palette systems (CGA, Apple II) may map several roles to the
 /// same colour — that's the authentic constraint of the hardware.
 /// </summary>
-public sealed record ScenePalette(
+internal sealed record ScenePalette(
 	// ── House facade tones ──────────────────────────────────────────────────
 	Color HouseBeige,		// player home — light/cream
 	Color HouseYellow,		// Sam

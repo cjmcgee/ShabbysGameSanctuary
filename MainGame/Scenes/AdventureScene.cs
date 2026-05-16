@@ -12,7 +12,9 @@ namespace ChildhoodAdventure.Scenes
 	/// rendering so concrete scenes only need to define their map, NPCs, and
 	/// scene-transition logic.
 	/// </summary>
-	public abstract class AdventureScene : Scene
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001",
+		Justification = "Disposable field _pixel is owned by the scene's load/unload lifecycle, not GC.")]
+	internal abstract class AdventureScene : Scene
 	{
 		private Entity? _player;
 		private KeyboardState _prevKeys;
@@ -49,6 +51,8 @@ namespace ChildhoodAdventure.Scenes
 		protected override sealed void OnUnload()
 		{
 			Engine.RenderSystem.LightingSystem.ClearLights();
+			_pixel?.Dispose();
+			_pixel = null;
 			OnSceneUnload();
 		}
 
@@ -299,7 +303,7 @@ namespace ChildhoodAdventure.Scenes
 			if( Engine.DialogueSystem.WaitingForChoice )
 			{
 				var choices = Engine.DialogueSystem.VisibleChoices;
-				for( int i = 0; i < choices.Length; i++ )
+				for( int i = 0; i < choices.Count; i++ )
 				{
 					bool sel		= i == Engine.DialogueSystem.SelectedChoiceIndex;
 					bool enabled	= choices[i].EnabledCondition?.Invoke()	?? true;

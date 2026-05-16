@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public class C64Palette :	Palette
+internal sealed class C64Palette :	Palette
 {
 	// ── Tile palette ───────────────────────────────────────────────────────
 	public static readonly Color Black			= new(  0,   0,   0);	//  0  black       (bg)

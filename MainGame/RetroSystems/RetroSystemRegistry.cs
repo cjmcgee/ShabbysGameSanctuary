@@ -11,7 +11,7 @@ namespace ChildhoodAdventure.RetroSystems;
 /// Switch systems with <see cref="SetSystem(int)"/>; subscribe to
 /// <see cref="SystemChanged"/> to reload visuals on switch.
 /// </summary>
-public static class RetroSystemRegistry
+internal static class RetroSystemRegistry
 {
 	public static readonly RetroSystem[] All =
 	[

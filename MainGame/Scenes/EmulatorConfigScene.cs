@@ -13,7 +13,7 @@ namespace ChildhoodAdventure.Scenes;
 /// (see <see cref="EmulatorConfig.UserConfigPath"/>). C clears the row.
 /// Esc returns to the caller.
 /// </summary>
-public sealed class EmulatorConfigScene :	Scene
+internal sealed class EmulatorConfigScene :	Scene
 {
 	private readonly Func<Scene> _returnTo;
 	private EmulatorConfig _config;
@@ -45,7 +45,7 @@ public sealed class EmulatorConfigScene :	Scene
 		// Manager" row navigates to another scene instead of popping the
 		// native folder dialog. When set, BrowseSelected calls this
 		// instead of running the folder-picker flow; Clear becomes a no-op.
-		public Action<EmulatorConfigScene>? OnSelect =	null;
+		public Action<EmulatorConfigScene>? OnSelect;
 	}
 
 	public EmulatorConfigScene(EmulatorConfig config, Func<Scene> returnTo)
@@ -189,7 +189,7 @@ public sealed class EmulatorConfigScene :	Scene
 		string? start =	!string.IsNullOrEmpty(current) ? current :	null;
 
 		string? picked =	NativeFilePicker.PickFolder(
-			$"Select {row.Label.ToLower()}", start);
+			$"Select {row.Label.ToLowerInvariant()}", start);
 		if (picked == null)	return;	// user cancelled or picker unavailable
 
 		row.Set(_config, picked);
@@ -249,7 +249,7 @@ public sealed class EmulatorConfigScene :	Scene
 
 		// Title
 		string title =	"CONFIGURE EMULATOR PATHS";
-		float titleW =	font.MeasureWidth(title) * titleScale;
+		float titleW =	PixelFont.MeasureWidth(title) * titleScale;
 		font.DrawText(spriteBatch, title,
 			new Vector2((vp.Width - titleW) / 2f, 50),
 			sp.UiAccent, titleScale);
@@ -286,7 +286,7 @@ public sealed class EmulatorConfigScene :	Scene
 		// Status banner (last save/clear result), centred above the footer.
 		if (_statusMessage != null)
 		{
-			float msgW =	font.MeasureWidth(_statusMessage) * hintScale;
+			float msgW =	PixelFont.MeasureWidth(_statusMessage) * hintScale;
 			font.DrawText(spriteBatch, _statusMessage,
 				new Vector2((vp.Width - msgW) / 2f, vp.Height - 110),
 				sp.UiAccent, hintScale);
@@ -301,7 +301,7 @@ public sealed class EmulatorConfigScene :	Scene
 
 		// Footer hint.
 		string footer =	"↑/↓: select   Enter: browse   C: clear   Esc: back";
-		float footerW =	font.MeasureWidth(footer) * hintScale * 1.2f;
+		float footerW =	PixelFont.MeasureWidth(footer) * hintScale * 1.2f;
 		font.DrawText(spriteBatch, footer,
 			new Vector2((vp.Width - footerW) / 2f, vp.Height - 40),
 			sp.UiDim, hintScale * 1.2f);

@@ -6,7 +6,7 @@ namespace ChildhoodAdventure;
 /// directly, like <see cref="BattleshootGame"/>) or an emulated cartridge
 /// loaded by a libretro core.
 /// </summary>
-public sealed class GameEntry
+internal sealed class GameEntry
 {
 	public string	Id { get; }
 	public string	Name { get; }
@@ -39,7 +39,7 @@ public sealed class GameEntry
 /// at construction time if the core or ROM file can't be found, so the
 /// menu can grey them out instead of crashing on launch.
 /// </summary>
-public sealed class GameLibrary
+internal sealed class GameLibrary
 {
 	private static (string Name, long Size, string HashSHA256Hex)[] _neededRoms = 
 		[	("Adventure", 				 4096, "b0326b45e5cab066b2d03f1e683708d82de3ffe60b2e968bf88c5494237f0a96"),
@@ -145,7 +145,7 @@ public sealed class GameLibrary
 			var catalogEntry =	ScoreCatalog.Instance.LookupBySha256(sha256);
 
 			games.Add( new GameEntry(
-				id:					title.ToLowerInvariant().Replace( ' ', '_' ),
+				id:					title.ToUpperInvariant().Replace( ' ', '_' ),
 				name:				title,
 				isEmulated:			true,
 				factory:			() =>	BuildEmulatedMiniGame(
@@ -165,6 +165,8 @@ public sealed class GameLibrary
 	// Failures here must NOT prevent the mini-game from running — high-
 	// score tracking is best-effort. If the formula parses fine it gets
 	// wired up; if it doesn't, we log and proceed without scoring.
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
+		Justification = "ScoreMonitor ownership transfers to the LibretroMiniGame via AttachTo.")]
 	private static LibretroMiniGame BuildEmulatedMiniGame(
 		string corePath,
 		string romPath,

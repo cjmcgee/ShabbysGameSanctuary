@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
-public static partial class Atari2600Sprites
+internal static partial class Atari2600Sprites
 {
 	public const int HeadRows =	5;
 

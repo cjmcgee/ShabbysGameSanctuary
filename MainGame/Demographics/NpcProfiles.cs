@@ -12,7 +12,7 @@ namespace ChildhoodAdventure.Demographics;
 /// pass the optional <c>adultHeightInches</c> argument to its
 /// <see cref="NpcProfile"/> constructor.
 /// </summary>
-public static class NpcProfiles
+internal static class NpcProfiles
 {
 	private static readonly Dictionary<string,	NpcProfile>	Table =	new()
 	{

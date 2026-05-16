@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public static partial class AppleIISprites
+internal static partial class AppleIISprites
 {
 	public const int HeadRows =	4;
 

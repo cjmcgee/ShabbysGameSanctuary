@@ -298,7 +298,7 @@ namespace TileEngine.MiniGames.Libretro
 			if (ptr == IntPtr.Zero || size == UIntPtr.Zero)	return;
 
 			_systemRamPtr =	ptr;
-			_systemRamSize =	(uint)size;	// A2600 = 128; safe to narrow
+			_systemRamSize =	checked((uint)size);	// A2600 = 128; safe to narrow
 		}
 
 		// ── IDisposable ─────────────────────────────────────────────────────
@@ -441,7 +441,7 @@ namespace TileEngine.MiniGames.Libretro
 		private void HandleAudioSample(short left, short right)	=>	OnAudioSample?.Invoke(left, right);
 
 		private UIntPtr HandleAudioBatch(IntPtr data, UIntPtr frames)	=>
-			(UIntPtr)(OnAudioBatch?.Invoke(data, frames.ToUInt64()) ?? frames.ToUInt64());
+			checked((UIntPtr)(OnAudioBatch?.Invoke(data, frames.ToUInt64()) ?? frames.ToUInt64()));
 
 		private void HandleInputPoll()	=>	OnInputPoll?.Invoke();
 

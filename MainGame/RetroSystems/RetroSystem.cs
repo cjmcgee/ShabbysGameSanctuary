@@ -27,7 +27,7 @@ namespace ChildhoodAdventure.RetroSystems;
 ///   Legs:  0=transparent  1=Skin(bare)  2=Pants  3=PantsHighlight  4=Belt
 ///          5=BeltHighlight  6=Shoes  7=ShoeHighlight
 /// </summary>
-public abstract class RetroSystem
+internal abstract class RetroSystem
 {
 	// ── Identity ─────────────────────────────────────────────────────────────
 
@@ -213,6 +213,8 @@ public abstract class RetroSystem
 	/// </summary>
 	public const byte TransparentIndex = 254;
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
+		Justification = "Texture ownership transfers to the returned Tileset.")]
 	public Tileset BuildTileset(
 		GraphicsDevice	gd,
 		string			name,
@@ -329,6 +331,8 @@ public abstract class RetroSystem
 		return new Tileset( name, texture, target, target, firstGid );
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
+		Justification = "Texture ownership transfers to the returned AnimatedSprite.")]
 	public AnimatedSprite BuildCharacterSprite( GraphicsDevice gd, CharacterAppearance a )
 	{
 		var hp = HeadPalettes[(int)a.HeadPaletteIndex];

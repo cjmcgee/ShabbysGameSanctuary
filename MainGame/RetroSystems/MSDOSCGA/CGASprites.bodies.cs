@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public static partial class CGASprites
+internal static partial class CGASprites
 {
 	public const int CharWidth	= 16;
 	public const int BodyRows	= 6;

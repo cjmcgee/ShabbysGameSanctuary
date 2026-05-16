@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Atari2600;
 
-public static partial class Atari2600Tiles
+internal static partial class Atari2600Tiles
 {
 	// Near-white staggered brick wall — horizontal mortar rows (fg=6)
 	// offset joint col 3

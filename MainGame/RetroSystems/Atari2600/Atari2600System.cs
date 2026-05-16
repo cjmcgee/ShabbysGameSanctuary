@@ -14,7 +14,7 @@ namespace ChildhoodAdventure.RetroSystems.Atari2600;
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
-public sealed class Atari2600System :	RetroSystem
+internal sealed class Atari2600System :	RetroSystem
 {
 	public override string	Name				=>	"Atari 2600";
 	public override string	Description			=>	"16-px tiles dbl-wide · 16×16 sprites · 12 tiles tall · 1-bit · 1-color/scanline sprites";

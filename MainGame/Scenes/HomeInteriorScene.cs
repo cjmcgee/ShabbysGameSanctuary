@@ -11,7 +11,7 @@ namespace ChildhoodAdventure.Scenes
 	/// Jamie (younger sibling) on the living room floor.
 	/// Exit: walk to the front door at the bottom-centre of the map.
 	/// </summary>
-	public class HomeInteriorScene : AdventureScene
+	internal sealed class HomeInteriorScene : AdventureScene
 	{
 		// ── Tile GIDs (1-based) ──────────────────────────────────────────────
 		private const int T_WOOD		= 1;	// warm wood floor
@@ -20,8 +20,6 @@ namespace ChildhoodAdventure.Scenes
 		private const int T_WALL		= 4;	// plaster wall
 		private const int T_DOOR		= 5;	// dark-wood front door (walkable)
 		private const int T_FURN		= 6;	// dark furniture (sofa, table, bookshelf)
-		private const int T_COUNTER		= 7;	// light kitchen counter
-		private const int T_WINDOW		= 8;	// window (light blue)
 
 		private const int MapW			= 24;
 		private const int MapH			= 18;

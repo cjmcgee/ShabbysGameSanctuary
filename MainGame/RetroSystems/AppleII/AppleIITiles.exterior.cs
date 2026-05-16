@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public static partial class AppleIITiles
+internal static partial class AppleIITiles
 {
 	// Exterior siding (14×14) — accent (255) body with full-row plank shadows.
 	// Bends the strict "no run of ≥2 same colour" rule for the sake of readable

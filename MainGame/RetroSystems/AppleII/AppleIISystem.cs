@@ -28,7 +28,7 @@ namespace ChildhoodAdventure.RetroSystems.AppleII;
 ///   • Native screen: 280×192 → DefaultTilesTall = 12
 ///   • MaxTilesTall = 24 (~2× zoom out)
 /// </summary>
-public sealed class AppleIISystem :	RetroSystem
+internal sealed class AppleIISystem :	RetroSystem
 {
 	public override string	Name =>				"Apple II";
 	public override string	Description =>		"14-px tiles · 14×14 sprites · 12 tiles tall · Hi-res 6-color w/ NTSC palette rules";

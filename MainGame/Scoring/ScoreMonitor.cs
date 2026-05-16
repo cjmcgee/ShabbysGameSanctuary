@@ -15,7 +15,7 @@ namespace ChildhoodAdventure.Scoring;
 /// <see cref="LibretroMiniGame"/> hooks. After that, the monitor is
 /// driven entirely by callbacks; no explicit ticking needed.
 /// </summary>
-public sealed class ScoreMonitor :	IDisposable
+internal sealed class ScoreMonitor :	IDisposable
 {
 	// Stella runs NTSC at ~60 Hz. Polling every 60 emulated frames gives
 	// us roughly 1 Hz score updates — frequent enough to catch the

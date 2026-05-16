@@ -29,6 +29,10 @@ namespace TileEngine.MiniGames.Libretro
 		private readonly string _systemDirectory;
 
 		private LibretroCore _core =	null!;
+
+		// GraphicsDevice is owned by the host MonoGame Game, not by us — do not dispose.
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213",
+			Justification = "GraphicsDevice is owned by the host MonoGame Game, not by the mini-game.")]
 		private GraphicsDevice _gd =	null!;
 
 		// Latest frame metadata captured during the env callback.
@@ -165,6 +169,8 @@ namespace TileEngine.MiniGames.Libretro
 
 		public void Update(GameTime gameTime, IMiniGameInput input)
 		{
+			ArgumentNullException.ThrowIfNull(gameTime);
+			ArgumentNullException.ThrowIfNull(input);
 			if (input.ExitRequested)	{ _finished =	true; return; }
 			MapKeyboardToJoypad(input);
 
@@ -190,6 +196,7 @@ namespace TileEngine.MiniGames.Libretro
 
 		public void Draw(SpriteBatch spriteBatch, RectangleF viewport)
 		{
+			ArgumentNullException.ThrowIfNull(spriteBatch);
 			if (_frameDirty)	UploadFrame();
 
 			if (_frameTexture == null)	return;

@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public static partial class C64Tiles
+internal static partial class C64Tiles
 {
 	// Parquet — 4 plank rows, each with staggered grain stripe (locals: 1=brown, 2=dark brown)
 	public static readonly byte[][]	WoodFloor =

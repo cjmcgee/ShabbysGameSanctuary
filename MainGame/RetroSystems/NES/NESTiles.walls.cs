@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.NES;
 
-public static partial class NESTiles
+internal static partial class NESTiles
 {
 	public static readonly byte[][]	Wall =
 	[

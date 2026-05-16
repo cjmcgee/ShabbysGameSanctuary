@@ -15,7 +15,7 @@ namespace ChildhoodAdventure.RetroSystems.Commodore64;
 ///   • Double-wide pixels: each logical pixel occupies two adjacent horizontal pixels;
 ///     all odd columns equal the preceding even column.
 /// </summary>
-public sealed class C64System :	RetroSystem
+internal sealed class C64System :	RetroSystem
 {
 	public override string Name					=> "Commodore 64";
 	public override string Description			=> "24-px tiles dbl-wide · 12×21 sprites · 12.5 tiles tall · VIC-II multicolor · 1 global + 3 local / 4 sprite colors";

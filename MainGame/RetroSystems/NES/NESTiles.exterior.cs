@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.NES;
 
-public static partial class NESTiles
+internal static partial class NESTiles
 {
 	// Exterior siding: horizontal planks, accent (255) for the body, DoorBlack
 	// (idx 11) for the plank shadow lines. Per-house tinting comes from the

@@ -1,7 +1,7 @@
 namespace ChildhoodAdventure
 {
 	/// <summary>All houses that can be entered as a neighbor's home.</summary>
-	public enum HouseId 
+	internal enum HouseId
 	{ 
 		Chen, 
 		Devon, 
@@ -18,7 +18,7 @@ namespace ChildhoodAdventure
 	/// Stores spawn positions, current interior target, story flags,
 	/// and the current retro-system index (for scene reloads on system switch).
 	/// </summary>
-	public static class GameState
+	internal static class GameState
 	{
 		// Where the player appears when entering the next scene. All positions are
 		// in tile-space (float). +0.5 puts the entity at the centre of a tile.
@@ -42,7 +42,7 @@ namespace ChildhoodAdventure
 
 		// ── System switching ─────────────────────────────────────────────────
 		// Tracks which scene type is active so a system switch can reload it.
-		public enum SceneType { Home, Neighborhood, NeighborInterior }
+		internal enum SceneType { Home, Neighborhood, NeighborInterior }
 		public static SceneType ActiveScene { get; set; } =	SceneType.Home;
 	}
 }

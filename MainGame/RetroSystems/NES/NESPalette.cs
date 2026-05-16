@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.NES;
 
-public class NESPalette :	Palette
+internal sealed class NESPalette :	Palette
 {
 	// ── Tile palette ───────────────────────────────────────────────────────
 	public static readonly Color DarkBackground	= new( 36,  24,   0);	//  0  dark background

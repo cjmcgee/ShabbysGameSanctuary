@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public static partial class C64Tiles
+internal static partial class C64Tiles
 {
 	// Exterior siding — accent (255) body with global Grey (idx 7) plank
 	// shadow lines. Within C64's 1-global + ≤3-local-colour budget.

@@ -13,7 +13,7 @@ namespace ChildhoodAdventure.Scenes;
 /// Re-resolves after every change so the badges stay in sync with what
 /// the cartridge-select screen will load on return.
 /// </summary>
-public sealed class RomManagerScene :	Scene
+internal sealed class RomManagerScene :	Scene
 {
 	private readonly Func<Scene>	_returnTo;
 	private EmulatorConfig			_config;
@@ -174,7 +174,7 @@ public sealed class RomManagerScene :	Scene
 	// Vertical space in pixels reserved for one row, including the gap.
 	private const float RowHeight =	28f;
 
-	private int VisibleRows()
+	private static int VisibleRows()
 	{
 		var vp =	Engine.GraphicsDevice.Viewport;
 		float available =	vp.Height - HeaderHeight - FooterHeight;
@@ -203,14 +203,14 @@ public sealed class RomManagerScene :	Scene
 
 		// Title
 		string title =	"ROM MANAGER";
-		float titleW =	font.MeasureWidth(title) * titleScale;
+		float titleW =	PixelFont.MeasureWidth(title) * titleScale;
 		font.DrawText(spriteBatch, title,
 			new Vector2((vp.Width - titleW) / 2f, 35),
 			sp.UiAccent, titleScale);
 
 		// Subtitle: tallied counts by resolution category.
 		string subtitle =	BuildSubtitle();
-		float subW =	font.MeasureWidth(subtitle) * hintScale * 1.3f;
+		float subW =	PixelFont.MeasureWidth(subtitle) * hintScale * 1.3f;
 		font.DrawText(spriteBatch, subtitle,
 			new Vector2((vp.Width - subW) / 2f, 35 + titleH + 12),
 			sp.UiDim, hintScale * 1.3f);
@@ -221,8 +221,8 @@ public sealed class RomManagerScene :	Scene
 
 		float listLeft =	50f;
 		float listTop =	HeaderHeight;
-		float badgeW =	font.MeasureWidth("[OVERR]") * rowScale + 10f;
-		float nameW =	font.MeasureWidth(new string('M', 26)) * rowScale;
+		float badgeW =	PixelFont.MeasureWidth("[OVERR]") * rowScale + 10f;
+		float nameW =	PixelFont.MeasureWidth(new string('M', 26)) * rowScale;
 
 		int end =	Math.Min(_matches.Count, _scrollOffset + visible);
 		for (int i = _scrollOffset; i < end; i++)
@@ -292,14 +292,14 @@ public sealed class RomManagerScene :	Scene
 
 		if (_statusMessage != null)
 		{
-			float msgW =	font.MeasureWidth(_statusMessage) * hintScale;
+			float msgW =	PixelFont.MeasureWidth(_statusMessage) * hintScale;
 			font.DrawText(spriteBatch, _statusMessage,
 				new Vector2((vp.Width - msgW) / 2f, vp.Height - 65),
 				sp.UiAccent, hintScale);
 		}
 
 		string footerKeys =	"↑/↓: select   PgUp/PgDn: jump   Enter: browse   C: clear override   F5/R: rescan   Esc: back";
-		float keysW =	font.MeasureWidth(footerKeys) * hintScale;
+		float keysW =	PixelFont.MeasureWidth(footerKeys) * hintScale;
 		font.DrawText(spriteBatch, footerKeys,
 			new Vector2((vp.Width - keysW) / 2f, vp.Height - 35),
 			sp.UiDim, hintScale);
@@ -343,5 +343,5 @@ public sealed class RomManagerScene :	Scene
 	// 8 hex chars is plenty to eyeball-distinguish dumps when comparing
 	// against a known-good source — saves real estate vs the full 64.
 	private static string Short(string hex) =>
-		string.IsNullOrEmpty(hex) ? "—" :	hex.Substring(0, Math.Min(8, hex.Length)) + "…";
+		string.IsNullOrEmpty(hex) ? "—" :	string.Concat(hex.AsSpan(0, Math.Min(8, hex.Length)), "…");
 }

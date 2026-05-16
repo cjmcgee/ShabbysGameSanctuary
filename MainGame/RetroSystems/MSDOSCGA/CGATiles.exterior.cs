@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public static partial class CGATiles
+internal static partial class CGATiles
 {
 	// Exterior siding — accent (255) body with Black (0) plank shadow rows.
 	public static readonly byte[][]	HouseExterior =

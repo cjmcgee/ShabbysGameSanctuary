@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.MSDOSCGA;
 
-public static partial class CGATiles
+internal static partial class CGATiles
 {
 	// Cyan outer border (1), black interior (0), white inner border detail (3)
 	public static readonly byte[][]	Furniture =

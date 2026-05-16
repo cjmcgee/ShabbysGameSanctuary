@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.AppleII;
 
-public static partial class AppleIITiles
+internal static partial class AppleIITiles
 {
 	// White brick faces (3) with dotted blue (5) mortar lines — palette 1 mortar
 	// Real mortar can't be a continuous blue run (would render white), so the

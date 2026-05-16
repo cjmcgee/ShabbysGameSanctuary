@@ -6,7 +6,7 @@ namespace ChildhoodAdventure.Demographics;
 ///   • Men:   mean 69.15 in (5'9"), σ ≈ 2.9 in
 ///   • Women: mean 63.55 in (5'3.5"), σ ≈ 2.5 in
 /// </summary>
-public static class AdultHeightSampler
+internal static class AdultHeightSampler
 {
 	public const float MaleMean	=	69.15f;	// inches
 	public const float MaleStdDev	=	2.9f;

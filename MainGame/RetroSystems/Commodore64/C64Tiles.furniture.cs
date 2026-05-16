@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.Commodore64;
 
-public static partial class C64Tiles
+internal static partial class C64Tiles
 {
 	// Blue furniture — white inner border, two black interior panels (locals: 6=white, 8=blue, 9=black)
 	public static readonly byte[][]	Furniture =

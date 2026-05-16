@@ -1,6 +1,6 @@
 namespace ChildhoodAdventure.RetroSystems.NES;
 
-public static partial class NESSprites
+internal static partial class NESSprites
 {
 	public const int HeadRows =	4;
 

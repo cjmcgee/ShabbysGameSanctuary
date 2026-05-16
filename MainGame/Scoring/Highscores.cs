@@ -5,14 +5,14 @@ namespace ChildhoodAdventure.Scoring;
 /// Serialised to <c>highscores.json</c> next to the emulator config under
 /// the per-user app-data folder.
 /// </summary>
-public sealed class GameScoreRecord
+internal sealed class GameScoreRecord
 {
 	public long Best { get; set; }
 	public string BestAt { get; set; } =	"";
 	public List<SessionScore> Sessions { get; set; } =	new();
 }
 
-public sealed class SessionScore
+internal sealed class SessionScore
 {
 	public long Score { get; set; }
 	public string EndedAt { get; set; } =	"";
@@ -35,9 +35,12 @@ public sealed class SessionScore
 /// <see cref="_byGame"/>. Updates mutate the cache and then re-serialise
 /// — fine for our scale (22 games, low write frequency).
 /// </summary>
-public sealed class Highscores
+internal sealed class Highscores
 {
 	private const int MaxSessionHistory =	100;
+
+	private static readonly JsonSerializerOptions _readOpts =	new() { PropertyNameCaseInsensitive = true };
+	private static readonly JsonSerializerOptions _writeOpts =	new() { WriteIndented = true };
 
 	private readonly object _lock =	new();
 	private readonly string _filePath;
@@ -72,8 +75,7 @@ public sealed class Highscores
 			try
 			{
 				var json =	File.ReadAllText(path);
-				var file =	JsonSerializer.Deserialize<HighscoresFile>(json,
-					new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+				var file =	JsonSerializer.Deserialize<HighscoresFile>(json, _readOpts);
 				if (file?.Scores != null)	loaded =	file.Scores;
 				Log.Info("Highscores", $"Loaded {loaded.Count} game record(s) from {path}.");
 			}
@@ -169,8 +171,7 @@ public sealed class Highscores
 				Version =	1,
 				Scores =	_byGame,
 			};
-			var json =	JsonSerializer.Serialize(payload,
-				new JsonSerializerOptions { WriteIndented = true });
+			var json =	JsonSerializer.Serialize(payload, _writeOpts);
 
 			// Atomic write: tmp + rename. On Linux/macOS rename is atomic
 			// within a filesystem; on Windows .NET's File.Move(..., true)
