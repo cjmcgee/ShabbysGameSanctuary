@@ -1,5 +1,20 @@
 # NPCs
 
+## NPC traits
+NPCs have:
+- Home
+- Job
+	- Job schedule / shifts
+- Household NPCs
+- Kin
+- Hobbies / obsessions / interests
+- Organizations
+	- Event participation
+- Church affiliation
+	- Attendance or not
+- Schedule 
+- Life events 
+
 ## NPC types
 The player will age up from the middle of grade school thorough middle school. Three years in Grade school and three in middle school. So all the NPCs will need to age up by six years over this time as well. Life changes will happen over this time period with people moving in and moving away, graduating and going off to college, getting married, having kids, moving the retirment home and passing on. 
 

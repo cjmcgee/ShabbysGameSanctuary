@@ -187,3 +187,33 @@ Money can come from:
 
 ## Exploration unlocks
 Exploring locations can unlock dialog options. Finding items can also unlock dialog options. 
+
+## Time of day sections
+This may need to change... 
+
+School day:
+- Breakfast in house
+- Morning outside before school
+- Lunch / recess
+- After school
+- Dinner 
+- Evening in house
+
+Saturday:
+- Morning
+- Lunch 
+- Afternoon
+- Dinner
+- Evening in house
+
+Sunday:
+- Morning in house
+- Church
+- Lunch
+- Afternoon
+- Dinner
+- Evening in house
+
+Holidays and some events may have a special layout
+
+## NPC Schedules
