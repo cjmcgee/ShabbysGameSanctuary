@@ -255,6 +255,17 @@ internal abstract class RetroSystem
 	/// </summary>
 	protected virtual void OnGraphicsReady(GraphicsDevice gd) { }
 
+	/// <summary>
+	/// Gutter (in pixels) added around every tile cell in the built atlas.
+	/// Without this, point-clamp sampling at non-integer screen scales can
+	/// pick up the first texel of the next tile in the atlas — visible as
+	/// thin vertical/horizontal lines between tiles on screen. The gutter
+	/// gets edge-replicated content from the tile so seamless tiling still
+	/// works at the boundary.
+	/// </summary>
+	private const int AtlasMargin  = 1;
+	private const int AtlasSpacing = 1;
+
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
 		Justification = "Texture ownership transfers to the returned Tileset.")]
 	public Tileset BuildTileset(
@@ -271,8 +282,13 @@ internal abstract class RetroSystem
 
 		int target	=	NativeTilePixels;
 		int count	=	tileTypes.Length;
-		var texture =	new Texture2D( gd, target * count, target );
-		var data	=	new Color[ target * count * target ];
+		int atlasW	=	AtlasMargin * 2 + count * target + Math.Max(0, count - 1) * AtlasSpacing;
+		int atlasH	=	AtlasMargin * 2 + target;
+		var texture =	new Texture2D( gd, atlasW, atlasH );
+		var data	=	new Color[ atlasW * atlasH ];
+
+		int TileX(int i) => AtlasMargin + i * (target + AtlasSpacing);
+		const int tileY = AtlasMargin;
 
 		// Direct-color path: short-circuit the palette pipeline entirely.
 		// Used by systems like WinXP that author tiles as final RGBA.
@@ -281,7 +297,8 @@ internal abstract class RetroSystem
 			var directColors = GetTileColors( tileTypes[i], resolvedAccent );
 			if (directColors is null) continue;
 
-			WriteDirectColorTile( data, target, count, i, directColors, resolvedAccent );
+			WriteDirectColorTile( data, atlasW, TileX(i), tileY, target, directColors, resolvedAccent );
+			ReplicateEdges( data, atlasW, atlasH, TileX(i), tileY, target );
 		}
 
 		// Build a lazy palette only when at least one tile actually needs it.
@@ -308,6 +325,7 @@ internal abstract class RetroSystem
 			int nativeH = pixels.Length;
 			float rx	= target / (float)nativeW;
 			float ry	= target / (float)nativeH;
+			int x0		= TileX(i);
 
 			// 1-bit tile mode: find the first (lowest) non-zero palette index in this
 			// tile's art and use its color as the sole foreground; index 0 stays black.
@@ -390,20 +408,24 @@ internal abstract class RetroSystem
 							pal[0];
 					}
 					
-					data[ty * (target * count) + i * target + tx]	=	c;
+					data[(tileY + ty) * atlasW + (x0 + tx)] = c;
 				}
 			}
+
+			ReplicateEdges( data, atlasW, atlasH, x0, tileY, target );
 		}
 
 		texture.SetData( data );
-		return new Tileset( name, texture, target, target, firstGid );
+		return new Tileset( name, texture, target, target, firstGid,
+			spacing: AtlasSpacing, margin: AtlasMargin );
 	}
 
 	private static void WriteDirectColorTile(
 		Color[]	data,
+		int		atlasW,
+		int		x0,
+		int		y0,
 		int		target,
-		int		count,
-		int		i,
 		Color[][] src,
 		Color	accentColor )
 	{
@@ -424,8 +446,37 @@ internal abstract class RetroSystem
 				{
 					c = accentColor;
 				}
-				data[ty * (target * count) + i * target + tx] = c;
+				data[(y0 + ty) * atlasW + (x0 + tx)] = c;
 			}
+		}
+	}
+
+	/// <summary>
+	/// Copy each edge texel of the tile at (x0,y0)..(x0+target-1, y0+target-1)
+	/// into the surrounding 1-pixel gutter so that point-clamp sampling at a
+	/// non-integer screen scale picks up a duplicate of the edge instead of
+	/// whatever pixel happens to live in the next tile slot.
+	/// </summary>
+	private static void ReplicateEdges(Color[] data, int atlasW, int atlasH,
+		int x0, int y0, int target)
+	{
+		int x1 = x0 + target - 1;
+		int y1 = y0 + target - 1;
+
+		// Left / right gutter columns (mirror each row's edge texel).
+		for (int y = y0; y <= y1; y++)
+		{
+			if (x0 - 1 >= 0)        data[y * atlasW + (x0 - 1)]      = data[y * atlasW + x0];
+			if (x1 + 1 < atlasW)    data[y * atlasW + (x1 + 1)]      = data[y * atlasW + x1];
+		}
+		// Top / bottom gutter rows (mirror each column's edge texel) — INCLUDE
+		// the two corner gutter pixels by extending one past x0..x1 on each side.
+		for (int x = x0 - 1; x <= x1 + 1; x++)
+		{
+			if (x < 0 || x >= atlasW) continue;
+			int srcX = Math.Clamp(x, x0, x1);
+			if (y0 - 1 >= 0)        data[(y0 - 1) * atlasW + x]      = data[y0 * atlasW + srcX];
+			if (y1 + 1 < atlasH)    data[(y1 + 1) * atlasW + x]      = data[y1 * atlasW + srcX];
 		}
 	}
 
