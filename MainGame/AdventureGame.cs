@@ -117,7 +117,7 @@ namespace ChildhoodAdventure
 					&& scene is not EmulatorConfigScene
 					&& scene is not RomManagerScene ) { Exit(); }
 
-				// F1-F5: switch retro system and reload current scene
+				// F1-F6: switch retro system and reload current scene
 				HandleSystemSwitch( keys );
 
 				// Scroll wheel: zoom camera in/out
@@ -170,6 +170,7 @@ namespace ChildhoodAdventure
 			if( keys.IsKeyDown( Keys.F3 ) && !_prevKeys.IsKeyDown( Keys.F3 )) newIdx = 2;
 			if( keys.IsKeyDown( Keys.F4 ) && !_prevKeys.IsKeyDown( Keys.F4 )) newIdx = 3;
 			if( keys.IsKeyDown( Keys.F5 ) && !_prevKeys.IsKeyDown( Keys.F5 )) newIdx = 4;
+			if( keys.IsKeyDown( Keys.F6 ) && !_prevKeys.IsKeyDown( Keys.F6 )) newIdx = 5;
 
 			if( newIdx.HasValue && newIdx.Value != RetroSystemRegistry.CurrentIndex )
 			{
@@ -198,7 +199,7 @@ namespace ChildhoodAdventure
 
 			string controls = inMiniGame
 				? "WASD/Arrows: Move  |  Space: Fire  |  Tab: Game Select  |  Enter: Game Reset  |  Esc: Exit Game"
-				: "WASD: Move  |  E: Talk  |  Scroll: Zoom  |  F1-F5: Switch System  |  Esc: Quit";
+				: "WASD: Move  |  E: Talk  |  Scroll: Zoom  |  F1-F6: Switch System  |  Esc: Quit";
 
 			Window.Title =
 				$"Childhood Adventure  [{sys.Name}  {sys.Description}]    {controls}";

@@ -101,9 +101,39 @@ internal abstract class RetroSystem
 	protected virtual int MaxSpriteSemanticColors		=> 0;
 
 	// ── Tile art ─────────────────────────────────────────────────────────────
+	//
+	// Two paths are supported. Systems pick whichever fits their authentic
+	// constraint and ignore the other:
+	//
+	//   • Palette + byte-index (Atari/C64/AppleII/CGA/NES). Each tile is a
+	//     byte[][] of indices into <see cref="TilePalette"/>; <c>BuildTileset</c>
+	//     resolves indices to colors at texture-creation time, applying
+	//     hardware-style constraints (1-bit, multicolor, etc).
+	//
+	//   • Direct color (WinXP). The tile is already a Color[][] of final
+	//     RGBA values. Used for systems that want unlimited per-pixel color.
+	//     <c>BuildTileset</c> writes those colors straight to the texture,
+	//     substituting <see cref="Assets.TileSentinels.AccentMarker"/> pixels
+	//     for the per-build accent color.
+	//
+	// A system implementing the direct-color path leaves TilePalette/
+	// GetTilePixels as their default throwing implementations and overrides
+	// GetTileColors instead.
 
-	protected abstract Palette	TilePalette { get; }
-	protected abstract byte[][]	GetTilePixels( TileType tileType, Color accentColor );
+	protected virtual Palette TilePalette =>
+		throw new NotSupportedException(
+			$"{GetType().Name} uses the direct-color tile path; TilePalette is not used.");
+
+	protected virtual byte[][] GetTilePixels(TileType tileType, Color accentColor) =>
+		throw new NotSupportedException(
+			$"{GetType().Name} uses the direct-color tile path; override GetTileColors instead.");
+
+	/// <summary>
+	/// Direct-color tile art: return final RGBA pixel data for this tile.
+	/// Returning <c>null</c> (the default) means this system uses the
+	/// palette-and-byte-index path via <see cref="GetTilePixels"/> instead.
+	/// </summary>
+	protected virtual Color[][]? GetTileColors(TileType tileType, Color accentColor) => null;
 
 	/// <summary>
 	/// Semantic scene-level colours (per-house tones, door, etc.) drawn from
@@ -190,8 +220,11 @@ internal abstract class RetroSystem
 	/// shape can override this directly; most systems just override
 	/// <see cref="GetConsolePalette"/>.
 	/// </summary>
-	public virtual AnimatedSprite BuildAtariConsoleSprite(GraphicsDevice gd)	=>
-		AtariConsoleArt.Build(gd, GetConsolePalette(), DoubleWidePixels);
+	public virtual AnimatedSprite BuildAtariConsoleSprite(GraphicsDevice gd)
+	{
+		OnGraphicsReady(gd);
+		return AtariConsoleArt.Build(gd, GetConsolePalette(), DoubleWidePixels);
+	}
 
 	// ── Public builders ───────────────────────────────────────────────────────
 
@@ -213,6 +246,15 @@ internal abstract class RetroSystem
 	/// </summary>
 	public const byte TransparentIndex = 254;
 
+	/// <summary>
+	/// Lifecycle hook invoked at the start of every <see cref="BuildTileset"/>
+	/// or <see cref="BuildCharacterSprite"/> call. Systems that defer heavy
+	/// init (e.g. WinXP, which loads PNG sheets off disk) override this to
+	/// take the first opportunity that comes with a live GraphicsDevice.
+	/// Default is a no-op.
+	/// </summary>
+	protected virtual void OnGraphicsReady(GraphicsDevice gd) { }
+
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
 		Justification = "Texture ownership transfers to the returned Tileset.")]
 	public Tileset BuildTileset(
@@ -222,20 +264,46 @@ internal abstract class RetroSystem
 		Color			accentColor = default,
 		int				firstGid = 1 )
 	{
-		var effectivePalette =	new Color[256];
-		TilePalette.Colors.CopyTo(effectivePalette, 0);
-		effectivePalette[AccentIndex] = accentColor ==	default ? 
-			new Color(180, 180, 180) :	
-			accentColor;
+		OnGraphicsReady(gd);
+		Color resolvedAccent = accentColor == default
+			? new Color(180, 180, 180)
+			: accentColor;
 
 		int target	=	NativeTilePixels;
 		int count	=	tileTypes.Length;
 		var texture =	new Texture2D( gd, target * count, target );
 		var data	=	new Color[ target * count * target ];
 
+		// Direct-color path: short-circuit the palette pipeline entirely.
+		// Used by systems like WinXP that author tiles as final RGBA.
+		for (int i = 0; i < count; i++)
+		{
+			var directColors = GetTileColors( tileTypes[i], resolvedAccent );
+			if (directColors is null) continue;
+
+			WriteDirectColorTile( data, target, count, i, directColors, resolvedAccent );
+		}
+
+		// Build a lazy palette only when at least one tile actually needs it.
+		// This avoids touching TilePalette on direct-color systems where it
+		// throws by design.
+		Color[]? effectivePalette = null;
+		Color[] EffectivePalette()
+		{
+			if (effectivePalette is not null) return effectivePalette;
+			effectivePalette = new Color[256];
+			TilePalette.Colors.CopyTo(effectivePalette, 0);
+			effectivePalette[AccentIndex] = resolvedAccent;
+			return effectivePalette;
+		}
+
 		for( int i = 0; i < count; i++ )
 		{
-			var pixels	= GetTilePixels( tileTypes[i], accentColor );
+			if (GetTileColors( tileTypes[i], resolvedAccent ) is not null)
+				continue;	// already written above
+
+			var pal		= EffectivePalette();
+			var pixels	= GetTilePixels( tileTypes[i], resolvedAccent );
 			int nativeW = pixels[0].Length;
 			int nativeH = pixels.Length;
 			float rx	= target / (float)nativeW;
@@ -260,9 +328,9 @@ internal abstract class RetroSystem
 
 				if( minIdx != byte.MaxValue )
 				{
-					oneBitFg = minIdx < effectivePalette.Length ?
-						effectivePalette[minIdx] :	
-						effectivePalette[0];
+					oneBitFg = minIdx < pal.Length ?
+						pal[minIdx] :
+						pal[0];
 				}
 			}
 
@@ -305,21 +373,21 @@ internal abstract class RetroSystem
 					}
 					else if( oneBitFg.HasValue )
 					{
-						c =	idx == 0 ? effectivePalette[0]	: oneBitFg.Value;
+						c =	idx == 0 ? pal[0]	: oneBitFg.Value;
 					}
 					else if( allowedLocalTile != null )
 					{
-						c =	idx == 0 ? 
-							effectivePalette[0] :
-							( idx == (byte)GlobalTileColorIndex || allowedLocalTile.Contains(idx) ? 
-								(idx < effectivePalette.Length ? effectivePalette[idx] : effectivePalette[0]) :	
-								effectivePalette[GlobalTileColorIndex]);
+						c =	idx == 0 ?
+							pal[0] :
+							( idx == (byte)GlobalTileColorIndex || allowedLocalTile.Contains(idx) ?
+								(idx < pal.Length ? pal[idx] : pal[0]) :
+								pal[GlobalTileColorIndex]);
 					}
 					else
 					{
-						c =	idx < effectivePalette.Length ? 
-							effectivePalette[idx] :	
-							effectivePalette[0];
+						c =	idx < pal.Length ?
+							pal[idx] :
+							pal[0];
 					}
 					
 					data[ty * (target * count) + i * target + tx]	=	c;
@@ -331,10 +399,41 @@ internal abstract class RetroSystem
 		return new Tileset( name, texture, target, target, firstGid );
 	}
 
+	private static void WriteDirectColorTile(
+		Color[]	data,
+		int		target,
+		int		count,
+		int		i,
+		Color[][] src,
+		Color	accentColor )
+	{
+		int nativeH = src.Length;
+		int nativeW = src[0].Length;
+		float rx = target / (float)nativeW;
+		float ry = target / (float)nativeH;
+		var marker = Assets.TileSentinels.AccentMarker;
+
+		for( int ty = 0; ty < target; ty++ )
+		{
+			int srcRow = Math.Min((int)(ty / ry), nativeH - 1);
+			for( int tx = 0; tx < target; tx++ )
+			{
+				int srcCol = Math.Min((int)(tx / rx), nativeW - 1);
+				Color c = src[srcRow][srcCol];
+				if( c.R == marker.R && c.G == marker.G && c.B == marker.B && c.A == marker.A )
+				{
+					c = accentColor;
+				}
+				data[ty * (target * count) + i * target + tx] = c;
+			}
+		}
+	}
+
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000",
 		Justification = "Texture ownership transfers to the returned AnimatedSprite.")]
 	public AnimatedSprite BuildCharacterSprite( GraphicsDevice gd, CharacterAppearance a )
 	{
+		OnGraphicsReady(gd);
 		var hp = HeadPalettes[(int)a.HeadPaletteIndex];
 		var bp = BodyPalettes[(int)a.BodyPaletteIndex];
 		var lp = LegsPalettes[(int)a.LegsPaletteIndex];

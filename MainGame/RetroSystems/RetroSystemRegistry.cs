@@ -3,6 +3,7 @@ using ChildhoodAdventure.RetroSystems.Commodore64;
 using ChildhoodAdventure.RetroSystems.AppleII;
 using ChildhoodAdventure.RetroSystems.MSDOSCGA;
 using ChildhoodAdventure.RetroSystems.NES;
+using ChildhoodAdventure.RetroSystems.WinXP;
 
 namespace ChildhoodAdventure.RetroSystems;
 
@@ -20,6 +21,7 @@ internal static class RetroSystemRegistry
 		new AppleIISystem(),
 		new CGASystem(),
 		new NESSystem(),
+		new WinXPSystem(),
 	];
 
 	public static RetroSystem Current { get; private set; } = All[4];	// default: NES
