@@ -1,0 +1,58 @@
+{
+  "Sheet": "WinXPBodies.png",
+  "PartWidth": 16,
+  "PartHeight": 12,
+  "Variants": [
+    {
+      "Front": {
+        "X": 0,
+        "Y": 0,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 0,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 0,
+        "Frames": 1
+      }
+    },
+    {
+      "Front": {
+        "X": 0,
+        "Y": 12,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 12,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 12,
+        "Frames": 1
+      }
+    },
+    {
+      "Front": {
+        "X": 0,
+        "Y": 24,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 24,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 24,
+        "Frames": 1
+      }
+    }
+  ]
+}

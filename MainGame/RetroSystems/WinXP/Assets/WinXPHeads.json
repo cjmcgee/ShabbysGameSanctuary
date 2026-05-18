@@ -1,0 +1,58 @@
+{
+  "Sheet": "WinXPHeads.png",
+  "PartWidth": 16,
+  "PartHeight": 8,
+  "Variants": [
+    {
+      "Front": {
+        "X": 0,
+        "Y": 0,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 0,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 0,
+        "Frames": 1
+      }
+    },
+    {
+      "Front": {
+        "X": 0,
+        "Y": 8,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 8,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 8,
+        "Frames": 1
+      }
+    },
+    {
+      "Front": {
+        "X": 0,
+        "Y": 16,
+        "Frames": 1
+      },
+      "Back": {
+        "X": 16,
+        "Y": 16,
+        "Frames": 1
+      },
+      "Side": {
+        "X": 32,
+        "Y": 16,
+        "Frames": 1
+      }
+    }
+  ]
+}

@@ -5,15 +5,15 @@ namespace ChildhoodAdventure.RetroSystems.WinXP;
 /// <summary>
 /// Modern direct-color retro system — no palette, no hardware-style
 /// constraints. Tile art is 32×32 RGBA cells; character sprites are 16×32
-/// total (8/12/12 rows of head/body/legs). All assets come from on-disk
-/// JSON + PNG files loaded through <see cref="AssetLoader"/>; if those files
-/// aren't present the system invokes <see cref="WinXPAssetSeed"/> to write a
-/// procedural baseline once.
+/// total (8/12/12 rows of head/body/legs). All assets come from the on-disk
+/// JSON + PNG files under <c>RetroSystems/WinXP/Assets/</c>, which the
+/// csproj copies next to the running executable; the loader resolves them
+/// relative to <see cref="AppContext.BaseDirectory"/>.
 ///
-/// The graphics-device dependent state (tile arrays, sprite parts) is loaded
-/// lazily on first use through <see cref="EnsureLoaded"/> because the retro
-/// systems are constructed at static-init time, long before MonoGame creates
-/// a <see cref="GraphicsDevice"/>.
+/// Graphics-device dependent state (tile arrays, sprite parts) is loaded
+/// lazily on first use through <see cref="OnGraphicsReady"/> because the
+/// retro systems are constructed at static-init time, long before MonoGame
+/// creates a <see cref="GraphicsDevice"/>.
 /// </summary>
 internal sealed class WinXPSystem : RetroSystem
 {
@@ -23,8 +23,8 @@ internal sealed class WinXPSystem : RetroSystem
 	public override float	DefaultTilesTall	=> 16f;	// 1920×1080 ⇒ 60×33.75 tiles, 1080/16 ≈ 67 screen-px per tile
 	public override float	MaxTilesTall		=> 32f;
 
-	// Lazily-loaded asset bundles. Both depend on a live GraphicsDevice, which
-	// the registry doesn't have at construction time — see EnsureLoaded.
+	// Lazily-loaded asset bundles. Both depend on a live GraphicsDevice,
+	// which the registry doesn't have at construction time.
 	private Dictionary<string, Color[][]>? _tiles;
 	private WinXPSprites? _sprites;
 
@@ -32,14 +32,15 @@ internal sealed class WinXPSystem : RetroSystem
 	{
 		if (_tiles is not null && _sprites is not null) return;
 		var dir = ResolveAssetDir();
-		WinXPAssetSeed.EnsureSeeded(dir);
 		_tiles ??= AssetLoader.LoadTileSheet(gd, Path.Combine(dir, "WinXPTiles.json"));
 		_sprites ??= new WinXPSprites(gd, dir);
 	}
 
 	/// <summary>
-	/// Asset directory next to the running executable. Files are seeded once,
-	/// after which they live as ordinary PNG/JSON the user can hand-edit.
+	/// Asset directory next to the running executable. Files come from the
+	/// repo's <c>ChildhoodAdventure/RetroSystems/WinXP/Assets/</c> folder via
+	/// the csproj <c>Content</c> copy rule; designers can hand-edit any PNG
+	/// or JSON in place.
 	/// </summary>
 	private static string ResolveAssetDir() =>
 		Path.Combine(AppContext.BaseDirectory, "RetroSystems", "WinXP", "Assets");

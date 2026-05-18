@@ -1,9 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ChildhoodAdventure.RetroSystems.Assets;
 
 // ── JSON shapes ──────────────────────────────────────────────────────────────
 // These records mirror the on-disk JSON manifest files that describe each
 // tile-sheet or sprite-sheet PNG (size, layout, named slots). All fields are
 // nullable / defaulted so partial manifests still deserialize cleanly.
+//
+// CA1812 fires on each one because the analyzer can't see that
+// JsonSerializer.Deserialize<T>() reflects them into existence; suppress per
+// class rather than refactoring to records, since records' positional ctor
+// pattern doesn't fit the optional-everything manifest shape.
 
 /// <summary>
 /// Manifest for a tile sheet PNG. The PNG is sliced into a grid of cells of
@@ -11,6 +18,7 @@ namespace ChildhoodAdventure.RetroSystems.Assets;
 /// <see cref="Tiles"/> picks one cell by (column, row) or by absolute (x, y)
 /// pixel offset. The tile-name strings match <see cref="TileType"/> enum names.
 /// </summary>
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by JsonSerializer.Deserialize")]
 internal sealed class TileSheetManifest
 {
 	/// <summary>PNG (or other supported image) file, relative to the manifest's directory.</summary>
@@ -32,6 +40,7 @@ internal sealed class TileSheetManifest
 /// units — or (X, Y) in pixels may be supplied; pixel coordinates win when
 /// both are non-zero.
 /// </summary>
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by JsonSerializer.Deserialize")]
 internal sealed class TileCell
 {
 	public int Col { get; set; }
@@ -51,6 +60,7 @@ internal sealed class TileCell
 /// character every time the runtime picks a new HeadPalette/BodyPalette/
 /// LegsPalette.
 /// </summary>
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by JsonSerializer.Deserialize")]
 internal sealed class SpriteSheetManifest
 {
 	public string Sheet { get; set; } = "";
@@ -66,6 +76,7 @@ internal sealed class SpriteSheetManifest
 }
 
 /// <summary>One shape variant: front + back + side facings, each with its own frame strip.</summary>
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by JsonSerializer.Deserialize")]
 internal sealed class SpriteVariant
 {
 	public SpritePartLocation Front { get; set; } = new();
@@ -77,6 +88,7 @@ internal sealed class SpriteVariant
 /// Pixel-offset location of one facing's frame strip on the sheet, plus the
 /// frame count (frames are laid out horizontally, left-to-right).
 /// </summary>
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by JsonSerializer.Deserialize")]
 internal sealed class SpritePartLocation
 {
 	public int X { get; set; }
