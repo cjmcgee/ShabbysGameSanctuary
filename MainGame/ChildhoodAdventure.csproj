@@ -14,16 +14,41 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
   </ItemGroup>
 
-  <!-- ── Per-system asset files ───────────────────────────────────────────
-       JSON manifests + PNG sheets that retro systems load at runtime via
-       AssetLoader. Any file dropped under RetroSystems/*/Assets/ gets
-       copied next to the executable, keeping its sub-path so the loader's
-       directory probe (AppContext.BaseDirectory/RetroSystems/.../Assets/)
-       finds it. Empty match is fine — the WinXP system seeds the same
-       location on first run when no source files exist yet. -->
+  <!-- ── WinXP asset bundle ───────────────────────────────────────────────
+       The WinXP system's PNG + JSON assets are packed into a single
+       renamed zip (data.dat) so the raw files don't ship loose. The
+       MSBuild ZipDirectory task gives an incremental bundle for free
+       (Inputs/Outputs lets it skip when no asset changed).
+
+       data.dat ends up at the root of the publish output, which is also
+       what the NSIS installer's File /r sweep picks up. The runtime
+       loader (ZipAssetSource) treats it as a normal zip — the extension
+       just keeps it less obvious in a casual file-browse. -->
+  <PropertyGroup>
+    <_WinXPAssetsDir>$(MSBuildProjectDirectory)/RetroSystems/WinXP/Assets</_WinXPAssetsDir>
+    <_DataBundlePath>$(MSBuildProjectDirectory)/obj/data.dat</_DataBundlePath>
+  </PropertyGroup>
   <ItemGroup>
-    <Content Include="RetroSystems\**\Assets\**\*.json" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="RetroSystems\**\Assets\**\*.png"  CopyToOutputDirectory="PreserveNewest" />
+    <_WinXPAsset Include="$(_WinXPAssetsDir)/*.json;$(_WinXPAssetsDir)/*.png" />
+  </ItemGroup>
+  <Target Name="BundleWinXPAssets"
+          BeforeTargets="AssignTargetPaths"
+          Inputs="@(_WinXPAsset)"
+          Outputs="$(_DataBundlePath)"
+          Condition="'@(_WinXPAsset->Count())' != '0'">
+    <MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
+    <Delete Files="$(_DataBundlePath)" />
+    <ZipDirectory SourceDirectory="$(_WinXPAssetsDir)"
+                  DestinationFile="$(_DataBundlePath)"
+                  Overwrite="true" />
+    <Message Importance="high" Text="WinXP asset bundle → $(_DataBundlePath)" />
+  </Target>
+  <ItemGroup>
+    <None Include="$(_DataBundlePath)"
+          Condition="Exists('$(_DataBundlePath)')"
+          Link="data.dat"
+          CopyToOutputDirectory="PreserveNewest"
+          Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -27,11 +27,11 @@ internal sealed class WinXPSprites
 	public int BodyRows { get; }
 	public int LegsRows { get; }
 
-	public WinXPSprites(GraphicsDevice gd, string assetDir)
+	public WinXPSprites(GraphicsDevice gd, IAssetSource source)
 	{
-		var heads = AssetLoader.LoadSpriteSheet(gd, Path.Combine(assetDir, "WinXPHeads.json"));
-		var bodies = AssetLoader.LoadSpriteSheet(gd, Path.Combine(assetDir, "WinXPBodies.json"));
-		var legs = AssetLoader.LoadSpriteSheet(gd, Path.Combine(assetDir, "WinXPLegs.json"));
+		var heads = AssetLoader.LoadSpriteSheet(gd, source, "WinXPHeads.json");
+		var bodies = AssetLoader.LoadSpriteSheet(gd, source, "WinXPBodies.json");
+		var legs = AssetLoader.LoadSpriteSheet(gd, source, "WinXPLegs.json");
 
 		HeadParts     = heads.Front;
 		HeadPartsBack = heads.Back ?? heads.Front;

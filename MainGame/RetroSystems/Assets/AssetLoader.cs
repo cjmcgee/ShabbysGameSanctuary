@@ -1,13 +1,13 @@
 namespace ChildhoodAdventure.RetroSystems.Assets;
 
 /// <summary>
-/// Loads JSON+PNG asset manifests off disk and decomposes them into the data
-/// shapes the rest of <see cref="RetroSystem"/> expects.
+/// Decodes JSON+PNG asset manifests via an <see cref="IAssetSource"/> and
+/// produces the data shapes the rest of <see cref="RetroSystem"/> expects.
 ///
-/// Currently supports PNG sheets via MonoGame's built-in
-/// <see cref="Texture2D.FromStream"/>. Other image formats (BMP, GIF, WebP)
-/// are intentionally not handled yet; the manifest schema allows them so the
-/// loader can be extended without changing per-system asset files.
+/// All entries within one manifest are looked up by name through the same
+/// source. For the WinXP system that source is a renamed zip archive
+/// (<c>data.dat</c>) packed at build time; the loader doesn't care whether
+/// it's backed by a directory or an archive.
 /// </summary>
 internal static class AssetLoader
 {
@@ -19,29 +19,29 @@ internal static class AssetLoader
 	};
 
 	/// <summary>
-	/// Read a <see cref="TileSheetManifest"/> from disk, load its referenced
-	/// PNG, and return a dictionary mapping tile-name → that tile's pixel data.
+	/// Read a <see cref="TileSheetManifest"/> from <paramref name="source"/>,
+	/// load its referenced PNG (also from <paramref name="source"/>), and
+	/// return a dictionary mapping tile-name → that tile's pixel data.
 	///
 	/// Pixels matching <see cref="TileSentinels.AccentMarker"/> stay as-is in
 	/// the returned array; the per-build accent substitution happens later in
 	/// <see cref="RetroSystem.BuildTileset"/>.
 	/// </summary>
 	public static Dictionary<string, Color[][]> LoadTileSheet(
-		GraphicsDevice gd, string manifestPath)
+		GraphicsDevice gd, IAssetSource source, string manifestName)
 	{
-		var dir = Path.GetDirectoryName(manifestPath) ?? "";
 		var manifest = JsonSerializer.Deserialize<TileSheetManifest>(
-			File.ReadAllText(manifestPath), JsonOpts)
-			?? throw new InvalidDataException($"Empty manifest: {manifestPath}");
+			source.ReadText(manifestName), JsonOpts)
+			?? throw new InvalidDataException($"Empty manifest: {manifestName}");
 
 		int ts = manifest.TileSize;
 		if (ts <= 0)
 		{
 			throw new InvalidDataException(
-				$"{manifestPath}: TileSize must be > 0 (got {ts}).");
+				$"{manifestName}: TileSize must be > 0 (got {ts}).");
 		}
 
-		var sheet = LoadPng(gd, Path.Combine(dir, manifest.Sheet));
+		var sheet = LoadPng(gd, source, manifest.Sheet);
 		try
 		{
 			var all = new Color[sheet.Width * sheet.Height];
@@ -63,31 +63,27 @@ internal static class AssetLoader
 	}
 
 	/// <summary>
-	/// Read a <see cref="SpriteSheetManifest"/> from disk, load its referenced
-	/// PNG, and return both the per-variant parts (front facing) and the
-	/// optional back/side facings. Magic colors in the PNG are converted to
+	/// Read a <see cref="SpriteSheetManifest"/> from <paramref name="source"/>,
+	/// load its referenced PNG, and return the per-variant parts (with
+	/// optional back/side facings). Magic colors in the PNG are converted to
 	/// the semantic indices documented on <see cref="SemanticPalette"/>.
-	///
-	/// The returned arrays are shaped as <c>byte[variant][frame][row][col]</c>
-	/// to match <see cref="RetroSystem.HeadParts"/> &amp; friends.
 	/// </summary>
 	public static SpriteSheetData LoadSpriteSheet(
-		GraphicsDevice gd, string manifestPath)
+		GraphicsDevice gd, IAssetSource source, string manifestName)
 	{
-		var dir = Path.GetDirectoryName(manifestPath) ?? "";
 		var manifest = JsonSerializer.Deserialize<SpriteSheetManifest>(
-			File.ReadAllText(manifestPath), JsonOpts)
-			?? throw new InvalidDataException($"Empty manifest: {manifestPath}");
+			source.ReadText(manifestName), JsonOpts)
+			?? throw new InvalidDataException($"Empty manifest: {manifestName}");
 
 		int pw = manifest.PartWidth;
 		int ph = manifest.PartHeight;
 		if (pw <= 0 || ph <= 0)
 		{
 			throw new InvalidDataException(
-				$"{manifestPath}: PartWidth/PartHeight must be > 0 (got {pw}×{ph}).");
+				$"{manifestName}: PartWidth/PartHeight must be > 0 (got {pw}×{ph}).");
 		}
 
-		var sheet = LoadPng(gd, Path.Combine(dir, manifest.Sheet));
+		var sheet = LoadPng(gd, source, manifest.Sheet);
 		try
 		{
 			var all = new Color[sheet.Width * sheet.Height];
@@ -123,10 +119,10 @@ internal static class AssetLoader
 		}
 	}
 
-	private static Texture2D LoadPng(GraphicsDevice gd, string path)
+	private static Texture2D LoadPng(GraphicsDevice gd, IAssetSource source, string name)
 	{
-		using var fs = File.OpenRead(path);
-		return Texture2D.FromStream(gd, fs);
+		using var s = source.OpenStream(name);
+		return Texture2D.FromStream(gd, s);
 	}
 
 	private static Color[][] Slice(

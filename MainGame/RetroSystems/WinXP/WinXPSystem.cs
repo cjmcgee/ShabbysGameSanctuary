@@ -5,15 +5,18 @@ namespace ChildhoodAdventure.RetroSystems.WinXP;
 /// <summary>
 /// Modern direct-color retro system — no palette, no hardware-style
 /// constraints. Tile art is 32×32 RGBA cells; character sprites are 16×32
-/// total (8/12/12 rows of head/body/legs). All assets come from the on-disk
-/// JSON + PNG files under <c>RetroSystems/WinXP/Assets/</c>, which the
-/// csproj copies next to the running executable; the loader resolves them
-/// relative to <see cref="AppContext.BaseDirectory"/>.
+/// total (8/12/12 rows of head/body/legs).
+///
+/// Assets ship as a single bundled archive (<see cref="BundleFileName"/>)
+/// next to the executable. The csproj packs <c>RetroSystems/WinXP/Assets/</c>
+/// into that file at build time; raw PNG/JSON aren't shipped, which makes
+/// casual on-disk inspection a little less obvious.
 ///
 /// Graphics-device dependent state (tile arrays, sprite parts) is loaded
 /// lazily on first use through <see cref="OnGraphicsReady"/> because the
 /// retro systems are constructed at static-init time, long before MonoGame
-/// creates a <see cref="GraphicsDevice"/>.
+/// creates a <see cref="GraphicsDevice"/>. The zip stays open for the
+/// process lifetime — small file, all reads are upfront.
 /// </summary>
 internal sealed class WinXPSystem : RetroSystem
 {
@@ -23,6 +26,13 @@ internal sealed class WinXPSystem : RetroSystem
 	public override float	DefaultTilesTall	=> 16f;	// 1920×1080 ⇒ 60×33.75 tiles, 1080/16 ≈ 67 screen-px per tile
 	public override float	MaxTilesTall		=> 32f;
 
+	/// <summary>
+	/// Generic on-disk filename of the bundled asset archive. The file is a
+	/// rename of a standard zip — nothing fancier — but the unusual extension
+	/// keeps it from leaping out as game assets in a casual file-browse.
+	/// </summary>
+	public const string BundleFileName = "data.dat";
+
 	// Lazily-loaded asset bundles. Both depend on a live GraphicsDevice,
 	// which the registry doesn't have at construction time.
 	private Dictionary<string, Color[][]>? _tiles;
@@ -31,19 +41,19 @@ internal sealed class WinXPSystem : RetroSystem
 	protected override void OnGraphicsReady(GraphicsDevice gd)
 	{
 		if (_tiles is not null && _sprites is not null) return;
-		var dir = ResolveAssetDir();
-		_tiles ??= AssetLoader.LoadTileSheet(gd, Path.Combine(dir, "WinXPTiles.json"));
-		_sprites ??= new WinXPSprites(gd, dir);
+		using var source = new ZipAssetSource(ResolveBundlePath());
+		_tiles ??= AssetLoader.LoadTileSheet(gd, source, "WinXPTiles.json");
+		_sprites ??= new WinXPSprites(gd, source);
 	}
 
 	/// <summary>
-	/// Asset directory next to the running executable. Files come from the
-	/// repo's <c>ChildhoodAdventure/RetroSystems/WinXP/Assets/</c> folder via
-	/// the csproj <c>Content</c> copy rule; designers can hand-edit any PNG
-	/// or JSON in place.
+	/// Path of the bundled archive next to the running executable. The csproj
+	/// build target writes it to the project's <c>obj/</c> then copies it
+	/// here as <c>data.dat</c>; the installer picks it up automatically since
+	/// it sits in PublishDir.
 	/// </summary>
-	private static string ResolveAssetDir() =>
-		Path.Combine(AppContext.BaseDirectory, "RetroSystems", "WinXP", "Assets");
+	private static string ResolveBundlePath() =>
+		Path.Combine(AppContext.BaseDirectory, BundleFileName);
 
 	// ── Tile art ────────────────────────────────────────────────────────
 	// Uses the direct-color path: GetTileColors returns final RGBA so the
