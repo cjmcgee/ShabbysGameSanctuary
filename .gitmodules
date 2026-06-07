@@ -1,0 +1,12 @@
+[submodule "TileEngine"]
+	path = TileEngine
+	url = https://github.com/cjmcgee/TileEngine.git
+[submodule "libretro-common"]
+	path = libretro-common
+	url = https://github.com/libretro/libretro-common.git
+[submodule "rcheevos"]
+	path = rcheevos
+	url = https://github.com/RetroAchievements/rcheevos.git
+[submodule "stella"]
+	path = stella
+	url = https://github.com/stella-emu/stella.git
