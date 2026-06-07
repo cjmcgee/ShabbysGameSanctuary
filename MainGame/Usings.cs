@@ -9,4 +9,4 @@ global using Microsoft.Xna.Framework.Graphics;
 global using Microsoft.Xna.Framework.Input;
 global using TileEngine.Core;
 global using TileEngine.MiniGames;
-global using TileEngine.MiniGames.Libretro;
+global using Emulation.Libretro;

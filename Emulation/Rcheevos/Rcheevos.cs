@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using TileEngine.Core;
 
-namespace TileEngine.Rcheevos;
+namespace Emulation.Rcheevos;
 
 /// <summary>
 /// Callback signature for reading game memory during formula evaluation.

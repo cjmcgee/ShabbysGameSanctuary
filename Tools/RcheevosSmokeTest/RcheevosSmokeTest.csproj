@@ -15,7 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\..\TileEngine\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\..\Emulation\Emulation.csproj" />
   </ItemGroup>
 
   <!-- Build the rcheevos shared library and stage it next to our exe so

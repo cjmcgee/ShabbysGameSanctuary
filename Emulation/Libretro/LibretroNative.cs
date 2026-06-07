@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace TileEngine.MiniGames.Libretro
+namespace Emulation.Libretro
 {
 	/// <summary>
 	/// Constants, enums, structs, and delegate types mirroring the relevant

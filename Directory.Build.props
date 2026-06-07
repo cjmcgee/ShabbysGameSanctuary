@@ -6,13 +6,13 @@
 		running ./publish-all.sh — nothing else needs to change.
 
 		What gets the value:
-		  • ChildhoodAdventure.exe and the other shipped .dlls:
+		  • MainGame.exe and the other shipped .dlls:
 		      Properties > Details > File Version    = $(Version).0
 		      Properties > Details > Product Version = $(Version)
 		      (the trailing .0 is Windows showing the 4-part form of a
 		       3-part version; AssemblyVersion + FileVersion are derived
 		       from $(Version) automatically by the .NET SDK)
-		  • setup.exe (built by NSIS in ChildhoodAdventure.csproj):
+		  • setup.exe (built by NSIS in MainGame.csproj):
 		      Properties > Details > File Version    = $(Version).0
 		      Properties > Details > Product Version = $(Version)
 		      (csproj sets InstallerVersion default = $(Version), which

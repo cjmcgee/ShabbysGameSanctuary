@@ -1,5 +1,5 @@
-using TileEngine.MiniGames.Libretro;
-using TileEngine.Rcheevos;
+using Emulation.Libretro;
+using Emulation.Rcheevos;
 
 namespace ChildhoodAdventure.Scoring;
 

@@ -1,4 +1,4 @@
-using TileEngine.MiniGames.Libretro;
+using Emulation.Libretro;
 
 // ─────────────────────────────────────────────────────────────────────────
 // LibretroMemorySmokeTest

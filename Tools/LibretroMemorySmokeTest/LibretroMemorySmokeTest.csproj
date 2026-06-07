@@ -16,7 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\..\TileEngine\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\..\Emulation\Emulation.csproj" />
   </ItemGroup>
 
 </Project>

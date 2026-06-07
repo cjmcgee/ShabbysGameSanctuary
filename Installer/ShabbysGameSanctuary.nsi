@@ -1,13 +1,13 @@
-; ChildhoodAdventure Windows installer
+; ShabbysGameSanctuary Windows installer
 ;
 ; Compile with:
 ;   makensis -DSTAGE_DIR=<absolute path to publish output> \
 ;            -DOUTPUT=<absolute path of .exe to produce> \
 ;            [-DAPP_VERSION=1.0.0]                                  \
-;            Installer/ChildhoodAdventure.nsi
+;            Installer/ShabbysGameSanctuary.nsi
 ;
 ; The MSBuild target BuildWindowsInstaller in
-; ChildhoodAdventure/ChildhoodAdventure.csproj invokes this after a
+; MainGame/MainGame.csproj invokes this after a
 ; win-x64 publish — no manual step needed when using publish-all.sh.
 
 Unicode true
@@ -27,15 +27,15 @@ SetCompressor /SOLID lzma
   !define APP_VERSION "1.0.0"
 !endif
 
-!define APP_NAME       "Childhood Adventure"
-!define APP_PUBLISHER  "Childhood Adventure"
-!define APP_EXE        "ChildhoodAdventure.exe"
-!define APP_REG_KEY    "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChildhoodAdventure"
+!define APP_NAME       "Shabby's Game Sanctuary"
+!define APP_PUBLISHER  "Shabby's Game Sanctuary"
+!define APP_EXE        "MainGame.exe"
+!define APP_REG_KEY    "Software\Microsoft\Windows\CurrentVersion\Uninstall\ShabbysGameSanctuary"
 
 Name      "${APP_NAME} ${APP_VERSION}"
 OutFile   "${OUTPUT}"
-InstallDir "$PROGRAMFILES64\ChildhoodAdventure"
-InstallDirRegKey HKLM "Software\ChildhoodAdventure" "InstallDir"
+InstallDir "$PROGRAMFILES64\ShabbysGameSanctuary"
+InstallDirRegKey HKLM "Software\ShabbysGameSanctuary" "InstallDir"
 RequestExecutionLevel admin
 ShowInstDetails show
 ShowUninstDetails show
@@ -101,8 +101,8 @@ Section "Core game (required)" SecCore
   ; Uninstaller + registry entries (Add/Remove Programs).
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
-  WriteRegStr HKLM "Software\ChildhoodAdventure" "InstallDir"      "$INSTDIR"
-  WriteRegStr HKLM "Software\ChildhoodAdventure" "Version"         "${APP_VERSION}"
+  WriteRegStr HKLM "Software\ShabbysGameSanctuary" "InstallDir"      "$INSTDIR"
+  WriteRegStr HKLM "Software\ShabbysGameSanctuary" "Version"         "${APP_VERSION}"
 
   WriteRegStr HKLM "${APP_REG_KEY}" "DisplayName"     "${APP_NAME}"
   WriteRegStr HKLM "${APP_REG_KEY}" "DisplayVersion"  "${APP_VERSION}"
@@ -156,7 +156,7 @@ FunctionEnd
 Section "Uninstall"
   ; Read the recorded install directory so we don't delete the wrong
   ; folder if a curious user changed the uninstaller's $INSTDIR.
-  ReadRegStr $0 HKLM "Software\ChildhoodAdventure" "InstallDir"
+  ReadRegStr $0 HKLM "Software\ShabbysGameSanctuary" "InstallDir"
   StrCmp $0 "" noInstDir
     StrCpy $INSTDIR $0
   noInstDir:
@@ -172,5 +172,5 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
 
   DeleteRegKey HKLM "${APP_REG_KEY}"
-  DeleteRegKey HKLM "Software\ChildhoodAdventure"
+  DeleteRegKey HKLM "Software\ShabbysGameSanctuary"
 SectionEnd

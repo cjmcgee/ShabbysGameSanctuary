@@ -6,9 +6,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TileEngine.Core;
 using TileEngine.Rendering;
-using static TileEngine.MiniGames.Libretro.LibretroNative;
+using TileEngine.MiniGames;
+using static Emulation.Libretro.LibretroNative;
 
-namespace TileEngine.MiniGames.Libretro
+namespace Emulation.Libretro
 {
 	/// <summary>
 	/// Adapter that lets any libretro core run inside the same

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using static TileEngine.MiniGames.Libretro.LibretroNative;
+using static Emulation.Libretro.LibretroNative;
 
-namespace TileEngine.MiniGames.Libretro
+namespace Emulation.Libretro
 {
 	/// <summary>
 	/// Loads a libretro core shared library at runtime and drives its

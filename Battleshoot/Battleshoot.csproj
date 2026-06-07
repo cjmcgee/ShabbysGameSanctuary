@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TileEngine\TileEngine.csproj" />
+    <ProjectReference Include="..\TileEngine\TileEngine\TileEngine.csproj" />
   </ItemGroup>
 
 </Project>

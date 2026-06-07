@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ChildhoodAdventure</RootNamespace>
-    <AssemblyName>ChildhoodAdventure</AssemblyName>
+    <AssemblyName>MainGame</AssemblyName>
 	<AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 
@@ -52,8 +52,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TileEngine\TileEngine.csproj" />
+    <!-- Engine consumed as a git submodule (../TileEngine is the submodule
+         checkout; the engine project lives one level inside it). -->
+    <ProjectReference Include="..\TileEngine\TileEngine\TileEngine.csproj" />
     <ProjectReference Include="..\Battleshoot\Battleshoot.csproj" />
+    <ProjectReference Include="..\Emulation\Emulation.csproj" />
   </ItemGroup>
 
   <!-- emulator-config.json is no longer shipped next to the executable —
@@ -116,7 +119,7 @@
   <!-- ── rcheevos shared library build ──────────────────────────────────────
        The rcheevos submodule is compiled into librcheevos.{so,dll,dylib}
        and copied next to the exe so the C# P/Invoke wrapper in
-       TileEngine/Rcheevos/Rcheevos.cs can load it. Same gating shape as
+       Emulation/Rcheevos/Rcheevos.cs can load it. Same gating shape as
        Stella: -p:BuildRcheevos=false skips the native build entirely.
 
        Output naming auto-detects from the Makefile based on host OS, and
@@ -162,7 +165,7 @@
        making it a reliable location for the generated artefact.
   -->
   <PropertyGroup>
-    <_YarnBundlerProject>$(MSBuildProjectDirectory)/../Tools/YarnBundler/YarnBundler.csproj</_YarnBundlerProject>
+    <_YarnBundlerProject>$(MSBuildProjectDirectory)/../TileEngine/Tools/YarnBundler/YarnBundler.csproj</_YarnBundlerProject>
     <_YarnDialogueDir>$(MSBuildProjectDirectory)/Dialogue</_YarnDialogueDir>
     <!-- Use the stable obj/ folder — avoids relying on $(IntermediateOutputPath),
          which is not set when top-level PropertyGroups are evaluated. -->
@@ -319,8 +322,8 @@
 
       <_DistDir>$(MSBuildProjectDirectory)/../dist</_DistDir>
       <_StageRoot>$(_DistDir)/_stage</_StageRoot>
-      <_StageDir>$(_StageRoot)/ChildhoodAdventure-$(RuntimeIdentifier)</_StageDir>
-      <_ArchiveBase>$(_DistDir)/ChildhoodAdventure-$(RuntimeIdentifier)</_ArchiveBase>
+      <_StageDir>$(_StageRoot)/ShabbysGameSanctuary-$(RuntimeIdentifier)</_StageDir>
+      <_ArchiveBase>$(_DistDir)/ShabbysGameSanctuary-$(RuntimeIdentifier)</_ArchiveBase>
     </PropertyGroup>
 
     <!-- Stella native library: include if a build for the target RID exists. -->
@@ -363,7 +366,7 @@
                   Overwrite="true" />
     <Exec Condition="!$(RuntimeIdentifier.StartsWith('win'))"
           WorkingDirectory="$(_StageRoot)"
-          Command="tar -czf &quot;$(_ArchiveBase).tar.gz&quot; &quot;ChildhoodAdventure-$(RuntimeIdentifier)&quot;" />
+          Command="tar -czf &quot;$(_ArchiveBase).tar.gz&quot; &quot;ShabbysGameSanctuary-$(RuntimeIdentifier)&quot;" />
 
     <RemoveDir Directories="$(_StageRoot)" />
 
@@ -375,7 +378,7 @@
 
   <!-- ── Windows installer (NSIS) ──────────────────────────────────────────
        Runs after the win-x64 publish and builds an Add/Remove-Programs-
-       registered installer at dist/ChildhoodAdventure-Setup-win-x64.exe.
+       registered installer at dist/ShabbysGameSanctuary.exe.
 
        Sources the file list from PublishDir (which the ArchivePublishedOutput
        target has already augmented with stella_libretro.dll), so the order
@@ -398,8 +401,8 @@
           Condition="'$(RuntimeIdentifier)' == 'win-x64'">
 
     <PropertyGroup>
-      <_NsiScript>$(MSBuildProjectDirectory)/../Installer/ChildhoodAdventure.nsi</_NsiScript>
-      <_InstallerExe>$(MSBuildProjectDirectory)/../dist/ChildhoodAdventure-Setup-win-x64.exe</_InstallerExe>
+      <_NsiScript>$(MSBuildProjectDirectory)/../Installer/ShabbysGameSanctuary.nsi</_NsiScript>
+      <_InstallerExe>$(MSBuildProjectDirectory)/../dist/ShabbysGameSanctuary.exe</_InstallerExe>
     </PropertyGroup>
 
     <Exec Command="makensis -VERSION"

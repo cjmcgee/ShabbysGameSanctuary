@@ -3,7 +3,7 @@ namespace ChildhoodAdventure.Scoring;
 /// <summary>
 /// One entry in <c>AtariScores.json</c>: a game we know how to score,
 /// keyed by ROM SHA-256. <see cref="ScoreFormula"/> is the rcheevos
-/// value expression we'll hand to <see cref="TileEngine.Rcheevos.RcValue.Parse"/>;
+/// value expression we'll hand to <see cref="Emulation.Rcheevos.RcValue.Parse"/>;
 /// null on entries where the RA fetcher couldn't find a usable formula
 /// (e.g. Combat — multiplayer, no high score concept).
 /// </summary>

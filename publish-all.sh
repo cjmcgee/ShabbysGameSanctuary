@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build self-contained release archives of ChildhoodAdventure for both
+# Build self-contained release archives of ShabbysGameSanctuary for both
 # Linux-x64 and Windows-x64. Drops the resulting archives in ./dist/.
 #
 # Usage:  ./publish-all.sh           # both platforms
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT="$REPO_DIR/ChildhoodAdventure/ChildhoodAdventure.csproj"
+PROJECT="$REPO_DIR/MainGame/MainGame.csproj"
 PROPS="$REPO_DIR/Directory.Build.props"
 
 want_linux=1
