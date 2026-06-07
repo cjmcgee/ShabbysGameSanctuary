@@ -5,18 +5,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "C#: ChildhoodAdventure Debug",
-			"type": "dotnet",
-			"request": "launch",
-			"projectPath": "${workspaceFolder}/ChildhoodAdventure.csproj"
-		},
-		{
 			"name": "C#: RaScoreFetcher",
 			"type": "coreclr",
 			"request": "launch",
 			"preLaunchTask": "build",
 			"program": "${workspaceFolder}/Tools/RaScoreFetcher/bin/Debug/RaScoreFetcher.dll",
-			"args": ["--rom-root", "/usr/src/local/TileEngine/TestROMs", "--out", "../../ChildhoodAdventure/AtariScores.json"],
+			"args": ["--rom-root", "/usr/src/local/ROMs/Atari2600/testset", "--out", "../../MainGame/AtariScores.json"],
 			"cwd": "${workspaceFolder}/Tools/RaScoreFetcher/",
 			"console": "internalConsole",
             "stopAtEntry": false,

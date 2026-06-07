@@ -58,7 +58,7 @@ internal sealed class EmulatorConfig
 	/// <summary>
 	/// RomRoot effective value used by <see cref="ResolveRom"/>. If the user
 	/// left RomRoot empty, debug builds fall back to a sibling
-	/// <c>TestROMs/</c> folder (handy for local dev where ROMs live next to
+	/// <c>ROMs/</c> folder (handy for local dev where ROMs live next to
 	/// the repo but aren't checked in). Release builds return empty so the
 	/// menu surfaces the "not set" error rather than searching random dirs.
 	/// </summary>
@@ -68,8 +68,9 @@ internal sealed class EmulatorConfig
 		{
 			if (!string.IsNullOrEmpty(RomRoot))	return RomRoot;
 #if DEBUG
+			// ../../../../../ROMs/Atari2600/testset/
 			return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
-				"..", "..", "..", "..", "..", "TestROMs"));
+				"..", "..", "..", "..", "..", "ROMs", "Atari2600", "testset" ));
 #else
 			return "";
 #endif

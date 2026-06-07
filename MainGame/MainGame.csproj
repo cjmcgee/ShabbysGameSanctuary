@@ -82,6 +82,19 @@
     <_StellaLibretroExt Condition="$([MSBuild]::IsOSPlatform('OSX'))">dylib</_StellaLibretroExt>
     <_StellaLibretroExt Condition="'$(_StellaLibretroExt)' == ''">so</_StellaLibretroExt>
     <_StellaLibretroLib>$(_StellaLibretroDir)/stella_libretro.$(_StellaLibretroExt)</_StellaLibretroLib>
+
+    <!-- Native-build platform tracking.  The host build and the win-x64 cross
+         build (BuildStellaWindowsCore / BuildRcheevosWindowsLib) reuse the same
+         intermediate .o paths but emit incompatible object formats (ELF/Mach-O
+         vs PE/COFF).  Linking objects left over from the other platform fails:
+           dangerous relocation: R_AMD64_IMAGEBASE with __ImageBase undefined
+         We stamp the platform of the last native build into obj/; if the next
+         build targets a different platform we `make clean` first. -->
+    <_NativeHostPlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</_NativeHostPlatform>
+    <_NativeHostPlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_NativeHostPlatform>
+    <_NativeHostPlatform Condition="'$(_NativeHostPlatform)' == ''">linux</_NativeHostPlatform>
+    <_StellaSrcDir>$(_StellaLibretroDir)/../..</_StellaSrcDir>
+    <_StellaAbiStamp>$(MSBuildProjectDirectory)/obj/stella-libretro.platform</_StellaAbiStamp>
   </PropertyGroup>
 
   <!-- Run make in the stella libretro folder. Inputs/Outputs make this
@@ -92,9 +105,36 @@
           Condition="'$(BuildStellaLibretro)' == 'true' AND Exists('$(_StellaLibretroDir)/Makefile')"
           Inputs="$(_StellaLibretroDir)/libretro.cxx;$(_StellaLibretroDir)/Makefile"
           Outputs="$(_StellaLibretroLib)">
+
+    <!-- If the last native build was for a different platform, the .o files in
+         the tree are the wrong object format and the link will fail. Clean
+         first. (Also clean when objects exist but there's no stamp — e.g. a
+         legacy checkout or a hand-run `make` — since we can't prove they match.) -->
+    <PropertyGroup>
+      <_StellaLastPlatform></_StellaLastPlatform>
+      <_StellaLastPlatform Condition="Exists('$(_StellaAbiStamp)')">$([System.IO.File]::ReadAllText('$(_StellaAbiStamp)').Trim())</_StellaLastPlatform>
+    </PropertyGroup>
+    <ItemGroup>
+      <_StellaExistingObj Include="$(_StellaSrcDir)/**/*.o" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_StellaNeedClean>false</_StellaNeedClean>
+      <_StellaNeedClean Condition="'$(_StellaLastPlatform)' != '' AND '$(_StellaLastPlatform)' != '$(_NativeHostPlatform)'">true</_StellaNeedClean>
+      <_StellaNeedClean Condition="'$(_StellaLastPlatform)' == '' AND '@(_StellaExistingObj->Count())' != '0'">true</_StellaNeedClean>
+    </PropertyGroup>
+    <Message Condition="'$(_StellaNeedClean)' == 'true'" Importance="high"
+             Text="Stella native objects are for platform '$(_StellaLastPlatform)' but this build targets '$(_NativeHostPlatform)' — running 'make clean' to avoid an ABI/relocation link error." />
+    <Exec Condition="'$(_StellaNeedClean)' == 'true'"
+          Command="make -C &quot;$(_StellaLibretroDir)&quot; clean"
+          ConsoleToMsBuild="true" />
+
     <Message Importance="high" Text="Building stella libretro core (one-time on first build) ..." />
     <Exec Command="make -j$([System.Environment]::ProcessorCount) -C &quot;$(_StellaLibretroDir)&quot;"
           ConsoleToMsBuild="true" />
+
+    <!-- Record the platform these objects were built for. -->
+    <MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
+    <WriteLinesToFile File="$(_StellaAbiStamp)" Lines="$(_NativeHostPlatform)" Overwrite="true" />
   </Target>
 
   <!-- Copy the built core next to the exe so the frontend finds it at
@@ -135,6 +175,8 @@
     <_RcheevosLibName Condition="'$(_RcheevosExt)' == 'dll'">rcheevos.dll</_RcheevosLibName>
     <_RcheevosLibName Condition="'$(_RcheevosLibName)' == ''">librcheevos.$(_RcheevosExt)</_RcheevosLibName>
     <_RcheevosLib>$(_RcheevosDir)/$(_RcheevosLibName)</_RcheevosLib>
+    <!-- Same host-vs-Windows object-format hazard as Stella; see _StellaAbiStamp. -->
+    <_RcheevosAbiStamp>$(MSBuildProjectDirectory)/obj/rcheevos.platform</_RcheevosAbiStamp>
   </PropertyGroup>
 
   <Target Name="BuildRcheevosNativeLib"
@@ -143,9 +185,33 @@
     <!-- No Inputs/Outputs here: make tracks per-file deps itself, and a
          no-op rebuild costs only the time to stat the .o files. Listing
          every rcheevos .c file as an Input would be brittle on updates. -->
+
+    <!-- Clean first if the prior build was for a different platform (or objects
+         exist with no stamp). Same ABI hazard as BuildStellaLibretroCore. -->
+    <PropertyGroup>
+      <_RcheevosLastPlatform></_RcheevosLastPlatform>
+      <_RcheevosLastPlatform Condition="Exists('$(_RcheevosAbiStamp)')">$([System.IO.File]::ReadAllText('$(_RcheevosAbiStamp)').Trim())</_RcheevosLastPlatform>
+    </PropertyGroup>
+    <ItemGroup>
+      <_RcheevosExistingObj Include="$(_RcheevosDir)/**/*.o" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_RcheevosNeedClean>false</_RcheevosNeedClean>
+      <_RcheevosNeedClean Condition="'$(_RcheevosLastPlatform)' != '' AND '$(_RcheevosLastPlatform)' != '$(_NativeHostPlatform)'">true</_RcheevosNeedClean>
+      <_RcheevosNeedClean Condition="'$(_RcheevosLastPlatform)' == '' AND '@(_RcheevosExistingObj->Count())' != '0'">true</_RcheevosNeedClean>
+    </PropertyGroup>
+    <Message Condition="'$(_RcheevosNeedClean)' == 'true'" Importance="high"
+             Text="rcheevos native objects are for platform '$(_RcheevosLastPlatform)' but this build targets '$(_NativeHostPlatform)' — running 'make clean' to avoid an ABI/relocation link error." />
+    <Exec Condition="'$(_RcheevosNeedClean)' == 'true'"
+          Command="make -C &quot;$(_RcheevosDir)&quot; clean"
+          ConsoleToMsBuild="true" />
+
     <Message Importance="high" Text="Building rcheevos shared library ..." />
     <Exec Command="make -j$([System.Environment]::ProcessorCount) -C &quot;$(_RcheevosDir)&quot;"
           ConsoleToMsBuild="true" />
+
+    <MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
+    <WriteLinesToFile File="$(_RcheevosAbiStamp)" Lines="$(_NativeHostPlatform)" Overwrite="true" />
   </Target>
 
   <ItemGroup Condition="Exists('$(_RcheevosLib)') AND '$(BuildRcheevos)' == 'true'">
@@ -263,6 +329,12 @@
     <Exec Condition="'$(_MingwProbeExit)' == '0'"
           Command="make platform=win CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar -j$([System.Environment]::ProcessorCount) -C &quot;$(_StellaLibretroDir)&quot;"
           ConsoleToMsBuild="true" />
+
+    <!-- The tree now holds Windows (PE/COFF) objects; stamp it so the next
+         native host build knows to clean first. -->
+    <MakeDir Condition="'$(_MingwProbeExit)' == '0'" Directories="$(MSBuildProjectDirectory)/obj" />
+    <WriteLinesToFile Condition="'$(_MingwProbeExit)' == '0'"
+                      File="$(_StellaAbiStamp)" Lines="windows" Overwrite="true" />
   </Target>
 
   <!-- ── Cross-build rcheevos for Windows via mingw-w64 ──────────────────────
@@ -299,6 +371,12 @@
     <Exec Condition="'$(_MingwGccProbeExit)' == '0'"
           Command="make CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar -j$([System.Environment]::ProcessorCount) -C &quot;$(_RcheevosDir)&quot;"
           ConsoleToMsBuild="true" />
+
+    <!-- Tree now holds Windows (PE/COFF) objects; stamp so the next native
+         host build cleans first. -->
+    <MakeDir Condition="'$(_MingwGccProbeExit)' == '0'" Directories="$(MSBuildProjectDirectory)/obj" />
+    <WriteLinesToFile Condition="'$(_MingwGccProbeExit)' == '0'"
+                      File="$(_RcheevosAbiStamp)" Lines="windows" Overwrite="true" />
   </Target>
 
   <!-- ── Post-publish: drop in the RID-matched Stella core, then archive ────

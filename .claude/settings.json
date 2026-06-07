@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /usr/src/local/ShabbysGameSanctuary lfs version)",
+      "Bash(git -C /usr/src/local/ShabbysGameSanctuary remote -v)",
+      "Bash(git -C /usr/src/local/ShabbysGameSanctuary branch -a)",
+      "Bash(git lfs *)",
+      "Bash(awk '{print $NF}')",
+      "Bash(git config *)",
+      "Bash(GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.bareRepository GIT_CONFIG_VALUE_0=all git lfs migrate info --everything --top=15)",
+      "Bash(cd /usr/src/local/ShabbysGameSanctuary; ls MainGame/bin/Debug/net10.0/MainGame.dll 2>/dev/null && echo \"\\(dll present\\)\" || echo \"\\(dll not built yet — path will resolve after first build\\)\"; mkdir -p .vscode && echo \".vscode ready\")",
+      "Bash(git check-ignore *)"
+    ],
+    "additionalDirectories": [
+      "/usr/src/local/ShabbysGameSanctuary"
+    ]
+  }
+}

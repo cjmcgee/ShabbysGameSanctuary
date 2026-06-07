@@ -1,0 +1,19 @@
+{
+	// Debug profile for the MainGame project (MonoGame DesktopGL, net10.0).
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "MainGame (Debug)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build MainGame",
+			"program": "${workspaceFolder}/MainGame/bin/Debug/net10.0/MainGame.dll",
+			"args": [],
+			// Run from the output dir so Content, data.dat and the native
+			// libretro/rcheevos libs copied next to the binary resolve.
+			"cwd": "${workspaceFolder}/MainGame/bin/Debug/net10.0",
+			"console": "internalConsole",
+			"stopAtEntry": false
+		}
+	]
+}
